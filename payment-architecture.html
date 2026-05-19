@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FYNDDS — Payment & Invoice Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#fafafa;color:#222222;line-height:1.7;font-size:14px}
+a{color:#c9a84c;text-decoration:none}
+.container{max-width:900px;margin:0 auto;padding:60px 40px}
+
+/* NAV */
+#main-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(8px);border-bottom:1px solid #e5e5e5;padding:0 40px}
+#main-nav-list{display:flex;gap:0;list-style:none;overflow-x:auto;scrollbar-width:none}
+#main-nav-list::-webkit-scrollbar{display:none}
+#main-nav-list li a{display:block;padding:14px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaaaaa;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+#main-nav-list li a:hover{color:#c9a84c}
+#main-nav-list li a.active{color:#c9a84c;border-bottom-color:#c9a84c}
+
+/* COVER */
+.cover{min-height:100vh;background:linear-gradient(135deg,#f8f8f8 0%,#ffffff 100%);display:flex;flex-direction:column;justify-content:center;padding:80px 60px;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,76,0.10) 0%,transparent 70%);pointer-events:none}
+.cover-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;border:1px solid rgba(201,168,76,0.3);padding:6px 14px;border-radius:2px;margin-bottom:40px}
+.cover-title{font-size:clamp(36px,5vw,64px);font-weight:900;line-height:1.05;letter-spacing:-0.04em;color:#111111;max-width:700px;margin-bottom:24px}
+.cover-title span{color:#c9a84c}
+.cover-line{width:60px;height:3px;background:#c9a84c;margin:28px 0}
+.cover-sub{font-size:13px;color:#888888;max-width:500px;line-height:1.8;margin-bottom:48px}
+.cover-meta{display:flex;gap:40px;flex-wrap:wrap}
+.cover-meta-item{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:#444}
+.cover-meta-item strong{display:block;color:#c9a84c;font-size:13px;font-weight:700;letter-spacing:0;text-transform:none;margin-bottom:2px}
+
+/* LAYOUT */
+.section{margin-bottom:72px}
+.section-label{font-size:9px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#c9a84c;margin-bottom:14px}
+.section-title{font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#111111;line-height:1.1;margin-bottom:8px}
+.section-sub{font-size:13px;color:#999999;margin-bottom:32px;max-width:620px;line-height:1.7}
+.divider{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.2),transparent);margin:72px 0}
+
+/* CARDS */
+.card{background:#f0f0f0;border:1px solid #e5e5e5;border-radius:4px;padding:24px;margin-bottom:10px}
+.card-gold{border-left:3px solid #c9a84c}
+.card-red{border-left:3px solid #e05252}
+.card-green{border-left:3px solid #52c46a}
+.card-blue{border-left:3px solid #5288c4}
+.card-title{font-size:13px;font-weight:800;color:#111111;margin-bottom:6px}
+.card-sub{font-size:12px;color:#888888;line-height:1.7}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* FLOW DIAGRAM */
+.flow{background:#f5f5f5;border:1px solid #e8e8e8;border-radius:4px;padding:24px;margin:16px 0;font-family:'Plus Jakarta Sans',monospace;font-size:12px;overflow-x:auto}
+.flow-title{font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:16px}
+.flow pre{color:#888888;line-height:1.8;white-space:pre}
+.flow .hl{color:#111111;font-weight:700}
+.flow .gold{color:#c9a84c;font-weight:700}
+.flow .red{color:#e05252}
+.flow .green{color:#52c46a}
+.flow .blue{color:#7bafd4}
+
+/* CODE */
+.code-block{background:#ffffff;border:1px solid #e8e8e8;border-left:3px solid #c9a84c;border-radius:0 4px 4px 0;padding:20px 24px;margin:12px 0;font-size:11px;overflow-x:auto}
+.code-block pre{color:#666666;line-height:1.8;white-space:pre}
+.code-block .kw{color:#c9a84c}
+.code-block .str{color:#7ec8a0}
+.code-block .cm{color:#3a3a3a}
+.code-block .fn{color:#7bafd4}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:12px}
+.tbl th{text-align:left;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#aaaaaa;padding:10px 14px;border-bottom:1px solid #e5e5e5}
+.tbl td{padding:10px 14px;border-bottom:1px solid #ededed;color:#666666;vertical-align:top}
+.tbl tr:hover td{background:#f5f5f5}
+.tbl td strong{color:#888888;font-weight:600}
+.tbl .yes{color:#52c46a;font-weight:700}
+.tbl .no{color:#e05252;font-weight:700}
+.tbl .warn{color:#c9a84c;font-weight:700}
+
+/* SCENARIO CARD */
+.scenario{background:#fafafa;border:1px solid #e8e8e8;border-radius:4px;overflow:hidden;margin-bottom:10px}
+.scenario-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:#f0f0f0;border-bottom:1px solid #e8e8e8}
+.scenario-name{font-size:14px;font-weight:800;color:#fff}
+.scenario-tag{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px}
+.tag-easy{background:rgba(82,196,106,0.12);color:#52c46a;border:1px solid rgba(82,196,106,0.3)}
+.tag-medium{background:rgba(201,168,76,0.12);color:#c9a84c;border:1px solid rgba(201,168,76,0.3)}
+.tag-hard{background:rgba(224,82,82,0.12);color:#e05252;border:1px solid rgba(224,82,82,0.3)}
+.scenario-body{padding:16px 20px}
+.scenario-row{display:flex;gap:8px;margin-bottom:6px;font-size:12px}
+.scenario-label{color:#aaaaaa;min-width:100px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding-top:2px}
+.scenario-val{color:#777777;line-height:1.6}
+
+/* DANGER */
+.danger{background:#fff5f5;border:1px solid #fce8e8;border-left:3px solid #e05252;border-radius:0 4px 4px 0;padding:20px 24px;margin-bottom:10px}
+.danger-level{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+.danger-level.critical{color:#e05252}
+.danger-level.high{color:#e08252}
+.danger-level.medium{color:#c9a84c}
+.danger-title{font-size:14px;font-weight:800;color:#111111;margin-bottom:8px}
+.danger-desc{font-size:12px;color:#888888;line-height:1.7;margin-bottom:10px}
+.danger-fix{font-size:11px;color:#52c46a;background:rgba(82,196,106,0.06);border:1px solid rgba(82,196,106,0.15);padding:8px 12px;border-radius:3px}
+
+/* RECOMMENDATION */
+.rec-box{background:linear-gradient(135deg,#fffbf0,#ffffff);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:28px;margin:16px 0}
+.rec-box-title{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:12px}
+.rec-step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.rec-step-num{font-size:11px;font-weight:900;color:#c9a84c;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rec-step-content{font-size:12px;color:#666666;line-height:1.7}
+.rec-step-content strong{color:#888888;display:block;margin-bottom:2px}
+
+/* HIGHLIGHT */
+.highlight{background:#f5f5f5;border:1px solid #e8e8e8;border-left:3px solid #c9a84c;padding:16px 20px;font-size:12px;color:#666666;line-height:1.7;margin:16px 0}
+.highlight strong{color:#fff}
+
+/* BADGE */
+.badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-right:6px;margin-bottom:4px}
+.badge-gold{background:rgba(201,168,76,0.1);color:#c9a84c;border:1px solid rgba(201,168,76,0.3)}
+.badge-green{background:rgba(82,196,106,0.1);color:#52c46a;border:1px solid rgba(82,196,106,0.3)}
+.badge-red{background:rgba(224,82,82,0.1);color:#e05252;border:1px solid rgba(224,82,82,0.3)}
+.badge-gray{background:rgba(100,100,100,0.1);color:#888888;border:1px solid #e0e0e0}
+</style>
+</head>
+<body>
+
+<nav id="main-nav"><ul id="main-nav-list"></ul></nav>
+
+<!-- COVER -->
+<div class="cover" id="cover">
+  <div class="cover-badge">Internes Architekturdokument</div>
+  <div class="cover-title">FYNDDS<br/><span>Payment &</span><br/>Invoice Architecture</div>
+  <div class="cover-line"></div>
+  <div class="cover-sub">Aktueller Stand, Lücken, Lösungen für Multi-Vendor-Checkout, Rechnungsstellung und alle Händler-Szenarien — inkl. Shopify, WooCommerce und Händler ohne Stripe.</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><strong>Stripe Connect</strong>Split Payment</div>
+    <div class="cover-meta-item"><strong>on_behalf_of</strong>Invoice Pattern</div>
+    <div class="cover-meta-item"><strong>6 Szenarien</strong>Händler-Typen</div>
+    <div class="cover-meta-item"><strong>11 Gefahren</strong>Risiko-Matrix</div>
+    <div class="cover-meta-item"><strong>Stand</strong>Mai 2026</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══ 01 AKTUELLER STAND ═══ -->
+<div class="section" id="sec-1">
+  <div class="section-label">01 — Aktueller Stand</div>
+  <h2 class="section-title">Wie es jetzt läuft —<br/><span style="color:#999">erklärt wie einem Kind</span></h2>
+  <p class="section-sub">Was der aktuelle Code macht, was er nicht macht, und wo die Lücken sind.</p>
+
+  <div class="flow">
+    <div class="flow-title">Aktueller Geldfluss (Single-Retailer)</div>
+    <pre>
+  <span class="hl">Kunde</span> gibt Kreditkarte ein (z.B. 52,99 €)
+          │
+          ▼
+  <span class="gold">Stripe Checkout Session</span> (create-checkout Edge Function)
+          │
+          ├── Produktpreis:     50,00 €
+          ├── Rerouting-Fee:     2,99 €
+          │
+          ▼
+  <span class="gold">stripe-webhook</span> feuert → checkout.session.completed
+          │
+          ├──► <span class="green">47,50 € → Händler</span>  (via transfer_data.destination)
+          ├──► <span class="gold"> 1,50 € → FYNDDS</span>  (application_fee, 3% von 50€)
+          └──► <span class="gold"> 2,99 € → FYNDDS</span>  (Rerouting bleibt bei FYNDDS)
+          │
+          ▼
+  <span class="hl">Käufer</span> bekommt: "Zahlung erfolgreich" E-Mail
+  <span class="red">         ABER: Keine echte Rechnung. Nur Stripe-Zahlungsbeleg.</span>
+    </pre>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card card-green">
+      <div class="card-title">✅ Was funktioniert</div>
+      <div class="card-sub">Zahlung einziehen · Geld an Händler überweisen · Platform-Fee einbehalten · Rerouting-Fee einbehalten · SEPA Debit · Idempotency-Check · Asset-Status auf "sold"</div>
+    </div>
+    <div class="card card-red">
+      <div class="card-title">❌ Was fehlt</div>
+      <div class="card-sub">Echte Rechnungen (§14 UStG) · Multi-Vendor-Checkout · Händler ohne Stripe · Rechnungs-Archivierung (GoBD) · Monatliche Händler-Provision-Rechnung · Partial Refund bei Retoure</div>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top:16px">
+    <strong>Das Kernproblem in einem Satz:</strong> Stripe ist eine Zahlungsmaschine — kein Buchhaltungssystem. Stripe gibt dir einen Beleg (wie ein Kassenbon). Eine §14-UStG-konforme Rechnung mit Händler-USt-ID, fortlaufender Nummer und 10-Jahre-Archivierung musst du selbst bauen oder ansteuern.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ 02 MULTI-VENDOR ═══ -->
+<div class="section" id="sec-2">
+  <div class="section-label">02 — Multi-Vendor Checkout</div>
+  <h2 class="section-title">3 Produkte → 3 Händler<br/><span style="color:#999">in einer Zahlung</span></h2>
+  <p class="section-sub">Das aktuelle Problem: Der Code nimmt nur den ersten Händler (<code style="color:#c9a84c">primaryAsset.retailer_id</code>) — alle Auszahlungen gehen an Händler A, auch wenn Produkt 2 von Händler B ist.</p>
+
+  <div class="flow">
+    <div class="flow-title">Lösung: Separate Charges & Transfers (Industrie-Standard)</div>
+    <pre>
+  <span class="hl">Kunde zahlt 1×</span>  (z.B. 187,97 €)
+          │
+          ▼
+  <span class="gold">FYNDDS Stripe-Konto</span>  ← Geld landet KOMPLETT hier
+  (KEIN transfer_data.destination beim Checkout)
+          │
+          ▼
+  <span class="gold">stripe-webhook: checkout.session.completed</span>
+          │
+          ├── Loop über alle Assets im Warenkorb
+          │
+          ├──► <span class="green">Transfer 1</span>: Händler A  →  46,06 €  (49€ - 3% Fee)
+          ├──► <span class="green">Transfer 2</span>: Händler B  →  72,75 €  (75€ - 3% Fee)
+          ├──► <span class="green">Transfer 3</span>: Händler C  →  58,20 €  (60€ - 3% Fee)
+          │
+          ├──► <span class="gold">FYNDDS behält</span>: 5,49 € Provision (3× Fees)
+          └──► <span class="gold">FYNDDS behält</span>: 2,99 € Rerouting (1× pro Checkout)
+    </pre>
+  </div>
+
+  <div class="code-block">
+    <pre><span class="cm">// create-checkout/index.ts — ÄNDERUNG</span>
+<span class="cm">// VORHER (falsch bei Multi-Vendor):</span>
+sessionParams.payment_intent_data = {
+  transfer_data: { destination: <span class="red">primaryAsset.retailer_id</span> },  <span class="cm">// ❌ nur 1 Händler</span>
+}
+
+<span class="cm">// NACHHER (korrekt):</span>
+sessionParams.payment_intent_data = {
+  <span class="cm">// KEIN transfer_data — Geld bleibt bei FYNDDS</span>
+  metadata: {
+    asset_ids: assetIds.<span class="fn">join</span>(<span class="str">","</span>),
+    order_group_id: crypto.<span class="fn">randomUUID</span>(),
+  }
+}
+
+<span class="cm">// stripe-webhook/index.ts — NEU</span>
+<span class="kw">for</span> (<span class="kw">const</span> asset <span class="kw">of</span> cartAssets) {
+  <span class="kw">const</span> fee = <span class="fn">calcFee</span>(asset.current_price);
+  <span class="kw">await</span> stripe.transfers.<span class="fn">create</span>({
+    amount: Math.<span class="fn">round</span>(asset.current_price * 100) - fee,
+    currency: <span class="str">"eur"</span>,
+    destination: asset.retailer.stripe_account_id,
+    source_transaction: chargeId,      <span class="cm">// koppelt an Original-Charge</span>
+    transfer_group: orderGroupId,      <span class="cm">// für Reporting</span>
+    metadata: { asset_id: asset.id },
+  });
+}</pre>
+  </div>
+
+  <div class="card card-gold" style="margin-top:12px">
+    <div class="card-title">DB-Änderung: order_groups Tabelle</div>
+    <div class="card-sub" style="font-family:monospace;font-size:11px;line-height:2">
+      <span style="color:#c9a84c">order_groups</span> (neu) → id, buyer_id, total_amount, stripe_payment_intent_id, created_at<br/>
+      <span style="color:#666">orders</span> → bekommt FK: order_group_id (nullable für Rückwärts-Kompatibilität)<br/>
+      <span style="color:#666">orders</span> → bekommt: stripe_transfer_id, invoice_pdf_url
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ 03 RECHNUNGEN MIT STRIPE ═══ -->
+<div class="section" id="sec-3">
+  <div class="section-label">03 — Rechnungen: Die Stripe-Lösung</div>
+  <h2 class="section-title">on_behalf_of —<br/><span style="color:#999">Rechnung kommt vom Händler</span></h2>
+  <p class="section-sub">Der entscheidende Trick: Mit <code style="color:#c9a84c">on_behalf_of</code> erscheint die Zahlung auf dem Kontoauszug des Käufers unter dem Händler-Namen — nicht unter FYNDDS. Stripe nimmt automatisch die Händler-Daten aus dem Connect-Account.</p>
+
+  <div class="flow">
+    <div class="flow-title">Was Stripe Connect beim Onboarding erfasst (= Rechnungsdaten)</div>
+    <pre>
+  Händler macht Stripe Connect Onboarding:
+          │
+          ├── <span class="green">✅ Firmenname</span>          → geht auf Rechnung
+          ├── <span class="green">✅ Geschäftsadresse</span>    → geht auf Rechnung
+          ├── <span class="green">✅ USt-ID / Steuernummer</span>→ geht auf Rechnung
+          ├── <span class="green">✅ IBAN</span>                → für Auszahlung
+          └── <span class="green">✅ Vertretungsberechtigter</span> → KYC-Pflicht
+
+  → Diese Daten sind in Stripe gespeichert.
+  → Stripe kann damit automatisch Rechnungen ausstellen.
+    </pre>
+  </div>
+
+  <div class="code-block">
+    <pre><span class="cm">// create-checkout — on_behalf_of hinzufügen</span>
+sessionParams.payment_intent_data = {
+  <span class="kw">on_behalf_of</span>: retailerProfile.stripe_account_id,  <span class="cm">// ← NEU</span>
+  transfer_data: {
+    destination: retailerProfile.stripe_account_id,
+    amount: retailerAmountCents,
+  },
+  application_fee_amount: platformFeeCents,
+}
+
+<span class="cm">// Nach dem Checkout: Invoice aus Händler-Account holen</span>
+<span class="kw">const</span> invoice = <span class="kw">await</span> stripe.invoices.<span class="fn">retrieveUpcoming</span>(
+  { customer: customerId },
+  { stripeAccount: retailerProfile.stripe_account_id }  <span class="cm">// ← Händler-Account</span>
+);
+<span class="cm">// → PDF enthält Händler-Name, Adresse, USt-ID</span></pre>
+  </div>
+
+  <div class="grid-3" style="margin-top:16px">
+    <div class="card card-green">
+      <div class="card-title">Rechnung 1: Händler → Käufer</div>
+      <div class="card-sub">Warenwert inkl. 19% USt · Händler-USt-ID drauf · via Stripe Connected Account · PDF automatisch generiert</div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">Rechnung 2: FYNDDS → Käufer</div>
+      <div class="card-sub">Rerouting-Service 2,99 € · FYNDDS USt-ID · Stripe eigenes Konto · Separater Beleg</div>
+    </div>
+    <div class="card card-blue">
+      <div class="card-title">Rechnung 3: FYNDDS → Händler</div>
+      <div class="card-sub">Monatliche Provision · B2B Reverse Charge (AT/CH) · Stripe Invoice monatlich gebündelt · Automatisch via Cron</div>
+    </div>
+  </div>
+
+  <div class="highlight">
+    <strong>Was bleibt noch offen:</strong> GoBD verlangt fortlaufende Rechnungsnummern (RE-2026-0001, RE-2026-0002...) — Stripe generiert eigene IDs, die nicht sequenziell sind. Lösung: Stripe-PDF in Supabase Storage speichern + eigene laufende Nummer draufstempeln (1 Edge Function, ~4 Stunden Arbeit).
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ 04 OHNE STRIPE ═══ -->
+<div class="section" id="sec-4">
+  <div class="section-label">04 — Händler OHNE Stripe Account</div>
+  <h2 class="section-title">Was wenn der Händler<br/><span style="color:#999">nur Shopify hat?</span></h2>
+  <p class="section-sub">Nicht jeder Händler will einen Stripe-Account anlegen. Das ist ein echtes Wachstumsproblem — je einfacher das Onboarding, desto mehr Händler. Hier sind die Lösungen.</p>
+
+  <!-- LÖSUNG A -->
+  <div class="scenario">
+    <div class="scenario-head">
+      <div>
+        <div class="scenario-name">Lösung A: FYNDDS als Merchant of Record (MoR)</div>
+        <div style="font-size:11px;color:#555;margin-top:3px">Händler braucht NUR eine IBAN — kein Stripe, kein Login</div>
+      </div>
+      <div class="scenario-tag tag-easy">Einfachstes Onboarding</div>
+    </div>
+    <div class="scenario-body">
+      <div class="flow" style="margin:0 0 16px 0">
+        <div class="flow-title">Wie es läuft</div>
+        <pre>
+  Händler gibt nur an: <span class="hl">Firmenname + IBAN + USt-ID</span>
+            │
+            ▼
+  <span class="gold">FYNDDS</span> ist rechtlich der Verkäufer (Merchant of Record)
+  FYNDDS stellt die Rechnung aus (auf eigenen Namen)
+  FYNDDS zahlt Händler per <span class="green">SEPA-Überweisung</span> (wöchentlich)
+            │
+  Stripe-Setup: Stripe Payouts aus FYNDDS-Konto → Händler-IBAN
+  (via <span class="blue">Stripe Financial Connections</span> oder manuell)
+        </pre>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="background:#0d0d0d">
+          <div class="card-title" style="color:#52c46a">Pro</div>
+          <div class="card-sub">Händler muss nichts tun außer IBAN angeben · Kein Stripe-Account · Maximale Conversion beim Onboarding · Funktioniert mit Shopify, WooCommerce, SAP, egal</div>
+        </div>
+        <div class="card" style="background:#0d0d0d">
+          <div class="card-title" style="color:#e05252">Con</div>
+          <div class="card-sub">FYNDDS haftet als Verkäufer (mehr rechtliche Verantwortung) · FYNDDS braucht eigene USt-Buchführung pro Händler · Komplexere Steuer-Situation bei AT/CH</div>
+        </div>
+      </div>
+      <div class="danger" style="margin-top:12px">
+        <div class="danger-level high">⚠ Wichtig</div>
+        <div class="danger-desc" style="margin-bottom:0">Als MoR ist FYNDDS umsatzsteuerrechtlich der Verkäufer — d.h. FYNDDS muss die USt abführen, nicht der Händler. Das erfordert klare AGB und saubere Buchhaltung. Empfehlung: Für AT/CH-Händler separat prüfen lassen.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LÖSUNG B -->
+  <div class="scenario">
+    <div class="scenario-head">
+      <div>
+        <div class="scenario-name">Lösung B: Stripe Custom/Express Account — unsichtbar erstellt</div>
+        <div style="font-size:11px;color:#555;margin-top:3px">FYNDDS erstellt Stripe-Account IM HINTERGRUND für den Händler</div>
+      </div>
+      <div class="scenario-tag tag-medium">Mittlerer Aufwand</div>
+    </div>
+    <div class="scenario-body">
+      <div class="flow" style="margin:0 0 16px 0">
+        <div class="flow-title">Wie es läuft</div>
+        <pre>
+  Händler gibt an: Firmenname + IBAN + USt-ID + Personalausweis-Scan
+            │
+            ▼
+  <span class="gold">FYNDDS</span> erstellt Stripe Custom Account im Hintergrund:
+  stripe.accounts.create({ type: <span class="str">"custom"</span>, country: <span class="str">"DE"</span>, ... })
+            │
+            ▼
+  Händler sieht: <span class="hl">NIE ein Stripe-Interface</span>
+  Händler sieht: Nur FYNDDS-Dashboard + Auszahlung auf sein IBAN
+            │
+            ▼
+  Intern: Alle Stripe Connect Features verfügbar (Transfers, Invoices)
+  FYNDDS übernimmt KYC-Verantwortung → <span class="red">höheres Compliance-Risiko</span>
+        </pre>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="background:#0d0d0d">
+          <div class="card-title" style="color:#52c46a">Pro</div>
+          <div class="card-sub">Händler merkt nichts von Stripe · Volle Rechnungs-Automation · Alle Stripe-Features nutzbar · Dasselbe wie Uber/Lyft für Fahrer</div>
+        </div>
+        <div class="card" style="background:#0d0d0d">
+          <div class="card-title" style="color:#e05252">Con</div>
+          <div class="card-sub">FYNDDS übernimmt KYC-Pflicht (AML, Geldwäsche-Check) · Stripe kann FYNDDS-Account einfrieren wenn ein Custom-Account Probleme macht · Mehr Compliance-Aufwand</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LÖSUNG C: SHOPIFY -->
+  <div class="scenario">
+    <div class="scenario-head">
+      <div>
+        <div class="scenario-name">Lösung C: Shopify-Händler — Was wirklich passiert</div>
+        <div style="font-size:11px;color:#555;margin-top:3px">Shopify ist für den Originalkauf — FYNDDS ist für den Reroute-Verkauf. Kein Konflikt.</div>
+      </div>
+      <div class="scenario-tag tag-easy">Kein Problem</div>
+    </div>
+    <div class="scenario-body">
+      <div class="flow" style="margin:0 0 16px 0">
+        <div class="flow-title">Wichtige Erkenntnis: Shopify und FYNDDS überlappen sich NICHT</div>
+        <pre>
+  <span class="hl">Originalkauf</span>: Kunde A kauft bei Händler via Shopify
+                → Shopify verarbeitet Zahlung
+                → FYNDDS: nicht beteiligt ✅
+
+  <span class="hl">Retoure</span>: Kunde A schickt zurück
+                → Händler meldet Retoure via FYNDDS-Webhook
+                → FYNDDS nimmt Asset auf → Status: "listed"
+
+  <span class="hl">Reroute-Verkauf</span>: Kunde B kauft auf FYNDDS Marketplace
+                → <span class="gold">FYNDDS verarbeitet Zahlung</span> (Stripe, komplett)
+                → Händler bekommt Auszahlung von FYNDDS (nicht via Shopify)
+                → Shopify weiß davon nichts → <span class="green">kein Problem</span>
+        </pre>
+      </div>
+      <div class="highlight" style="margin-top:0">
+        <strong>Fazit:</strong> Ein Shopify-Händler braucht für den Reroute-Verkauf keinen Shopify-Integration. Er braucht nur: (1) den FYNDDS Return Webhook, (2) eine IBAN oder einen Stripe-Account für die Auszahlung. Shopify und FYNDDS laufen parallel, nicht zusammen.
+      </div>
+      <div class="card card-gold" style="margin-top:12px">
+        <div class="card-title">Aber: Was wenn Shopify den Rückversand triggert?</div>
+        <div class="card-sub">Shopify hat eigene Return-Flows. Wenn der Händler Shopify-Returns nutzt, muss der FYNDDS-Webhook das abfangen BEVOR Shopify die Retoure einbucht. Das geht via Shopify Webhook → FYNDDS API → FYNDDS intercepted das Paket. Timing-kritisch: FYNDDS-Webhook muss vor der Shopify-Lagereinbuchung feuern.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ 05 ALLE SZENARIEN ═══ -->
+<div class="section" id="sec-5">
+  <div class="section-label">05 — Alle Händler-Szenarien</div>
+  <h2 class="section-title">Vollständige Matrix —<br/><span style="color:#999">Wer kommt, was brauchen wir</span></h2>
+  <p class="section-sub">Jeder Händler-Typ, was er mitbringt, was FYNDDS bauen muss und wie kritisch der Aufwand ist.</p>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Händler-Typ</th>
+        <th>Was er nutzt</th>
+        <th>Stripe nötig?</th>
+        <th>Lösung</th>
+        <th>Aufwand</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Standard DE-Händler</strong></td>
+        <td>Eigener Shop, ERP</td>
+        <td class="yes">Express Account</td>
+        <td>Aktueller Flow + on_behalf_of</td>
+        <td class="yes">✅ Fertig</td>
+      </tr>
+      <tr>
+        <td><strong>Shopify-Händler</strong></td>
+        <td>Shopify / Shopify Payments</td>
+        <td class="warn">Optional</td>
+        <td>Shopify-Webhook → FYNDDS. Zahlung läuft über FYNDDS. Kein Shopify-Eingriff nötig.</td>
+        <td class="warn">⚠ Webhook-Timing</td>
+      </tr>
+      <tr>
+        <td><strong>WooCommerce-Händler</strong></td>
+        <td>WordPress + WooCommerce</td>
+        <td class="warn">Optional</td>
+        <td>WooCommerce Webhook Plugin → FYNDDS API. Gleicher Flow wie Shopify.</td>
+        <td class="warn">⚠ Plugin nötig</td>
+      </tr>
+      <tr>
+        <td><strong>Händler ohne IT</strong></td>
+        <td>Nur IBAN, kein Tech</td>
+        <td class="no">Nein</td>
+        <td>FYNDDS als MoR (Lösung A). Auszahlung per SEPA. Onboarding: 5-Minuten-Formular.</td>
+        <td class="gold">⚡ 1 Tag bauen</td>
+      </tr>
+      <tr>
+        <td><strong>Großhändler / Enterprise</strong></td>
+        <td>SAP, Oracle, Navision</td>
+        <td class="warn">Custom Account</td>
+        <td>API-Integration via SFTP oder REST. Custom Account im Hintergrund erstellt.</td>
+        <td class="no">🔴 Komplex</td>
+      </tr>
+      <tr>
+        <td><strong>Österreich / Schweiz Händler</strong></td>
+        <td>Beliebig</td>
+        <td class="warn">Stripe AT/CH</td>
+        <td>Stripe Connect funktioniert. Achtung: CHF → EUR Konversion, CH kein EU-USt.</td>
+        <td class="warn">⚠ Steuer prüfen</td>
+      </tr>
+      <tr>
+        <td><strong>Markenvertrieb (Nike, Adidas etc.)</strong></td>
+        <td>Eigene Systeme, Legal-Dept.</td>
+        <td class="warn">Enterprise</td>
+        <td>Individuelle Vertragsverhandlung. Eigener Stripe Connect Custom Account.</td>
+        <td class="no">🔴 Langwierig</td>
+      </tr>
+      <tr>
+        <td><strong>Amazon FBA Händler</strong></td>
+        <td>Amazon Seller Central</td>
+        <td class="warn">Optional</td>
+        <td>Amazon Retouren-Webhook → FYNDDS. Auszahlung an Amazon-Konto oder IBAN.</td>
+        <td class="warn">⚠ Amazon API</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight">
+    <strong>Für Launch empfohlen:</strong> Nur Typ 1 (Standard) + Typ 4 (IBAN-only via MoR). Das deckt 80% der realistischen Händler in Phase 1 ab. Alle anderen können post-launch ergänzt werden.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ 06 GEFAHREN ═══ -->
+<div class="section" id="sec-6">
+  <div class="section-label">06 — Potenzielle Gefahren</div>
+  <h2 class="section-title">Was schief gehen kann —<br/><span style="color:#999">Risiko-Matrix</span></h2>
+  <p class="section-sub">Alle realen Szenarien die im laufenden Betrieb auftreten können — mit Schweregrad und Gegenmassnahme.</p>
+
+  <div class="danger">
+    <div class="danger-level critical">🔴 KRITISCH</div>
+    <div class="danger-title">Händler-Insolvenz während laufender Transaktion</div>
+    <div class="danger-desc">Händler geht pleite nachdem Käufer gezahlt hat, aber bevor FYNDDS den Transfer ausführt. Oder: Transfer wurde bereits gemacht, Stripe friert Connect-Account ein. Käufer erwartet Ware, Händler existiert nicht mehr.</div>
+    <div class="danger-fix">✅ Fix: Transfer erst nach Bestätigung der Zustellung ausführen (aktuell ist das teilweise so). Escrow-Logik: Geld bleibt bei FYNDDS bis Paket bestätigt zugestellt. + Händler-Bonität regelmäßig prüfen (Creditreform API).</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level critical">🔴 KRITISCH</div>
+    <div class="danger-title">Doppel-Erstattung: Händler erstattet Kunde A + FYNDDS kassiert von Kunde B</div>
+    <div class="danger-desc">Händler erstattet Originalcustomer A vollständig (wie vorgesehen). Gleichzeitig hat FYNDDS das Produkt an Kunde B verkauft. Händler erhält beide Zahlungen wenn der Code nicht sauber trennt: Originalrückerstattung (Händler→KundeA) und Reroute-Erlös (FYNDDS→Händler) laufen unabhängig.</div>
+    <div class="danger-fix">✅ Fix: Asset-Status-Machine strikt halten. Status "rerouted" sperrt jede weitere Händler-Erstattung über FYNDDS. Vertrag mit Händler: Original-Erstattung ist Händler-Sache, FYNDDS zahlt nur den Reroute-Erlös aus.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level critical">🔴 KRITISCH</div>
+    <div class="danger-title">Stripe Account Freeze (FYNDDS Platform Account)</div>
+    <div class="danger-desc">Stripe kann FYNDDS Hauptkonto einfrieren wenn: ungewöhnliche Transaktionsmuster, viele Chargebacks, Compliance-Verstöße, oder Verdacht auf Geldwäsche. Bei einem Freeze: alle Zahlungen gestoppt, Händler-Auszahlungen unmöglich, Kundenzahlungen schlagen fehl.</div>
+    <div class="danger-fix">✅ Fix: Früh mit Stripe in Kontakt treten (Stripe Partnership). Klare Geschäftsdokumentation. Chargeback-Rate unter 1% halten. Notfallplan: Backup-Payment-Provider (Adyen als Fallback konfiguriert haben).</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level high">🟠 HOCH</div>
+    <div class="danger-title">Gefälschte / gestohlene Ware im Return-Stream</div>
+    <div class="danger-desc">Händler A wird gehackt. Jemand meldet Retouren für gefälschte Nike-Schuhe. Diese werden auf FYNDDS gelistet. Käufer B kauft "Nike" für 80€ — und bekommt eine Fälschung. FYNDDS haftet als Marktplatz potenziell mit.</div>
+    <div class="danger-fix">✅ Fix: Händler-Verifikation beim Onboarding (Handelsregisternummer, Markenvertrag). Nur verifizierte Marken-Händler können Luxus/Sport-Artikel listen. Photo-Verification bei verdächtigen Produkten. AGB: Händler haftet für Echtheit.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level high">🟠 HOCH</div>
+    <div class="danger-title">Chargeback-Betrug durch Käufer</div>
+    <div class="danger-desc">Käufer B kauft Produkt auf FYNDDS, behauptet danach "Zahlung nicht autorisiert" bei seiner Bank → Chargeback. Geld wird zurückgebucht. FYNDDS verliert Geld + hat das Produkt bereits an Händler ausgezahlt. Bei häufigem Auftreten: Stripe hebt Chargeback-Rate-Alarm.</div>
+    <div class="danger-fix">✅ Fix: Stripe Radar (Fraud Detection) aktivieren. 3D Secure für alle Zahlungen erzwingen. Lieferbeweis (DHL Tracking) als Chargeback-Gegenbeweis hinterlegen. Hochrisiko-Kategorien (Elektronik &gt;300€) mit extra Verifizierung.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level high">🟠 HOCH</div>
+    <div class="danger-title">Umsatzsteuer-Probleme bei grenzüberschreitenden Verkäufen (AT/CH)</div>
+    <div class="danger-desc">Österreichischer Händler verkauft über FYNDDS an deutschen Käufer. Wer führt welche USt ab? CH-Händler ist gar kein EU-Mitglied → Einfuhrumsatzsteuer beim Käufer? Bei falscher Behandlung: Nachzahlungen + Bußgelder.</div>
+    <div class="danger-fix">✅ Fix: Für CH-Händler: separate Konditionen, Hinweis auf Einfuhrumsatzsteuer. Für AT: Standard-EU-Regelung, Reverse Charge B2B. Steuerberater für DACH-Varianten konsultieren (einmalig, vor Launch). Taxjar oder Stripe Tax für automatische USt-Berechnung.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level high">🟠 HOCH</div>
+    <div class="danger-title">Timing-Konflikt: Paket unterwegs, Händler hebt Listing auf</div>
+    <div class="danger-desc">Kunde B kauft. Paket ist noch bei DHL. Händler löscht seinen FYNDDS-Account oder ändert Bankdaten. Transfer schlägt fehl. Oder: Händler-Stripe-Account wird deaktiviert zwischen Kauf und Transfer.</div>
+    <div class="danger-fix">✅ Fix: Transfer-Daten beim Kauf einfrieren (snapshot retailer.stripe_account_id in orders-Tabelle). Kontoänderungen erst nach 48h aktiv. Bei fehlgeschlagenem Transfer: automatischer Retry + manuelle Eskalation + Fallback auf SEPA-Payout.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level medium">🟡 MITTEL</div>
+    <div class="danger-title">GoBD-Verstoss: Rechnungsnummern nicht fortlaufend</div>
+    <div class="danger-desc">Das Finanzamt kann bei einer Prüfung die Buchhaltung verwerfen wenn Rechnungsnummern Lücken haben oder nicht sequenziell sind. Stripe generiert eigene IDs (pi_xxx) — diese sind keine GoBD-konformen Rechnungsnummern.</div>
+    <div class="danger-fix">✅ Fix: Eigene Rechnungsnummer-Sequenz in DB führen (invoice_sequences Tabelle: year, counter). Bei jeder Zahlung: counter++ → RE-2026-{counter:05}. Diese Nummer auf die Stripe-PDF stempeln oder in eigenem PDF-Template ausgeben.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level medium">🟡 MITTEL</div>
+    <div class="danger-title">Händler meldet Retoure doppelt (Race Condition)</div>
+    <div class="danger-desc">Händler-System sendet Retoure-Webhook zweimal (z.B. bei Timeout-Retry). Produkt wird zweimal in return_assets angelegt. Oder: Gleiche Tracking-Nummer für zwei verschiedene Produkte.</div>
+    <div class="danger-fix">✅ Fix: Idempotency-Key auf receive-webhook (tracking_number + retailer_id als UNIQUE constraint in return_assets). Bereits vorhanden im Code für create-checkout — gleiches Muster für receive-webhook einbauen.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level medium">🟡 MITTEL</div>
+    <div class="danger-title">Händler ohne vollständige Steuer-Daten ongeboardet</div>
+    <div class="danger-desc">Händler schließt Onboarding ab ohne USt-ID oder mit falscher Steuernummer. Stripe akzeptiert das zunächst (Daten werden erst bei erster Auszahlung vollständig geprüft). Rechnungen die in der Zwischenzeit ausgestellt wurden sind steuerlich ungültig.</div>
+    <div class="danger-fix">✅ Fix: USt-ID-Validierung beim Onboarding erzwingen (EU VAT Validation API — kostenlos, offiziell). Stripe-Account erst aktivieren wenn alle Pflichtfelder inkl. USt-ID validiert. Stripe selbst prüft das teilweise — zusätzliche FYNDDS-Validierung als Sicherheitsnetz.</div>
+  </div>
+
+  <div class="danger">
+    <div class="danger-level medium">🟡 MITTEL</div>
+    <div class="danger-title">Geldwäsche via Return-Loop</div>
+    <div class="danger-desc">Jemand erstellt fake Händler-Account, meldet nie existierende Retouren, kauft das "Produkt" selbst über einen zweiten Account, zieht das Geld via Stripe Connect aus. Klassisches Payment-Laundering-Pattern.</div>
+    <div class="danger-fix">✅ Fix: Stripe Connect KYC ist Pflicht (Stripe prüft das). Zusätzlich: Minimum-Zeit zwischen Listing und Kauf (z.B. 24h). Käufer ≠ Händler (E-Mail + IP-Check). Verdächtige Patterns automatisch flaggen (Käufer kauft nur von einem Händler).</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ 07 EMPFEHLUNG ═══ -->
+<div class="section" id="sec-7">
+  <div class="section-label">07 — Empfohlener Implementierungsplan</div>
+  <h2 class="section-title">Was wir wann bauen —<br/><span style="color:#999">in der richtigen Reihenfolge</span></h2>
+  <p class="section-sub">Priorisiert nach Risiko, Launch-Readiness und Aufwand.</p>
+
+  <div class="rec-box">
+    <div class="rec-box-title">Phase 1 — Vor Launch (1–2 Wochen)</div>
+    <div class="rec-step">
+      <div class="rec-step-num">1</div>
+      <div class="rec-step-content">
+        <strong>on_behalf_of in create-checkout</strong>
+        30 Min. Eine Zeile Code. Sofort: Rechnungen kommen vom Händler, nicht von FYNDDS. Käufer sieht Händler-Name auf Kontoauszug.
+      </div>
+    </div>
+    <div class="rec-step">
+      <div class="rec-step-num">2</div>
+      <div class="rec-step-content">
+        <strong>Stripe Invoice PDF → Supabase Storage → E-Mail</strong>
+        1 Tag. Nach checkout.session.completed: PDF abholen, in Storage speichern, per Resend an Käufer senden. Damit haben 80% der Käufer eine ausreichende Rechnung.
+      </div>
+    </div>
+    <div class="rec-step">
+      <div class="rec-step-num">3</div>
+      <div class="rec-step-content">
+        <strong>Chargeback-Schutz: 3D Secure + DHL-Tracking als Beweis</strong>
+        4 Stunden. Stripe Radar aktivieren. Tracking-URL in Order-Metadata speichern (Chargeback-Gegenbeweis).
+      </div>
+    </div>
+    <div class="rec-step">
+      <div class="rec-step-num">4</div>
+      <div class="rec-step-content">
+        <strong>Händler ohne Stripe: IBAN-Only Onboarding (MoR-Modus)</strong>
+        1 Tag. Neues Feld in Händler-Profil: stripe_account_id ODER iban. Wenn nur IBAN: FYNDDS ist MoR, wöchentliche SEPA-Batch-Auszahlung.
+      </div>
+    </div>
+  </div>
+
+  <div class="rec-box" style="margin-top:12px">
+    <div class="rec-box-title">Phase 2 — Post Launch (Monat 1–2)</div>
+    <div class="rec-step">
+      <div class="rec-step-num">5</div>
+      <div class="rec-step-content">
+        <strong>Multi-Vendor Checkout: order_groups + separate Transfers</strong>
+        2–3 Tage. Neues DB-Schema + Webhook-Orchestrierung. Wichtig aber nicht Day-1-kritisch, da Cart zunächst auf Single-Retailer beschränkt werden kann.
+      </div>
+    </div>
+    <div class="rec-step">
+      <div class="rec-step-num">6</div>
+      <div class="rec-step-content">
+        <strong>GoBD-konforme Rechnungsnummern</strong>
+        4 Stunden. invoice_sequences Tabelle. Sequenzielle Nummer auf PDF stempeln.
+      </div>
+    </div>
+    <div class="rec-step">
+      <div class="rec-step-num">7</div>
+      <div class="rec-step-content">
+        <strong>Monatliche Provisions-Rechnung an Händler</strong>
+        1 Tag. Monatlicher Cron: Stripe Invoice per Händler gebündelt. B2B Reverse Charge für AT/CH.
+      </div>
+    </div>
+  </div>
+
+  <table class="tbl" style="margin-top:24px">
+    <thead>
+      <tr><th>Aufgabe</th><th>Aufwand</th><th>Wann</th><th>Risiko ohne</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>on_behalf_of</strong></td><td class="yes">30 Min</td><td class="yes">Vor Launch</td><td class="warn">Rechnung falsch adressiert</td></tr>
+      <tr><td><strong>PDF → Storage → Mail</strong></td><td class="yes">1 Tag</td><td class="yes">Vor Launch</td><td class="warn">Käufer ohne Rechnung</td></tr>
+      <tr><td><strong>3D Secure + Fraud</strong></td><td class="yes">4h</td><td class="yes">Vor Launch</td><td class="no">Chargeback-Risiko</td></tr>
+      <tr><td><strong>IBAN-Only Onboarding</strong></td><td class="yes">1 Tag</td><td class="yes">Vor Launch</td><td class="warn">Händler-Verlust</td></tr>
+      <tr><td><strong>Multi-Vendor Transfers</strong></td><td class="warn">2–3 Tage</td><td class="gold">Post Launch</td><td class="warn">Cart auf 1 Händler limitiert</td></tr>
+      <tr><td><strong>GoBD Rechnungsnummern</strong></td><td class="yes">4h</td><td class="warn">Monat 1</td><td class="warn">Steuerprüfungs-Risiko</td></tr>
+      <tr><td><strong>Händler-Provisions-Rechnung</strong></td><td class="warn">1 Tag</td><td class="warn">Monat 1–2</td><td class="warn">B2B Buchführungslücke</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<div style="text-align:center;padding:40px 0 60px;border-top:1px solid #1a1a1a;margin-top:20px">
+  <div style="font-size:9px;text-transform:uppercase;letter-spacing:5px;color:#333;margin-bottom:12px">FYNDDS GmbH · Payment & Invoice Architecture · 2026</div>
+  <div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.04em;margin-bottom:8px">fyndds.com</div>
+  <div style="font-size:11px;color:#333">Confidential — intern + Entwickler</div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var labels=document.querySelectorAll('.section>.section-label');
+  var nav=document.getElementById('main-nav-list');
+  var sectionMap=[];
+  labels.forEach(function(lbl,i){
+    var sec=lbl.parentElement;
+    var id='sec-'+(i+1);
+    if(!sec.id)sec.id=id;
+    var text=lbl.textContent.trim().replace(/^\d+\s*[—–]\s*/,'');
+    var li=document.createElement('li');
+    var a=document.createElement('a');
+    a.href='#'+sec.id;a.textContent=text;
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      document.getElementById(sec.id).scrollIntoView({behavior:'smooth'});
+    });
+    li.appendChild(a);nav.appendChild(li);
+    sectionMap.push({id:sec.id,el:sec,link:a});
+  });
+  var coverLink=document.createElement('li');
+  var coverA=document.createElement('a');
+  coverA.href='#cover';coverA.textContent='Übersicht';
+  coverA.addEventListener('click',function(e){e.preventDefault();document.getElementById('cover').scrollIntoView({behavior:'smooth'});});
+  coverLink.appendChild(coverA);nav.insertBefore(coverLink,nav.firstChild);
+
+  window.addEventListener('scroll',function(){
+    var scrollY=window.scrollY+120;
+    sectionMap.forEach(function(s){
+      var top=s.el.getBoundingClientRect().top+window.scrollY;
+      var bot=top+s.el.offsetHeight;
+      if(scrollY>=top&&scrollY<bot){s.link.classList.add('active');}
+      else{s.link.classList.remove('active');}
+    });
+  });
+});
+</script>
+
+<!-- ═══ INLINE EDITOR ═══ -->
+<div id="edit-bar">
+  <div id="edit-bar-left">
+    <div id="edit-dot"></div>
+    <span id="edit-status">Bearbeitung aktiv — klick auf jeden Text zum Editieren</span>
+  </div>
+  <div id="edit-bar-right">
+    <div id="save-pill">✓ Gespeichert</div>
+    <button class="edit-btn" onclick="resetEdits()">Zurücksetzen</button>
+    <button class="edit-btn edit-btn-gold" onclick="exportHTML()">↓ HTML exportieren</button>
+  </div>
+</div>
+<style>
+#edit-bar{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(255,255,255,0.97);backdrop-filter:blur(10px);border-top:1px solid #e5e5e5;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -4px 24px rgba(0,0,0,0.07)}
+#edit-bar-left{display:flex;align-items:center;gap:10px}
+#edit-dot{width:8px;height:8px;border-radius:50%;background:#52c46a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+#edit-status{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:#888;font-weight:500}
+#edit-bar-right{display:flex;align-items:center;gap:10px}
+#save-pill{font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:700;color:#52c46a;background:rgba(82,196,106,0.1);border:1px solid rgba(82,196,106,0.3);padding:4px 12px;border-radius:20px;opacity:0;transition:opacity .3s;letter-spacing:1px}
+.edit-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:7px 16px;border-radius:3px;border:1px solid #ddd;background:#f5f5f5;color:#666;cursor:pointer;transition:all .2s}
+.edit-btn:hover{background:#eee;color:#333}
+.edit-btn-gold{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.4);color:#b8922a}
+.edit-btn-gold:hover{background:rgba(201,168,76,0.2)}
+[contenteditable="true"]:hover{outline:2px dashed rgba(201,168,76,0.4);outline-offset:2px;border-radius:2px;cursor:text}
+[contenteditable="true"]:focus{outline:2px solid rgba(201,168,76,0.7);outline-offset:2px;border-radius:2px;box-shadow:0 0 0 4px rgba(201,168,76,0.08)}
+body{padding-bottom:64px}
+</style>
+<script>
+(function(){
+  var KEY='fyndds_doc_edits_v1';
+  var saves=JSON.parse(localStorage.getItem(KEY)||'{}');
+  var pill=null;
+
+  var SELECTORS=[
+    '.section-title','.section-sub','.section-label',
+    '.card-title','.card-sub',
+    '.caption-text','.caption-tags','.caption-theme','.caption-wk',
+    '.video-hook','.video-desc','.video-format',
+    '.danger-title','.danger-desc','.danger-fix',
+    '.scenario-name','.scenario-val',
+    '.rec-step-content',
+    '.cover-title','.cover-sub','.cover-badge',
+    '.stat-num','.stat-label','.stat-note',
+    '.pillar-title','.pillar-desc','.pillar-num',
+    '.platform-name',
+    '.wk-topic','.wk-format','.wk-num',
+    '.script-text','.script-direction','.script-scene',
+    '.kpi-name','.kpi-target',
+    '.persona-name','.persona-desc','.persona-row-val',
+    '.ig-section-head',
+    'td','th',
+    '.cover-meta-item strong',
+    '.highlight p','.highlight',
+    '.flow pre',
+    '.code-block pre',
+  ].join(',');
+
+  function init(){
+    pill=document.getElementById('save-pill');
+    var els=document.querySelectorAll(SELECTORS);
+    var idx=0;
+    els.forEach(function(el){
+      if(el.closest('svg')||el.closest('#main-nav')||el.closest('#edit-bar')) return;
+      var k='e'+idx++;
+      el.dataset.ek=k;
+      el.setAttribute('contenteditable','true');
+      el.setAttribute('spellcheck','true');
+      if(saves[k]!==undefined) el.innerHTML=saves[k];
+      var t;
+      el.addEventListener('input',function(){
+        clearTimeout(t);
+        t=setTimeout(function(){
+          saves[k]=el.innerHTML;
+          localStorage.setItem(KEY,JSON.stringify(saves));
+          flash();
+        },400);
+      });
+    });
+    console.log('Editor ready: '+idx+' editierbare Elemente');
+  }
+
+  function flash(){
+    if(!pill)return;
+    pill.style.opacity='1';
+    clearTimeout(pill._t);
+    pill._t=setTimeout(function(){pill.style.opacity='0';},2000);
+  }
+
+  window.resetEdits=function(){
+    if(!confirm('Alle eigenen Änderungen löschen und Original wiederherstellen?'))return;
+    localStorage.removeItem(KEY);
+    location.reload();
+  };
+
+  window.exportHTML=function(){
+    var clone=document.documentElement.cloneNode(true);
+    clone.querySelectorAll('[contenteditable]').forEach(function(el){
+      el.removeAttribute('contenteditable');
+      el.removeAttribute('spellcheck');
+    });
+    clone.querySelectorAll('#edit-bar').forEach(function(el){el.remove();});
+    var blob=new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='fyndds_edited.html';
+    a.click();
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',init);
+  } else { init(); }
+})();
+</script>
+
+</body>
+</html>
