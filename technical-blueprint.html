@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FYNDDS — Technische Gesamtarchitektur</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#fafafa;color:#222;line-height:1.7;font-size:14px}
+a{color:#c9a84c}
+.container{max-width:960px;margin:0 auto;padding:60px 40px}
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(8px);border-bottom:1px solid #e5e5e5;padding:0 40px}
+nav ul{display:flex;gap:0;list-style:none;overflow-x:auto;scrollbar-width:none}
+nav ul::-webkit-scrollbar{display:none}
+nav ul li a{display:block;padding:14px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+nav ul li a:hover,nav ul li a.active{color:#c9a84c;border-bottom-color:#c9a84c}
+
+.cover{min-height:80vh;background:#fff;display:flex;flex-direction:column;justify-content:center;padding:80px 60px;border-bottom:1px solid #eee}
+.badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;border:1px solid rgba(201,168,76,0.3);padding:6px 14px;border-radius:2px;margin-bottom:36px}
+h1{font-size:clamp(32px,5vw,60px);font-weight:900;line-height:1.05;letter-spacing:-0.04em;color:#111;max-width:720px;margin-bottom:20px}
+h1 span{color:#c9a84c}
+.cover-sub{font-size:13px;color:#888;max-width:560px;line-height:1.8;margin-bottom:40px}
+.cover-meta{display:flex;gap:40px;flex-wrap:wrap}
+.meta-item{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:#444}
+.meta-item strong{display:block;color:#c9a84c;font-size:13px;font-weight:700;letter-spacing:0;text-transform:none;margin-bottom:2px}
+
+.section{margin-bottom:80px}
+.lbl{font-size:9px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#c9a84c;margin-bottom:12px}
+h2{font-size:26px;font-weight:900;letter-spacing:-0.03em;color:#111;line-height:1.1;margin-bottom:8px}
+h2 span{color:#999;font-weight:900}
+.sub{font-size:13px;color:#999;margin-bottom:28px;max-width:640px;line-height:1.7}
+.divider{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.25),transparent);margin:72px 0}
+
+/* FLOW */
+.flow{background:#111;border-radius:6px;padding:28px 32px;margin:16px 0;overflow-x:auto}
+.flow-title{font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:16px}
+.flow pre{font-family:'Plus Jakarta Sans',monospace;font-size:12px;color:#888;line-height:2;white-space:pre}
+.flow .w{color:#f0f0f0;font-weight:700}
+.flow .g{color:#c9a84c;font-weight:700}
+.flow .r{color:#e05252}
+.flow .gr{color:#52c46a}
+.flow .b{color:#7bafd4}
+.flow .dim{color:#444}
+
+/* CARDS */
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:22px;margin-bottom:10px}
+.card-gold{border-left:3px solid #c9a84c}
+.card-red{border-left:3px solid #e05252}
+.card-green{border-left:3px solid #52c46a}
+.card-blue{border-left:3px solid #7bafd4}
+.card-title{font-size:13px;font-weight:800;color:#111;margin-bottom:6px}
+.card-body{font-size:12px;color:#777;line-height:1.8}
+.card-body code{background:#f5f5f5;padding:1px 5px;border-radius:2px;font-size:11px;color:#c9a84c}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #f0f0f0}
+.step:last-child{border-bottom:none}
+.step-num{min-width:36px;height:36px;background:#111;color:#c9a84c;font-size:11px;font-weight:900;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-size:13px;font-weight:800;color:#111;margin-bottom:4px}
+.step-body{font-size:12px;color:#777;line-height:1.8}
+.step-body code{background:#f5f5f5;padding:1px 5px;border-radius:2px;font-size:11px;color:#333}
+.step-body .api{display:inline-block;background:#111;color:#c9a84c;font-size:10px;font-weight:700;padding:2px 8px;border-radius:2px;margin:2px 2px 2px 0;letter-spacing:0.5px}
+.step-body .ok{color:#52c46a;font-weight:700}
+.step-body .warn{color:#e09a2a;font-weight:700}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px;margin:16px 0}
+th{background:#111;color:#c9a84c;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:10px 14px;text-align:left}
+td{padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#555;vertical-align:top}
+td:first-child{font-weight:700;color:#111}
+tr:hover td{background:#fafafa}
+
+/* PILL */
+.pill{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:2px}
+.pill-gold{background:rgba(201,168,76,0.12);color:#c9a84c}
+.pill-green{background:rgba(82,196,106,0.12);color:#38a85a}
+.pill-red{background:rgba(224,82,82,0.12);color:#c93c3c}
+.pill-blue{background:rgba(113,175,212,0.12);color:#4a8fb8}
+.pill-dark{background:#111;color:#fff}
+
+/* HIGHLIGHT BOX */
+.hbox{background:#fff9ec;border:1px solid rgba(201,168,76,0.3);border-radius:4px;padding:16px 20px;margin:16px 0;font-size:12px;color:#555;line-height:1.8}
+.hbox strong{color:#c9a84c}
+.warnbox{background:#fff5f5;border:1px solid rgba(224,82,82,0.25);border-radius:4px;padding:16px 20px;margin:16px 0;font-size:12px;color:#555}
+.warnbox strong{color:#e05252}
+</style>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li><a href="#overview">Überblick</a></li>
+    <li><a href="#onboarding">Händler-Onboarding</a></li>
+    <li><a href="#return">Return-Flow</a></li>
+    <li><a href="#dhl">DHL API</a></li>
+    <li><a href="#checkout">Checkout</a></li>
+    <li><a href="#rerouting">Rerouting</a></li>
+    <li><a href="#payout">Payout</a></li>
+    <li><a href="#edgefn">Edge Functions</a></li>
+    <li><a href="#datamodel">Datenmodell</a></li>
+    <li><a href="#webhooks">Webhooks</a></li>
+    <li><a href="#launch">Launch-Reihenfolge</a></li>
+  </ul>
+</nav>
+
+<div class="cover">
+  <div class="container">
+    <div class="badge">Confidential · FYNDDS GmbH · 2026</div>
+    <h1>Technische<br/><span>Gesamtarchitektur</span></h1>
+    <p class="cover-sub">Vollständige Blaupause: Stripe Connect Pflicht, DHL Rerouting API, jeder Webhook, jede Edge Function, jeder Datenbankschritt — von Retoure bis Auszahlung.</p>
+    <div class="cover-meta">
+      <div class="meta-item"><strong>Stripe Connect Express</strong>Pflicht für alle Händler</div>
+      <div class="meta-item"><strong>DHL Post &amp; Paket DE</strong>Rerouting via API</div>
+      <div class="meta-item"><strong>Supabase Edge Functions</strong>Backend</div>
+      <div class="meta-item"><strong>Mai 2026</strong>Stand</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="overview">
+  <div class="lbl">01 — Gesamtüberblick</div>
+  <h2>Der komplette Flow<br/><span>von Retoure bis Auszahlung</span></h2>
+  <p class="sub">FYNDDS fängt Retouren ab bevor sie ins Lager kommen. Dafür braucht es drei APIs: DHL für die Paketumleitung, Stripe Connect für den Geldfluss, Resend für E-Mails.</p>
+
+  <div class="flow">
+    <div class="flow-title">Master Flow — Überblick</div>
+    <pre>
+<span class="g">HÄNDLER</span>                    <span class="g">FYNDDS</span>                     <span class="g">KÄUFER</span>
+    │                          │                              │
+    │  1. Retoure eingeleitet   │                              │
+    ├─────────────────────────►│                              │
+    │                          │  2. DHL Retourenaufkleber    │
+    │◄─────────────────────────┤     erstellen (FYNDDS Konto) │
+    │                          │                              │
+    │  3. Artikel auf          │                              │
+    │     Marketplace listen   │                              │
+    │                          ├──────────────────────────────►
+    │                          │  4. Käufer kauft + zahlt     │
+    │                          │◄─────────────────────────────┤
+    │                          │                              │
+    │  5. DHL Webhook:         │                              │
+    │     Paket gescannt       │                              │
+    │     → in Netz von DHL    │                              │
+    │                          │                              │
+    │                          │  6. DHL API: Adresse ändern  │
+    │                          ├─────────────────►  <span class="b">DHL</span>       │
+    │                          │◄─────────────────  <span class="b">DHL</span>       │
+    │                          │                              │
+    │                          │  7. Paket geliefert          │
+    │                          │◄─────────────────────────────┤
+    │                          │                              │
+    │  8. Stripe Auszahlung    │                              │
+    │◄─────────────────────────┤                              │
+    │                          │                              │
+    <span class="dim">Händler: Verkaufspreis      FYNDDS: Provision +           Käufer: Ware erhalten</span>
+    <span class="dim">minus Provision             Rerouting-Gebühr</span>
+    </pre>
+  </div>
+
+  <div class="hbox">
+    <strong>Kernprinzip:</strong> FYNDDS erstellt den DHL-Retourenaufkleber unter dem eigenen DHL-Geschäftskonto. Das gibt FYNDDS die Kontrolle über das Paket und erlaubt die Adressänderung via API — ohne dass der Händler irgendetwas tun muss.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="onboarding">
+  <div class="lbl">02 — Händler-Onboarding</div>
+  <h2>Was ein Händler tun muss<br/><span>einmalig, 10 Minuten</span></h2>
+  <p class="sub">Jeder Händler braucht einen Stripe Connect Express Account. Das ist Pflicht — kein Stripe Connect, kein Listing. Die Einrichtung läuft vollautomatisch über unsere <code style="background:#f5f5f5;padding:1px 5px;border-radius:2px">retailer-setup</code> Edge Function.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Händler registriert sich auf fyndds.com</div>
+        <div class="step-body">
+          E-Mail, Firmenname, USt-ID, Adresse. Supabase Auth erstellt den User.
+          Tabelle <code>profiles</code> bekommt <code>role = 'retailer'</code>.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Stripe Connect Express Onboarding</div>
+        <div class="step-body">
+          Edge Function <code>retailer-setup</code> wird aufgerufen.<br/>
+          <span class="api">Stripe API</span> <code>POST /v1/accounts</code> → <code>type: "express"</code><br/>
+          <span class="api">Stripe API</span> <code>POST /v1/account_links</code> → Onboarding-URL generieren<br/>
+          Händler wird zu Stripe weitergeleitet: Bankdaten, Personalausweis, USt-ID.<br/>
+          Stripe verifiziert alles — FYNDDS muss nichts manuell prüfen.<br/>
+          Webhook <code>account.updated</code> → <code>stripe_onboarding_completed = true</code> in DB.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">API-Key für Shop-Integration</div>
+        <div class="step-body">
+          Händler bekommt einen FYNDDS API-Key (UUID in <code>retailer_api_keys</code> Tabelle).<br/>
+          Damit kann der Händler Retouren per API melden (oder manuell im Dashboard).<br/>
+          Shop-Plugins für Shopify / WooCommerce / Shopware nutzen diesen Key.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">Fertig — Händler kann Retouren listen</div>
+        <div class="step-body">
+          <span class="ok">✓</span> Stripe Connect aktiv → Geldfluss möglich<br/>
+          <span class="ok">✓</span> DHL-Aufkleber werden automatisch durch FYNDDS erstellt<br/>
+          <span class="ok">✓</span> Artikel erscheinen sofort auf dem Marketplace
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warnbox">
+    <strong>Wichtig:</strong> Ohne <code>stripe_onboarding_completed = true</code> kann kein Checkout gestartet werden. Die <code>create-checkout</code> Edge Function prüft das als erstes.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="return">
+  <div class="lbl">03 — Return-Flow</div>
+  <h2>Wie eine Retoure ins System kommt<br/><span>drei Wege, ein Ergebnis</span></h2>
+  <p class="sub">Eine Retoure kann auf drei Wegen bei FYNDDS landen. In allen Fällen erstellt FYNDDS den DHL-Aufkleber und listet den Artikel auf dem Marketplace.</p>
+
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="card card-gold">
+      <div class="card-title">Weg A — API-Integration</div>
+      <div class="card-body">Händler-Shop (Shopify/WooCommerce) schickt bei jeder Retoure automatisch:<br/><code>POST /api/returns</code><br/>mit Artikeldaten, Originalpreis, Zustand, Fotos → FYNDDS-System übernimmt alles.</div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">Weg B — Dashboard Upload</div>
+      <div class="card-body">Händler loggt sich ins FYNDDS-Dashboard ein, lädt Artikel manuell hoch: Foto, Beschreibung, Zustand, Mindestpreis. Gut für kleine Händler ohne Tech-Team.</div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">Weg C — Bulk Import</div>
+      <div class="card-body">Händler schickt CSV mit vielen Retouren auf einmal. FYNDDS importiert, erstellt alle Labels und listet alle Artikel in einem Batch.</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-title">Return-Eingang → Asset-Erstellung</div>
+    <pre>
+<span class="g">Händler API-Call:</span>
+POST /api/returns
+{
+  "retailer_api_key": "abc123",
+  "items": [{
+    "product_name": "Nike Air Max 270",
+    "original_price": 149.99,
+    "condition": "new_with_tags",         <span class="dim">// new_with_tags | like_new | good</span>
+    "category": "shoes",
+    "size": "42",
+    "photos": ["https://...jpg"],
+    "customer_return_address": {
+      "street": "Musterstraße 1",
+      "city": "Berlin",
+      "postal_code": "10115",
+      "country": "DE"
+    }
+  }]
+}
+
+<span class="g">FYNDDS Response:</span>
+{
+  "asset_id": "uuid",
+  "dhl_tracking_number": "00340433836536510000",
+  "return_label_url": "https://...pdf",     <span class="dim">// DHL Label zum Ausdrucken</span>
+  "marketplace_url": "https://fyndds.com/p/uuid",
+  "listed_price": 89.99                     <span class="dim">// auto-calculated: 60% of original</span>
+}
+    </pre>
+  </div>
+
+  <div class="hbox">
+    <strong>Automatische Preisberechnung:</strong> Startpreis = Originalpreis × 0.6. Der Preis fällt automatisch alle 24h um 5% wenn kein Kauf — bis zu einem Mindestpreis (vom Händler festgelegt oder 30% des Originalpreises).
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="dhl">
+  <div class="lbl">04 — DHL API</div>
+  <h2>Rerouting technisch erklärt<br/><span>exakt was passiert</span></h2>
+  <p class="sub">Das ist der technische Kern von FYNDDS. FYNDDS erstellt alle Retourenaufkleber unter dem eigenen DHL-Geschäftskonto (EKP-Nummer). Das gibt FYNDDS die Autorität, Pakete während des Transports umzuleiten.</p>
+
+  <h3 style="font-size:15px;font-weight:800;color:#111;margin:24px 0 12px">DHL APIs die wir nutzen</h3>
+  <table>
+    <tr><th>API</th><th>Wofür</th><th>Endpoint</th></tr>
+    <tr>
+      <td>DHL Parcel DE — Shipment API</td>
+      <td>Retourenlabel erstellen</td>
+      <td><code>POST /parcel/de/v1/shipments</code></td>
+    </tr>
+    <tr>
+      <td>DHL Tracking API</td>
+      <td>Paketstatus abfragen</td>
+      <td><code>GET /track/shipments?trackingNumber=</code></td>
+    </tr>
+    <tr>
+      <td>DHL Webhook / Push Notifications</td>
+      <td>Echtzeit-Events empfangen</td>
+      <td>Eingehend: <code>POST /receive-webhook</code></td>
+    </tr>
+    <tr>
+      <td>DHL Address Change</td>
+      <td>Empfänger im Transit ändern</td>
+      <td><code>PATCH /parcel/de/v1/shipments/{id}/address</code></td>
+    </tr>
+  </table>
+
+  <h3 style="font-size:15px;font-weight:800;color:#111;margin:24px 0 12px">Schritt 1: Retourenlabel erstellen</h3>
+  <div class="flow">
+    <div class="flow-title">DHL Parcel DE — Shipment erstellen</div>
+    <pre>
+<span class="g">POST</span> https://api-eu.dhl.com/parcel/de/v1/shipments
+Authorization: Basic {base64(username:password)}
+Content-Type: application/json
+
+{
+  "profile": "RETURNLABEL",              <span class="dim">// Retouren-Profil</span>
+  "shipments": [{
+    "product": "V01PAK",                 <span class="dim">// DHL Paket (nicht Brief!)</span>
+    "billingNumber": "<span class="g">FYNDDS_EKP_NUMMER</span>02",  <span class="dim">// FYNDDS DHL-Konto</span>
+    "shipper": {
+      "name1": "FYNDDS GmbH",
+      "addressStreet": "...",
+      "addressHouse": "...",
+      "postalCode": "...",
+      "city": "...",
+      "country": "DEU"
+    },
+    "consignee": {                       <span class="dim">// ← DAS IST ZUERST: Kunden-Adresse</span>
+      "name1": "Kundenname",             <span class="dim">// (der die Retoure schickt)</span>
+      "addressStreet": "Musterstr. 1",
+      "postalCode": "10115",
+      "city": "Berlin",
+      "country": "DEU"
+    },
+    "details": {
+      "dim": {"uom":"mm","length":300,"width":200,"height":100},
+      "weight": {"uom":"g","value":500}
+    },
+    "services": {
+      "returnAddress": {                 <span class="dim">// Wohin wenn kein Käufer gefunden</span>
+        "name1": "FYNDDS Fulfillment",
+        "addressStreet": "...",
+        "postalCode": "...",
+        "city": "...",
+        "country": "DEU"
+      }
+    }
+  }]
+}
+
+<span class="g">Response:</span>
+{
+  "shipments": [{
+    "shipmentTrackingNumber": "<span class="g">00340433836536510000</span>",
+    "label": { "b64": "JVBERi0x..." }    <span class="dim">// PDF base64 → als URL speichern</span>
+  }]
+}
+    </pre>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:800;color:#111;margin:24px 0 12px">Schritt 2: DHL Webhook — Paket gescannt</h3>
+  <div class="card card-blue">
+    <div class="card-title">DHL Push Notification — was wir empfangen</div>
+    <div class="card-body">
+      DHL schickt bei jedem Scan-Event einen POST an unsere Edge Function <code>receive-webhook</code>.<br/>
+      Die wichtigsten Events:<br/><br/>
+      <code>DELIVERED_TO_SENDER</code> — Übergabe an DHL durch Kunden ✓ <span class="pill pill-green">Rerouting möglich</span><br/>
+      <code>IN_TRANSIT</code> — Paket im Netz unterwegs <span class="pill pill-green">Rerouting möglich</span><br/>
+      <code>OUT_FOR_DELIVERY</code> — Auf dem Zustellfahrzeug <span class="pill pill-red">zu spät</span><br/>
+      <code>DELIVERED</code> — Zugestellt → Payout triggern<br/>
+      <code>EXCEPTION</code> — Problem (beschädigt, nicht abgeholt etc.)
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:800;color:#111;margin:24px 0 12px">Schritt 3: Adresse ändern (Das Herzstück)</h3>
+  <div class="flow">
+    <div class="flow-title">DHL Address Change — Rerouting API Call</div>
+    <pre>
+<span class="dim">// Nur möglich wenn: Status = IN_TRANSIT oder DELIVERED_TO_SENDER
+// NICHT möglich wenn: OUT_FOR_DELIVERY oder DELIVERED</span>
+
+<span class="g">PATCH</span> https://api-eu.dhl.com/parcel/de/v1/shipments/<span class="g">00340433836536510000</span>/address
+Authorization: Basic {base64(username:password)}
+Content-Type: application/json
+
+{
+  "consignee": {
+    "name1": "<span class="g">Max Mustermann</span>",          <span class="dim">// ← Käufer-Name</span>
+    "addressStreet": "<span class="g">Kauferstraße 5</span>",
+    "postalCode": "<span class="g">80331</span>",
+    "city": "<span class="g">München</span>",
+    "country": "DEU"
+  },
+  "comment": "FYNDDS Rerouting - Order #uuid"
+}
+
+<span class="g">Response 200 OK:</span>
+{ "result": "address_changed", "newTrackingNumber": "003404..." }
+
+<span class="r">Response 409 CONFLICT:</span>
+{ "error": "OUT_FOR_DELIVERY", "message": "Too late for redirect" }
+<span class="dim">→ Fallback: Paket kommt zu FYNDDS Fulfillment Center → wird von dort neu versendet</span>
+    </pre>
+  </div>
+
+  <div class="hbox">
+    <strong>Kritischer Zeitpunkt:</strong> Das Rerouting muss BEVOR das Paket auf den Zustellfahrzeug geladen wird. Sobald DHL <code>OUT_FOR_DELIVERY</code> meldet, ist es zu spät. Deshalb prüfen wir bei JEDEM <code>IN_TRANSIT</code> Event: gibt es einen Käufer?
+  </div>
+
+  <h3 style="font-size:15px;font-weight:800;color:#111;margin:24px 0 12px">Fallback-Szenarien</h3>
+  <div class="grid2">
+    <div class="card card-green">
+      <div class="card-title">✓ Idealfall: Käufer da, Paket in Transit</div>
+      <div class="card-body">DHL API → Adresse ändern → direkt zum Käufer → Payout nach Zustellung.</div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">⚡ Kein Käufer bis OUT_FOR_DELIVERY</div>
+      <div class="card-body">Paket geht zu FYNDDS Fulfillment-Adresse. Dort einlagern bis Käufer da. Dann neu versenden (normaler DHL-Versand). Listing bleibt aktiv.</div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">⚡ Käufer da, aber zu spät für Redirect</div>
+      <div class="card-body">Paket kommt zu FYNDDS Fulfillment. Neues DHL-Label zum Käufer erstellen. Rerouting-Gebühr trotzdem fällig (Mehraufwand wird intern abgewickelt).</div>
+    </div>
+    <div class="card card-red">
+      <div class="card-title">✗ Kein Käufer, kein Platz im Fulfillment</div>
+      <div class="card-body">Paket geht an Händler zurück (Standard-Retoure). FYNDDS berechnet nichts. Händler zahlt nur wenn Verkauf erfolgt.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="checkout">
+  <div class="lbl">05 — Checkout &amp; Zahlung</div>
+  <h2>Wie der Käufer zahlt<br/><span>Stripe Connect + on_behalf_of</span></h2>
+  <p class="sub">Der Käufer zahlt einmal. Das Geld wird sofort aufgeteilt: Händler bekommt seinen Teil, FYNDDS behält Provision + Rerouting-Gebühr. Dank <code>on_behalf_of</code> kommt die Rechnung vom Händler — nicht von FYNDDS.</p>
+
+  <div class="flow">
+    <div class="flow-title">Stripe Checkout Session erstellen — create-checkout Edge Function</div>
+    <pre>
+<span class="g">1. Berechnung:</span>
+   Produktsubtotal:     €89.99
+   Rerouting-Gebühr:    + €2.99
+   ─────────────────────────────
+   Gesamtbetrag Käufer: €92.98
+
+   FYNDDS Provision:    min(€15, max(€2.50, €89.99 × 3%)) = €2.70
+   Händler bekommt:     €89.99 - €2.70 = €87.29
+   FYNDDS behält:       €2.70 (Provision) + €2.99 (Rerouting) = €5.69
+
+<span class="g">2. Stripe Session:</span>
+stripe.checkout.sessions.create({
+  line_items: [
+    { price_data: { currency:"eur", product_data:{name:"Nike Air Max 270"},
+                    unit_amount: 8999 }, quantity: 1 },
+    { price_data: { currency:"eur", product_data:{name:"Rerouting-Gebühr"},
+                    unit_amount: 299 }, quantity: 1 }
+  ],
+  mode: "payment",
+  payment_method_types: ["card", "sepa_debit", "link"],
+  payment_intent_data: {
+    <span class="g">on_behalf_of: "acct_händler_connect_id",</span>    <span class="dim">// Rechnung vom Händler</span>
+    transfer_data: {
+      destination: "acct_händler_connect_id",
+      amount: 8729                               <span class="dim">// €87.29 → Händler</span>
+    },
+    application_fee_amount: 270                  <span class="dim">// €2.70 → FYNDDS</span>
+  },
+  metadata: {
+    asset_id: "uuid",
+    retailer_id: "uuid",
+    rerouting_fee: 299
+  }
+})
+
+<span class="g">3. Was passiert dann:</span>
+   Käufer zahlt → stripe-webhook: <span class="g">payment_intent.succeeded</span>
+   → Asset Status: "sold"
+   → Order erstellen in DB
+   → initiate-rerouting Edge Function aufrufen
+    </pre>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="rerouting">
+  <div class="lbl">06 — Rerouting Logic</div>
+  <h2>Was genau passiert nach dem Kauf<br/><span>der komplette Entscheidungsbaum</span></h2>
+  <p class="sub">Die <code>initiate-rerouting</code> Edge Function ist das Herzstück von FYNDDS. Sie prüft den Paketstatus und entscheidet welchen Weg das Paket nimmt.</p>
+
+  <div class="flow">
+    <div class="flow-title">initiate-rerouting — Entscheidungsbaum</div>
+    <pre>
+payment_intent.succeeded
+       │
+       ▼
+<span class="g">Fetch Order + Asset + DHL Tracking Status</span>
+       │
+       ├── Status = <span class="gr">IN_TRANSIT</span> oder <span class="gr">DELIVERED_TO_SENDER</span>?
+       │       │
+       │       ▼ JA
+       │   DHL PATCH /shipments/{id}/address
+       │   → Käufer-Adresse setzen
+       │       │
+       │       ├── <span class="gr">200 OK</span> → Order.status = "rerouting_confirmed"
+       │       │          → E-Mail an Käufer: "Paket ist unterwegs zu dir"
+       │       │          → E-Mail an Händler: "Verkauf bestätigt"
+       │       │
+       │       └── <span class="r">409 Conflict</span> (zu spät)
+       │                  → Order.status = "fulfillment_required"
+       │                  → Paket geht zu FYNDDS Fulfillment
+       │                  → fulfillment Queue erstellen
+       │
+       ├── Status = <span class="b">NOT_YET_SHIPPED</span>?
+       │       │
+       │       ▼ Paket noch nicht abgegeben
+       │   Warten auf DHL DELIVERED_TO_SENDER Event
+       │   → Rerouting-Job in Queue mit Käufer-Adresse speichern
+       │   → Wenn Event kommt: sofort DHL PATCH ausführen
+       │
+       └── Status = <span class="r">DELIVERED</span> (zu FYNDDS Fulfillment)?
+               │
+               ▼
+           Fulfillment-Flow:
+           → Neues DHL Label zum Käufer erstellen
+           → Normaler Versand
+           → Tracking-Nummer an Käufer
+    </pre>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="payout">
+  <div class="lbl">07 — Payout</div>
+  <h2>Wie der Händler sein Geld bekommt<br/><span>automatisch nach Zustellung</span></h2>
+  <p class="sub">Der Payout ist vollautomatisch. Er wird durch den DHL "DELIVERED" Webhook ausgelöst. Das Geld liegt bereits bei Stripe — es wird nur freigegeben.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">DHL Webhook: DELIVERED Event</div>
+        <div class="step-body">
+          DHL sendet <code>POST /receive-webhook</code> mit Event <code>DELIVERED</code> und Tracking-Nummer.<br/>
+          Edge Function findet zugehörige Order in DB.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">process-payout wird aufgerufen</div>
+        <div class="step-body">
+          Order Status → <code>delivered</code><br/>
+          Stripe Transfer wird ausgeführt (war schon durch <code>transfer_data</code> im Checkout vorbereitet).<br/>
+          <span class="api">Stripe API</span> <code>POST /v1/transfers</code> → €87.29 an Händler Connect Account<br/>
+          FYNDDS behält €5.69 (Provision €2.70 + Rerouting €2.99) automatisch.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">E-Mails via Resend</div>
+        <div class="step-body">
+          <span class="api">Resend API</span> → Käufer: Zustellbestätigung + Rechnung<br/>
+          <span class="api">Resend API</span> → Händler: Auszahlung €87.29 bestätigt + Monatsübersicht
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">Widerruf / Dispute Handling</div>
+        <div class="step-body">
+          Käufer hat 14 Tage Widerrufsrecht (§355 BGB).<br/>
+          Bei Dispute: Stripe hält Transfer automatisch zurück (Stripe Connect Dispute Flow).<br/>
+          FYNDDS entscheidet manuell ob Payout freigegeben wird.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="edgefn">
+  <div class="lbl">08 — Edge Functions</div>
+  <h2>Jede Funktion erklärt<br/><span>was sie tut, wann sie aufgerufen wird</span></h2>
+
+  <table>
+    <tr><th>Function</th><th>Trigger</th><th>Was sie macht</th><th>Status</th></tr>
+    <tr>
+      <td>create-checkout</td>
+      <td>Käufer klickt "Kaufen"</td>
+      <td>Prüft Verfügbarkeit, berechnet Fees, erstellt Stripe Session mit <code>on_behalf_of</code> + <code>transfer_data</code></td>
+      <td><span class="pill pill-green">✓ Live</span></td>
+    </tr>
+    <tr>
+      <td>stripe-webhook</td>
+      <td>Stripe Events</td>
+      <td>Verarbeitet <code>payment_intent.succeeded</code>, <code>account.updated</code>, <code>charge.dispute.created</code></td>
+      <td><span class="pill pill-green">✓ Live</span></td>
+    </tr>
+    <tr>
+      <td>retailer-setup</td>
+      <td>Händler-Onboarding</td>
+      <td>Erstellt Stripe Connect Express Account, generiert Onboarding-URL</td>
+      <td><span class="pill pill-green">✓ Live</span></td>
+    </tr>
+    <tr>
+      <td>initiate-rerouting</td>
+      <td>Nach Stripe Zahlung</td>
+      <td>Prüft DHL Status, ruft DHL Address Change API auf, setzt Order-Status</td>
+      <td><span class="pill pill-gold">⚡ Mock</span></td>
+    </tr>
+    <tr>
+      <td>receive-webhook</td>
+      <td>DHL Events eingehend</td>
+      <td>Empfängt DHL Scan-Events, updated Asset-Status, triggert Rerouting-Queue</td>
+      <td><span class="pill pill-gold">⚡ Mock</span></td>
+    </tr>
+    <tr>
+      <td>tracking-webhook</td>
+      <td>DHL DELIVERED Event</td>
+      <td>Triggert process-payout, sendet Zustellbestätigung</td>
+      <td><span class="pill pill-gold">⚡ Mock</span></td>
+    </tr>
+    <tr>
+      <td>process-payout</td>
+      <td>Nach Zustellung</td>
+      <td>Führt Stripe Transfer aus, updated Order-Status auf <code>completed</code></td>
+      <td><span class="pill pill-green">✓ Live</span></td>
+    </tr>
+    <tr>
+      <td>send-email</td>
+      <td>Verschiedene Events</td>
+      <td>Sendet alle E-Mails via Resend (Kauf, Zustellung, Auszahlung)</td>
+      <td><span class="pill pill-gold">⚡ Template fehlt</span></td>
+    </tr>
+    <tr>
+      <td>dhl-create-label</td>
+      <td>Neue Retoure</td>
+      <td><strong>NEU BAUEN:</strong> DHL Shipment erstellen, Label PDF speichern, Tracking-Nr in DB</td>
+      <td><span class="pill pill-red">✗ Fehlt</span></td>
+    </tr>
+    <tr>
+      <td>dhl-reroute</td>
+      <td>Käufer gefunden + Paket in Transit</td>
+      <td><strong>NEU BAUEN:</strong> DHL PATCH /address aufrufen, Fehlerbehandlung, Fallback</td>
+      <td><span class="pill pill-red">✗ Fehlt</span></td>
+    </tr>
+    <tr>
+      <td>retailer-api</td>
+      <td>Händler-API-Call</td>
+      <td><strong>NEU BAUEN:</strong> Return-Intake via API-Key, Asset-Erstellung, Label-Generierung</td>
+      <td><span class="pill pill-red">✗ Fehlt</span></td>
+    </tr>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="datamodel">
+  <div class="lbl">09 — Datenmodell</div>
+  <h2>Die wichtigsten Tabellen<br/><span>was wo gespeichert wird</span></h2>
+
+  <div class="grid2">
+    <div class="card card-gold">
+      <div class="card-title">return_assets</div>
+      <div class="card-body">
+        <code>id</code>, <code>retailer_id</code>, <code>product_name</code>, <code>original_price</code>, <code>current_price</code>,
+        <code>condition</code>, <code>status</code> (listed|sold|rerouting|delivered|returned),
+        <code>dhl_tracking_number</code>, <code>dhl_label_url</code>,
+        <code>carrier</code>, <code>photos[]</code>, <code>created_at</code>
+      </div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">orders</div>
+      <div class="card-body">
+        <code>id</code>, <code>asset_id</code>, <code>buyer_id</code>, <code>retailer_id</code>,
+        <code>stripe_session_id</code>, <code>stripe_payment_intent_id</code>,
+        <code>product_amount</code>, <code>rerouting_fee</code>, <code>platform_fee</code>,
+        <code>retailer_payout</code>, <code>status</code>,
+        <code>shipping_address</code> (jsonb), <code>dhl_reroute_tracking</code>
+      </div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">profiles</div>
+      <div class="card-body">
+        <code>user_id</code>, <code>role</code> (retailer|buyer|admin),
+        <code>stripe_account_id</code>, <code>stripe_onboarding_completed</code>,
+        <code>company_name</code>, <code>vat_id</code>,
+        <code>dhl_account_linked</code>, <code>plan_tier</code>
+      </div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">rerouting_queue</div>
+      <div class="card-body">
+        <code>id</code>, <code>order_id</code>, <code>asset_id</code>,
+        <code>dhl_tracking_number</code>, <code>target_address</code> (jsonb),
+        <code>status</code> (pending|attempted|success|fallback),
+        <code>attempts</code>, <code>last_attempt_at</code>, <code>error_message</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="webhooks">
+  <div class="lbl">10 — Webhook-Architektur</div>
+  <h2>Welche Webhooks wann feuern<br/><span>der komplette Event-Flow</span></h2>
+
+  <table>
+    <tr><th>Quelle</th><th>Event</th><th>Unser Endpoint</th><th>Was passiert</th></tr>
+    <tr>
+      <td>Stripe</td>
+      <td><code>payment_intent.succeeded</code></td>
+      <td><code>/stripe-webhook</code></td>
+      <td>Order erstellen, Asset = "sold", initiate-rerouting aufrufen</td>
+    </tr>
+    <tr>
+      <td>Stripe</td>
+      <td><code>account.updated</code></td>
+      <td><code>/stripe-webhook</code></td>
+      <td><code>stripe_onboarding_completed</code> in profiles setzen</td>
+    </tr>
+    <tr>
+      <td>Stripe</td>
+      <td><code>charge.dispute.created</code></td>
+      <td><code>/stripe-webhook</code></td>
+      <td>Order flaggen, Admin-Alert, Transfer pausieren</td>
+    </tr>
+    <tr>
+      <td>DHL</td>
+      <td><code>DELIVERED_TO_SENDER</code></td>
+      <td><code>/receive-webhook</code></td>
+      <td>Asset Status → "in_transit", Rerouting-Queue prüfen</td>
+    </tr>
+    <tr>
+      <td>DHL</td>
+      <td><code>IN_TRANSIT</code></td>
+      <td><code>/receive-webhook</code></td>
+      <td>Rerouting-Queue prüfen: Käufer da? → sofort PATCH ausführen</td>
+    </tr>
+    <tr>
+      <td>DHL</td>
+      <td><code>OUT_FOR_DELIVERY</code></td>
+      <td><code>/receive-webhook</code></td>
+      <td>Wenn Ziel = Käufer: warte auf DELIVERED. Wenn Ziel = Fulfillment: vorbereiten</td>
+    </tr>
+    <tr>
+      <td>DHL</td>
+      <td><code>DELIVERED</code></td>
+      <td><code>/tracking-webhook</code></td>
+      <td>process-payout triggern, E-Mail senden, Order = "completed"</td>
+    </tr>
+    <tr>
+      <td>DHL</td>
+      <td><code>EXCEPTION</code></td>
+      <td><code>/receive-webhook</code></td>
+      <td>Admin-Alert, Order auf "exception", Käufer benachrichtigen</td>
+    </tr>
+  </table>
+
+  <div class="hbox">
+    <strong>DHL Webhook einrichten:</strong> Im DHL Developer Portal unter "Push Notifications" die FYNDDS-URL eintragen: <code>https://sidjdgxnjcnornstjolt.supabase.co/functions/v1/receive-webhook</code>. DHL sendet dann bei jedem Scan-Event einen POST mit dem Tracking-Status.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section" id="launch">
+  <div class="lbl">11 — Launch-Reihenfolge</div>
+  <h2>Was wann gebaut werden muss<br/><span>in der richtigen Reihenfolge</span></h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background:#52c46a;color:#fff">✓</div>
+      <div>
+        <div class="step-title">Bereits fertig</div>
+        <div class="step-body">
+          Stripe Connect Onboarding · create-checkout · stripe-webhook · process-payout · Marketplace UI · Händler-Dashboard
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Supabase Secrets setzen (1 Stunde)</div>
+        <div class="step-body">
+          <code>STRIPE_SECRET_KEY</code> (Live) · <code>STRIPE_WEBHOOK_SECRET</code> ·
+          <code>DHL_API_KEY</code> · <code>DHL_API_SECRET</code> · <code>RESEND_API_KEY</code><br/>
+          → Danach ist der bestehende Code live-ready.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">DHL Geschäftskonto + Developer Account (1-3 Tage)</div>
+        <div class="step-body">
+          DHL Geschäftskundenkonto beantragen (EKP-Nummer erhalten).<br/>
+          developer.dhl.com → App erstellen → API-Keys für Parcel DE + Tracking.<br/>
+          Webhook-URL in DHL Portal eintragen.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">dhl-create-label Edge Function bauen (1 Tag)</div>
+        <div class="step-body">
+          DHL Shipment API aufrufen, Label als PDF in Supabase Storage speichern,
+          Tracking-Nummer in <code>return_assets</code> speichern.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">receive-webhook + dhl-reroute bauen (2 Tage)</div>
+        <div class="step-body">
+          DHL Events empfangen und verarbeiten.<br/>
+          DHL Address Change API aufrufen mit Fallback-Logik.<br/>
+          Rerouting-Queue für Pakete die noch nicht abgegeben wurden.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div>
+        <div class="step-title">retailer-api bauen (1 Tag)</div>
+        <div class="step-body">
+          API-Key basierter Endpunkt für Händler-Integrationen.<br/>
+          Shopify / WooCommerce Plugin-Dokumentation schreiben.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div>
+        <div class="step-title">End-to-End Test mit echtem Paket (1 Tag)</div>
+        <div class="step-body">
+          Interner Testlauf: Retoure anlegen → Label drucken → Paket abgeben →
+          Käufer-Account kauft → DHL PATCH ausführen → Paket geht an neue Adresse →
+          Payout prüfen.
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:#c9a84c;color:#111">🚀</div>
+      <div>
+        <div class="step-title">Launch mit erstem Händler</div>
+        <div class="step-body">
+          Einen Pilot-Händler onboarden, erste echten Retouren listen, System unter echten Bedingungen testen.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;padding:24px;background:#111;border-radius:6px;color:#888;font-size:12px;line-height:2">
+    <div style="font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:12px">Gesamtaufwand bis Launch</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+      <div><div style="font-size:24px;font-weight:900;color:#fff">~6 Tage</div><div>Dev-Aufwand für fehlende Edge Functions</div></div>
+      <div><div style="font-size:24px;font-weight:900;color:#fff">3-5 Tage</div><div>DHL Account-Beantragung (Wartezeit)</div></div>
+      <div><div style="font-size:24px;font-weight:900;color:#fff">1 Tag</div><div>End-to-End Test mit echtem Paket</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// Active nav on scroll
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+  navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+});
+</script>
+</body>
+</html>
