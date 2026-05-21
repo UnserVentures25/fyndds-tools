@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FYNDDS — Retailer Integration & Was noch fehlt</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #09090b; color: #f0ebe0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; line-height: 1.6; }
+
+  .hero { background: linear-gradient(135deg, #09090b 0%, #1a1408 100%); border-bottom: 1px solid #c9a84c33; padding: 60px 40px; text-align: center; }
+  .hero h1 { font-size: 2.4rem; font-weight: 800; color: #c9a84c; margin-bottom: 12px; }
+  .hero p { color: #a09880; font-size: 1.1rem; max-width: 700px; margin: 0 auto; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  section { padding: 60px 40px; border-bottom: 1px solid #ffffff0d; }
+  section:last-child { border-bottom: none; }
+
+  h2 { font-size: 1.8rem; font-weight: 700; color: #c9a84c; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  h2 .num { background: #c9a84c22; border: 1px solid #c9a84c44; color: #c9a84c; border-radius: 8px; padding: 2px 12px; font-size: 0.85rem; font-weight: 700; }
+  h3 { font-size: 1.2rem; font-weight: 700; color: #f0ebe0; margin: 32px 0 12px; }
+  p { color: #c8c0b0; margin-bottom: 12px; }
+
+  .section-sub { color: #7a7060; font-size: 0.9rem; margin-bottom: 32px; }
+
+  /* Checklist */
+  .checklist { list-style: none; display: grid; gap: 10px; }
+  .checklist li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-radius: 10px; font-size: 0.95rem; }
+  .checklist li.done { background: #0d2b1a; border: 1px solid #1a5c35; }
+  .checklist li.missing-critical { background: #2b0d0d; border: 1px solid #5c1a1a; }
+  .checklist li.missing-soon { background: #1a1a0d; border: 1px solid #4a4a15; }
+  .checklist li.missing-later { background: #0d0d1a; border: 1px solid #1a1a4a; }
+  .checklist .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .checklist .text strong { display: block; color: #f0ebe0; margin-bottom: 2px; }
+  .checklist .text span { color: #7a7060; font-size: 0.88rem; }
+  .checklist li.done .text strong { color: #4ade80; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-direction: column; gap: 0; max-width: 900px; }
+  .flow-step { display: flex; gap: 20px; align-items: stretch; }
+  .flow-left { display: flex; flex-direction: column; align-items: center; width: 48px; flex-shrink: 0; }
+  .flow-dot { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; font-weight: 700; }
+  .flow-dot.gold { background: #c9a84c22; border: 2px solid #c9a84c; color: #c9a84c; }
+  .flow-dot.green { background: #0d2b1a; border: 2px solid #4ade80; color: #4ade80; }
+  .flow-dot.blue { background: #0d1a2b; border: 2px solid #60a5fa; color: #60a5fa; }
+  .flow-dot.orange { background: #2b1a0d; border: 2px solid #fb923c; color: #fb923c; }
+  .flow-dot.gray { background: #1a1a1a; border: 2px solid #666; color: #999; }
+  .flow-line { width: 2px; flex: 1; background: #ffffff15; min-height: 24px; margin: 0 auto; }
+  .flow-content { flex: 1; padding: 0 0 28px 0; }
+  .flow-content .actor { font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #7a7060; margin-bottom: 4px; }
+  .flow-content .title { font-size: 1.05rem; font-weight: 700; color: #f0ebe0; margin-bottom: 6px; }
+  .flow-content .desc { font-size: 0.9rem; color: #8a8070; line-height: 1.5; }
+  .flow-content .code { background: #0d0d0d; border: 1px solid #333; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 0.82rem; color: #c9a84c; margin-top: 8px; }
+  .flow-content .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700; margin-top: 6px; margin-right: 4px; }
+  .flow-content .tag.fyndds { background: #c9a84c22; color: #c9a84c; border: 1px solid #c9a84c44; }
+  .flow-content .tag.dhl { background: #d4000022; color: #ff6666; border: 1px solid #d4000044; }
+  .flow-content .tag.stripe { background: #635bff22; color: #a5b4fc; border: 1px solid #635bff44; }
+  .flow-content .tag.supabase { background: #3ecf8e22; color: #6ee7b7; border: 1px solid #3ecf8e44; }
+  .flow-content .tag.retailer { background: #f0ebe022; color: #f0ebe0; border: 1px solid #f0ebe044; }
+  .flow-content .tag.new { background: #059669; color: #fff; }
+
+  /* Split view */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media(max-width: 768px) { .split { grid-template-columns: 1fr; } }
+
+  .card { background: #111113; border: 1px solid #ffffff0d; border-radius: 12px; padding: 24px; }
+  .card.gold-border { border-color: #c9a84c44; }
+  .card h4 { font-size: 1.1rem; font-weight: 700; color: #c9a84c; margin-bottom: 8px; }
+  .card p { font-size: 0.9rem; }
+  .card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .card ul li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.9rem; color: #c8c0b0; }
+  .card ul li::before { content: "→"; color: #c9a84c; flex-shrink: 0; }
+
+  .vs { display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #c9a84c; }
+
+  /* Comparison table */
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th { background: #c9a84c22; color: #c9a84c; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid #c9a84c33; }
+  td { padding: 12px 16px; border-bottom: 1px solid #ffffff08; font-size: 0.9rem; color: #c8c0b0; vertical-align: top; }
+  tr:hover td { background: #ffffff04; }
+  td.win { color: #4ade80; font-weight: 600; }
+  td.lose { color: #f87171; }
+  td.neutral { color: #fbbf24; }
+  td:first-child { color: #f0ebe0; font-weight: 600; }
+
+  /* API spec */
+  .api-block { background: #050507; border: 1px solid #c9a84c22; border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .api-block .method { display: inline-block; background: #059669; color: #fff; font-size: 0.8rem; font-weight: 800; padding: 3px 10px; border-radius: 4px; margin-right: 10px; }
+  .api-block .method.patch { background: #d97706; }
+  .api-block .endpoint { font-family: monospace; color: #c9a84c; font-size: 0.95rem; }
+  .api-block pre { background: #0d0d0f; border: 1px solid #333; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 0.82rem; color: #a5b4fc; overflow-x: auto; margin-top: 12px; line-height: 1.6; }
+  .api-block .desc { color: #7a7060; font-size: 0.88rem; margin-top: 8px; }
+
+  /* Revenue calc */
+  .calc { background: #0d0d0f; border: 1px solid #c9a84c33; border-radius: 12px; padding: 28px; }
+  .calc .scenario { font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #c9a84c; margin-bottom: 16px; }
+  .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ffffff0a; }
+  .calc-row:last-child { border-bottom: none; padding-top: 16px; font-size: 1.1rem; font-weight: 700; }
+  .calc-row .label { color: #8a8070; font-size: 0.9rem; }
+  .calc-row .val { font-family: monospace; }
+  .calc-row .val.pos { color: #4ade80; }
+  .calc-row .val.neg { color: #f87171; }
+  .calc-row .val.total { color: #c9a84c; font-size: 1.1rem; }
+
+  /* Badge */
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; }
+  .badge.live { background: #0d2b1a; border: 1px solid #4ade80; color: #4ade80; }
+  .badge.mock { background: #2b1a0d; border: 1px solid #fb923c; color: #fb923c; }
+  .badge.missing { background: #2b0d0d; border: 1px solid #f87171; color: #f87171; }
+
+  .highlight-box { background: #c9a84c0d; border: 1px solid #c9a84c33; border-left: 4px solid #c9a84c; border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 20px 0; }
+  .highlight-box strong { color: #c9a84c; }
+
+  .timeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+  .timeline-item { background: #111113; border: 1px solid #ffffff0d; border-radius: 10px; padding: 18px; }
+  .timeline-item .week { font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; color: #c9a84c; text-transform: uppercase; margin-bottom: 8px; }
+  .timeline-item ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .timeline-item ul li { font-size: 0.85rem; color: #8a8070; padding-left: 12px; position: relative; }
+  .timeline-item ul li::before { content: "·"; position: absolute; left: 0; color: #c9a84c; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>FYNDDS — Was noch fehlt & Retailer Integration</h1>
+  <p>Technischer Stand, offene Punkte, und wie ein Händler der 8returns nutzt trotzdem an FYNDDS angebunden werden kann.</p>
+</div>
+
+<!-- 01 WAS FEHLT -->
+<section>
+<div class="container">
+  <h2><span class="num">01</span> Was noch fehlt — Priorisiert</h2>
+  <p class="section-sub">Stand 21.05.2026 · Sortiert nach Blocking-Level für Live-Betrieb</p>
+
+  <h3>🔴 Kritisch — Blockiert Launch</h3>
+  <ul class="checklist">
+    <li class="missing-critical">
+      <span class="icon">⛔</span>
+      <div class="text"><strong>Supabase Secrets (Live-Keys)</strong><span>STRIPE_SECRET_KEY (sk_live_...), STRIPE_WEBHOOK_SECRET, DHL_API_KEY, DHL_API_SECRET, RESEND_API_KEY — ohne diese laufen alle Edge Functions nur im Sandbox-Modus</span></div>
+    </li>
+    <li class="missing-critical">
+      <span class="icon">⛔</span>
+      <div class="text"><strong>dhl-create-label Edge Function fehlt komplett</strong><span>Beim Kauf muss FYNDDS sofort ein Return-Label (unter FYNDDS EKP) generieren — das ist die Voraussetzung für Rerouting. Aktuell: kein Label, kein Rerouting.</span></div>
+    </li>
+    <li class="missing-critical">
+      <span class="icon">⛔</span>
+      <div class="text"><strong>dhl-reroute Edge Function fehlt komplett</strong><span>Wenn ein Käufer gefunden wird bevor das Paket ankommt: PATCH /address an DHL senden. Aktuell: nur Mock.</span></div>
+    </li>
+    <li class="missing-critical">
+      <span class="icon">⛔</span>
+      <div class="text"><strong>Echter End-to-End Testkauf</strong><span>Kein einziger echter Stripe-Zahlungsfluss verifiziert. Muss vor Launch mit echten Karten + echtem Connect-Account getestet werden.</span></div>
+    </li>
+  </ul>
+
+  <h3>🟡 Wichtig — Vor erstem Händler</h3>
+  <ul class="checklist">
+    <li class="missing-soon">
+      <span class="icon">⚠️</span>
+      <div class="text"><strong>retailer-api Edge Function fehlt</strong><span>Nötig damit Händler per API Retouren melden können (auch für 8returns-Integration). Aktuell kein Endpunkt vorhanden.</span></div>
+    </li>
+    <li class="missing-soon">
+      <span class="icon">⚠️</span>
+      <div class="text"><strong>Stale Pricing in UI</strong><span>Dashboard, FreemiumGate und PaymentTab zeigen noch "€990" und "1,99 €". Muss auf aktuelle Tier-Preise korrigiert werden — Lovable-Prompt bereit.</span></div>
+    </li>
+    <li class="missing-soon">
+      <span class="icon">⚠️</span>
+      <div class="text"><strong>Tier-basierte Platform Fee</strong><span>Aktuell ist PLATFORM_FEE_PERCENT = 3 hardcoded in create-checkout. Muss aus DB kommen je nach Händler-Tier (Free 5%, Starter 4%, Growth 3%, Enterprise 2%).</span></div>
+    </li>
+    <li class="missing-soon">
+      <span class="icon">⚠️</span>
+      <div class="text"><strong>DHL Developer Account + Sandbox-Test</strong><span>DHL braucht 3-5 Werktage für Account-Freischaltung. Heute beantragen! EKP-Nummer wird für alle Shipping-Calls gebraucht.</span></div>
+    </li>
+    <li class="missing-soon">
+      <span class="icon">⚠️</span>
+      <div class="text"><strong>Mindestens 1 Händler ongeboardet (Pilot)</strong><span>Ohne echten Händler: kein Produkt, kein echter Flow testbar, kein Feedback. Pilot-Händler sollte DHL nutzen und bereit sein für Sandbox-Tests.</span></div>
+    </li>
+  </ul>
+
+  <h3>🔵 Gut zu haben — Erste Wochen nach Launch</h3>
+  <ul class="checklist">
+    <li class="missing-later">
+      <span class="icon">📋</span>
+      <div class="text"><strong>Impressum / AGB / Datenschutz — Anwalt</strong><span>Rechtlich notwendig, besonders da FYNDDS Zahlungen verarbeitet und Pakete umleitet. Kein Launch ohne rechtlich geprüfte Texte.</span></div>
+    </li>
+    <li class="missing-later">
+      <span class="icon">📋</span>
+      <div class="text"><strong>CORS auf sensiblen Edge Functions schließen</strong><span>Aktuell überall "*". Nur die eigene Domain (fyndds.com) erlauben.</span></div>
+    </li>
+    <li class="missing-later">
+      <span class="icon">📋</span>
+      <div class="text"><strong>E-Mail Domain vereinheitlichen</strong><span>fyndds.de vs fyndds.com — Resend auf fyndds.com konfigurieren, alle Templates prüfen.</span></div>
+    </li>
+    <li class="missing-later">
+      <span class="icon">📋</span>
+      <div class="text"><strong>DPD / Hermes / UPS Rerouting</strong><span>Aktuell nur DHL. Für Phase 2 wenn Händler andere Carrier nutzen.</span></div>
+    </li>
+  </ul>
+
+  <h3>✅ Fertig & funktioniert</h3>
+  <ul class="checklist">
+    <li class="done"><span class="icon">✓</span><div class="text"><strong>create-checkout</strong><span>Stripe Session mit Split-Payment, SEPA, Platform Fee korrekt kalkuliert</span></div></li>
+    <li class="done"><span class="icon">✓</span><div class="text"><strong>stripe-webhook</strong><span>Payment-Events verarbeiten, Order erstellen</span></div></li>
+    <li class="done"><span class="icon">✓</span><div class="text"><strong>retailer-setup + stripe-connect</strong><span>Händler-Onboarding mit Stripe Connect Express</span></div></li>
+    <li class="done"><span class="icon">✓</span><div class="text"><strong>process-payout</strong><span>Auszahlung nach Lieferbestätigung</span></div></li>
+    <li class="done"><span class="icon">✓</span><div class="text"><strong>Pricing Engine</strong><span>Tiers korrekt (Free/Starter/Growth/Enterprise), Rerouting Fee €2.99</span></div></li>
+    <li class="done"><span class="icon">✓</span><div class="text"><strong>Instagram Assets + Supabase post_schedule Table</strong><span>Make.com Pipeline-ready, 33 Posts als 4:5 PNGs downloadbar</span></div></li>
+  </ul>
+</div>
+</section>
+
+<!-- 02 FLOW A: VOLLSTÄNDIG BEI FYNDDS -->
+<section>
+<div class="container">
+  <h2><span class="num">02</span> Flow A — Händler nutzt alles über FYNDDS</h2>
+  <p class="section-sub">Der ideale Flow: FYNDDS übernimmt das komplette Return-Management. Maximales Rerouting möglich.</p>
+
+  <div class="highlight-box">
+    <strong>Kernprinzip:</strong> FYNDDS generiert alle DHL Return-Labels unter dem FYNDDS EKP (Kundennummer). Dadurch ist FYNDDS der rechtliche "Absender" aller Pakete — und kann die Lieferadresse per API ändern, sobald ein Käufer gefunden wird.
+  </div>
+
+  <div class="flow">
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot gold">1</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">Händler</div>
+        <div class="title">Händler listet Retoure auf FYNDDS</div>
+        <div class="desc">Händler lädt Produkt-Infos hoch: SKU, Beschreibung, Zustand, Originalpreis. FYNDDS berechnet automatisch den Angebotspreis (z.B. 60% vom Original) und veröffentlicht es im Shop.</div>
+        <span class="tag fyndds">FYNDDS Dashboard</span>
+        <span class="tag supabase">Supabase DB</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot gold">2</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">Endkunde des Händlers</div>
+        <div class="title">Kunde initiiert Retoure beim Händler</div>
+        <div class="desc">Kunde geht auf die Return-Seite des Händlers (kann FYNDDS-branded sein) und gibt Retourengrund an. FYNDDS-Return-Portal ist eine eigene URL die der Händler in seinen Shop einbettet.</div>
+        <div class="code">https://fyndds.com/return/{retailer_slug}</div>
+        <span class="tag retailer">Händler-Shop</span>
+        <span class="tag fyndds">FYNDDS Return Portal</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue">3</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS System</div>
+        <div class="title">FYNDDS erstellt DHL Return-Label (unter FYNDDS EKP)</div>
+        <div class="desc">Kritisch: Das Label wird im Namen von FYNDDS erstellt, nicht im Namen des Händlers. Absenderadresse = FYNDDS Fulfillment-Adresse. Damit hat FYNDDS die Befugnis, die Lieferadresse später per API zu ändern.</div>
+        <div class="code">POST /parcel/de/v1/shipments
+sender: FYNDDS GmbH, EKP: 1234567890
+recipient: {kunde_adresse}
+→ trackingNumber: "123456789012"</div>
+        <span class="tag dhl">DHL API</span>
+        <span class="tag fyndds">dhl-create-label ⚠️ fehlt</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue">4</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">Endkunde des Händlers</div>
+        <div class="title">Kunde klebt Label auf Paket, gibt es bei DHL ab</div>
+        <div class="desc">Kunde erhält das Label per E-Mail (via Resend). Gibt das Paket bei DHL-Paketshop ab. DHL scannt es: Status wechselt auf IN_TRANSIT.</div>
+        <span class="tag dhl">DHL Netzwerk</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot gold">5</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS Shop</div>
+        <div class="title">Käufer findet das Produkt auf fyndds.com und kauft</div>
+        <div class="desc">Sobald Käufer checkout abschließt: Stripe verarbeitet Zahlung, create-checkout erstellt die Session. stripe-webhook empfängt payment_intent.succeeded.</div>
+        <span class="tag stripe">Stripe Connect</span>
+        <span class="tag fyndds">create-checkout ✓</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot green">6</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS System — Rerouting</div>
+        <div class="title">FYNDDS ändert Lieferadresse: Händler → Käufer</div>
+        <div class="desc">Wenn Paket IN_TRANSIT (noch unterwegs): PATCH /address mit Käufer-Adresse. Paket wird direkt zum Käufer umgeleitet. Händler sieht das Paket nie wieder. Maximale Kostenersparnis.</div>
+        <div class="code">PATCH /parcel/de/v1/shipments/{trackingId}/address
+newRecipient: {käufer_adresse}
+→ success: true</div>
+        <span class="tag dhl">DHL Rerouting</span>
+        <span class="tag fyndds">dhl-reroute ⚠️ fehlt</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot green">7</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS System — Payout</div>
+        <div class="title">Paket zugestellt → Auszahlung an Händler</div>
+        <div class="desc">DHL Tracking-Webhook meldet DELIVERED. FYNDDS triggert process-payout: Produktpreis minus Platform Fee geht an Händler (Stripe Transfer). Rerouting Fee (€2.99) und Platform Fee bleiben bei FYNDDS.</div>
+        <div class="code">Händler bekommt: Produktpreis - Platform Fee
+FYNDDS behält: Platform Fee + €2.99 Rerouting</div>
+        <span class="tag stripe">Stripe Transfer</span>
+        <span class="tag fyndds">process-payout ✓</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot gray">F</div></div>
+      <div class="flow-content">
+        <div class="actor">Fallback</div>
+        <div class="title">Kein Käufer vor Ankunft → Paket kommt zum Händler</div>
+        <div class="desc">Falls das Paket ankommt bevor ein Käufer gefunden wird: normaler Lagereingang. Händler lagert das Produkt. Listing bleibt aktiv. Nächster Käufer → Händler versendet direkt aus Lager.</div>
+        <span class="tag retailer">Händler Lager</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<!-- 03 FLOW B: 8RETURNS + FYNDDS -->
+<section>
+<div class="container">
+  <h2><span class="num">03</span> Flow B — Händler nutzt 8returns + FYNDDS parallel</h2>
+  <p class="section-sub">Der pragmatische Flow: Händler behält 8returns (weniger Reibung beim Onboarding). FYNDDS hängt sich als Resale-Layer davor.</p>
+
+  <div class="highlight-box">
+    <strong>Das Problem:</strong> Wenn 8returns das DHL-Label erstellt, ist der Händler (oder 8returns selbst) der rechtliche Absender — nicht FYNDDS. FYNDDS hat dann keine Befugnis per DHL API die Adresse zu ändern. Lösung: FYNDDS übernimmt die Label-Erstellung auch bei 8returns-Händlern.
+  </div>
+
+  <div class="split" style="margin-bottom: 32px;">
+    <div class="card">
+      <h4>Option 1: Webhook-Kopplung (empfohlen)</h4>
+      <p style="color:#8a8070; font-size:0.88rem; margin-bottom:12px;">8returns informiert FYNDDS sobald Return-Request eingeht. FYNDDS erstellt das Label.</p>
+      <ul>
+        <li>8returns bietet Webhook-Konfiguration pro Händler</li>
+        <li>Händler trägt FYNDDS Webhook-URL in 8returns ein</li>
+        <li>Bei jedem Return: 8returns → POST an FYNDDS</li>
+        <li>FYNDDS erstellt DHL-Label (unter FYNDDS EKP)</li>
+        <li>FYNDDS sendet Label per E-Mail an Endkunden</li>
+        <li>8returns-Dashboard zeigt Tracking (Read-only)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Option 2: 8returns Custom Carrier</h4>
+      <p style="color:#8a8070; font-size:0.88rem; margin-bottom:12px;">Händler konfiguriert FYNDDS als "Custom Carrier" in 8returns — alle Labels kommen von FYNDDS.</p>
+      <ul>
+        <li>8returns unterstützt Custom Carrier via API-Key</li>
+        <li>Händler trägt FYNDDS API-Endpoint als Carrier ein</li>
+        <li>Kein Webhook nötig — 8returns ruft FYNDDS direkt auf</li>
+        <li>Transparenter für Händler (weniger Konfiguration)</li>
+        <li>Einfachste Integration: nur eine Einstellung in 8returns</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="flow">
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot gold">1</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">Endkunde des Händlers</div>
+        <div class="title">Kunde initiiert Retoure im 8returns-Portal</div>
+        <div class="desc">Alles wie gehabt für den Händler. Sein 8returns-Return-Portal ist unverändert. Kunde wählt Produkt + Grund. 8returns verarbeitet den Request.</div>
+        <span class="tag retailer">8returns Portal</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue">2</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">8returns → FYNDDS</div>
+        <div class="title">8returns sendet Webhook an FYNDDS (oder ruft Custom Carrier API auf)</div>
+        <div class="desc">Statt selbst ein DHL-Label zu erstellen, ruft 8returns den FYNDDS Endpunkt auf und übergibt Produkt- und Kundendaten. FYNDDS antwortet mit Tracking-Nummer + Label-URL.</div>
+        <div class="code">POST https://sidjdgxnjcnornstjolt.supabase.co/functions/v1/retailer-api
+{
+  "event": "return_created",
+  "retailer_id": "8ret_xyz123",
+  "product_sku": "SHOE-NIKE-42",
+  "product_name": "Nike Air Max 270",
+  "product_price": 120.00,
+  "condition": "new_with_tags",
+  "customer": {
+    "name": "Max Mustermann",
+    "email": "max@example.com",
+    "address": { "street": "...", "zip": "80331", "city": "München" }
+  }
+}</div>
+        <span class="tag fyndds">retailer-api ⚠️ fehlt</span>
+        <span class="tag new">NEU</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue">3</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS System</div>
+        <div class="title">FYNDDS erstellt DHL-Label (FYNDDS als Absender) + listet Produkt</div>
+        <div class="desc">FYNDDS erstellt das DHL-Label unter eigenem EKP. Gleichzeitig wird das Produkt sofort auf fyndds.com gelistet — noch bevor das Paket eingesammelt wurde. Maximales Zeitfenster für Verkauf vor Ankunft.</div>
+        <div class="code">→ Antwort an 8returns:
+{
+  "label_url": "https://sidjdgxnjcnornstjolt.supabase.co/storage/v1/object/public/labels/abc.pdf",
+  "tracking_number": "123456789012",
+  "listing_url": "https://fyndds.com/product/xyz"
+}</div>
+        <span class="tag dhl">DHL API</span>
+        <span class="tag supabase">Supabase Storage</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot gold">4</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS Shop</div>
+        <div class="title">Käufer kauft auf fyndds.com</div>
+        <div class="desc">Normaler Checkout. Stripe Connect verarbeitet die Zahlung mit Split-Payment.</div>
+        <span class="tag stripe">Stripe Connect</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot green">5</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS — Rerouting oder Lagerversand</div>
+        <div class="title">Zwei Szenarien: Rerouting (ideal) oder Versand aus Lager</div>
+        <div class="desc">
+          <strong style="color:#4ade80">Szenario A — Rerouting:</strong> Paket noch IN_TRANSIT → PATCH /address → direkt zum Käufer. Händler spart Lagerkosten.<br><br>
+          <strong style="color:#fbbf24">Szenario B — Lagerversand:</strong> Paket kam schon an → Händler versendet aus eigenem Lager (oder FYNDDS Fulfillment Center) → normaler Versand.
+        </div>
+        <span class="tag dhl">DHL Rerouting</span>
+        <span class="tag retailer">Händler Lager</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot green">6</div></div>
+      <div class="flow-content">
+        <div class="actor">FYNDDS System</div>
+        <div class="title">Auszahlung nach Zustellung</div>
+        <div class="desc">Identisch wie Flow A. Händler bekommt Produktpreis minus Platform Fee via Stripe Transfer.</div>
+        <span class="tag stripe">Stripe Transfer</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<!-- 04 WARUM ZU FYNDDS WECHSELN / WARUM PARALLEL -->
+<section>
+<div class="container">
+  <h2><span class="num">04</span> Business Case — Warum sollte ein 8returns-Händler zu FYNDDS?</h2>
+  <p class="section-sub">8returns löst Logistik. FYNDDS generiert Umsatz. Beide lösen komplett verschiedene Probleme.</p>
+
+  <div class="split">
+    <div class="card gold-border">
+      <h4>8returns — Was es löst</h4>
+      <ul>
+        <li>Strukturierter Return-Prozess für Kunden</li>
+        <li>Label-Generierung automatisiert</li>
+        <li>Return-Dashboard für Händler</li>
+        <li>Grund-Tracking der Retouren</li>
+        <li>Kosten: ~€0.50-1.50 pro Return + Abo</li>
+      </ul>
+    </div>
+    <div class="card gold-border">
+      <h4>FYNDDS — Was es löst</h4>
+      <ul>
+        <li>Retoure wird zu Umsatz statt zu Kostenpunkt</li>
+        <li>Rerouting spart Lager- & Re-Versandkosten</li>
+        <li>Keine Lagerhaltung für B-Ware nötig</li>
+        <li>Automatische Preisoptimierung</li>
+        <li>Käufer-Netzwerk bereits vorhanden</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Konkretes Rechenbeispiel: 100 Retouren / Monat</h3>
+
+  <div class="split">
+    <div class="calc">
+      <div class="scenario">Ohne FYNDDS (nur 8returns)</div>
+      <div class="calc-row"><span class="label">Durchschnittlicher Produktwert</span><span class="val">€80</span></div>
+      <div class="calc-row"><span class="label">100 Retouren × €80</span><span class="val">€8.000 gebundenes Kapital</span></div>
+      <div class="calc-row"><span class="label">Lagerkosten (100 Artikel, 3 Monate)</span><span class="val neg">- €300</span></div>
+      <div class="calc-row"><span class="label">Re-Versand + Verpackung</span><span class="val neg">- €600</span></div>
+      <div class="calc-row"><span class="label">Wertverlust B-Ware (-30%)</span><span class="val neg">- €2.400</span></div>
+      <div class="calc-row"><span class="label">8returns Gebühren</span><span class="val neg">- €150</span></div>
+      <div class="calc-row"><span class="label">Erlös aus B-Ware Verkauf (70% von €80)</span><span class="val pos">+ €5.600</span></div>
+      <div class="calc-row"><span class="label">Netto-Ergebnis</span><span class="val">≈ €2.150 Gewinn</span></div>
+    </div>
+    <div class="calc">
+      <div class="scenario">Mit FYNDDS (Growth Tier 3%)</div>
+      <div class="calc-row"><span class="label">100 Retouren × €80 Listing-Preis</span><span class="val">€8.000 Inventar</span></div>
+      <div class="calc-row"><span class="label">50 Rerouting (direkt): kein Lager nötig</span><span class="val pos">+ €0 Lagerkosten</span></div>
+      <div class="calc-row"><span class="label">FYNDDS Platform Fee (3% × €8.000)</span><span class="val neg">- €240</span></div>
+      <div class="calc-row"><span class="label">Rerouting Fees (50 × €2.99 — zahlt Käufer)</span><span class="val neg">- €0 für Händler</span></div>
+      <div class="calc-row"><span class="label">Versand restliche 50 (aus Lager)</span><span class="val neg">- €300</span></div>
+      <div class="calc-row"><span class="label">Verkaufserlös (100% Abverkauf, 70% Preis)</span><span class="val pos">+ €5.600</span></div>
+      <div class="calc-row"><span class="label">Schnellerer Abverkauf → kein Wertverlust</span><span class="val pos">+ €500 (weniger Markdown)</span></div>
+      <div class="calc-row"><span class="label">Netto-Ergebnis</span><span class="val total">≈ €5.560 Gewinn (+158%)</span></div>
+    </div>
+  </div>
+
+  <h3>Die 3 stärksten Argumente gegenüber einem 8returns-Händler</h3>
+
+  <table>
+    <thead>
+      <tr><th>Argument</th><th>8returns allein</th><th>8returns + FYNDDS</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Retoure als Umsatz</td>
+        <td class="lose">Retoure = Kostenpunkt. Nur Logistik-Optimierung.</td>
+        <td class="win">Retoure = Umsatz. Jede Retoure wird automatisch gelistet und verkauft.</td>
+      </tr>
+      <tr>
+        <td>Rerouting</td>
+        <td class="lose">Nicht möglich. Paket muss immer ins Lager.</td>
+        <td class="win">50%+ der Pakete kommen nie ins Lager. Spart €4-8 pro Paket (Handling + Lager).</td>
+      </tr>
+      <tr>
+        <td>Systemwechsel</td>
+        <td class="neutral">8returns bleibt unverändert im Einsatz.</td>
+        <td class="win">Kein Wechsel nötig. FYNDDS läuft parallel, 1 Webhook-URL reicht.</td>
+      </tr>
+      <tr>
+        <td>Käufer-Netzwerk</td>
+        <td class="lose">Händler muss selbst B-Ware vermarkten.</td>
+        <td class="win">FYNDDS bringt fertige Käufer. Keine eigenen Marketingkosten für B-Ware.</td>
+      </tr>
+      <tr>
+        <td>Lager-Kapazität</td>
+        <td class="lose">B-Ware blockiert Prime-Lagerplatz bis verkauft.</td>
+        <td class="win">Durch Rerouting braucht B-Ware oft gar keinen Lagerplatz.</td>
+      </tr>
+      <tr>
+        <td>Zeitaufwand</td>
+        <td class="lose">Händler muss Re-Listings, Re-Pricing, Re-Versand managen.</td>
+        <td class="win">Vollautomatisch nach dem einmaligen Setup.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- 05 RETAILER-API SPEC -->
+<section>
+<div class="container">
+  <h2><span class="num">05</span> retailer-api — Technische Spezifikation</h2>
+  <p class="section-sub">Das ist die fehlende Edge Function die gebaut werden muss. Sie ist der Schlüssel für 8returns-Integration UND für die Händler-App.</p>
+
+  <div class="api-block">
+    <span class="method">POST</span>
+    <span class="endpoint">/functions/v1/retailer-api/returns</span>
+    <div class="desc">Händler oder 8returns meldet eine neue Retoure. FYNDDS erstellt DHL-Label + listet Produkt.</div>
+    <pre>{
+  "retailer_id": "uuid",
+  "api_key": "sk_ret_...",          // Händler API-Key (generiert beim Onboarding)
+  "product": {
+    "sku": "SHOE-NIKE-42",
+    "name": "Nike Air Max 270",
+    "category": "shoes",
+    "original_price": 120.00,
+    "condition": "new_with_tags",   // new_with_tags | like_new | good | acceptable
+    "images": ["https://..."]       // optional: Produktbilder vom Händler
+  },
+  "customer": {
+    "name": "Max Mustermann",
+    "email": "max@example.com",
+    "phone": "+49 ...",             // optional, für DHL
+    "address": {
+      "street": "Musterstraße 1",
+      "zip": "80331",
+      "city": "München",
+      "country": "DE"
+    }
+  },
+  "return_reason": "wrong_size"     // optional metadata
+}
+
+// Response 200:
+{
+  "return_id": "uuid",
+  "tracking_number": "123456789012",
+  "label_url": "https://...pdf",
+  "listing_url": "https://fyndds.com/product/xyz",
+  "listed_price": 72.00,
+  "expected_payout": 69.84          // nach Platform Fee
+}</pre>
+  </div>
+
+  <div class="api-block">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint">/functions/v1/retailer-api/returns/{return_id}/status</span>
+    <div class="desc">Händler meldet Status-Update (z.B. Produkt aus Lager versandfertig).</div>
+    <pre>{
+  "status": "ready_to_ship" | "shipped" | "cancelled",
+  "tracking_number": "...",   // wenn direkt vom Händler versendet
+  "notes": "..."
+}</pre>
+  </div>
+
+  <h3>Interne Logik der retailer-api</h3>
+  <div class="flow" style="margin-top: 16px;">
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue" style="font-size:0.75rem">1</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="title">API-Key validieren</div>
+        <div class="desc">Händler-ID + API-Key gegen <code style="color:#c9a84c">retailers</code> Tabelle prüfen. Bei Fehler: 401.</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue" style="font-size:0.75rem">2</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="title">Return in DB anlegen</div>
+        <div class="desc">Insert in <code style="color:#c9a84c">returns</code> Tabelle: Status = "label_pending".</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue" style="font-size:0.75rem">3</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="title">DHL Return-Label erstellen (dhl-create-label aufrufen)</div>
+        <div class="desc">POST an DHL mit FYNDDS EKP + Kundenadresse als Pickup-Punkt. Label-PDF in Supabase Storage speichern.</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue" style="font-size:0.75rem">4</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="title">Produkt auf FYNDDS listen</div>
+        <div class="desc">Insert in <code style="color:#c9a84c">products</code> Tabelle. Preis = Original × Händler-Tier-Faktor. Status = "active".</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot blue" style="font-size:0.75rem">5</div></div>
+      <div class="flow-content">
+        <div class="title">E-Mail an Endkunden mit Label</div>
+        <div class="desc">Via Resend: Label-PDF + Tracking-Link + fyndds.com/product/{id} (optional: "Dein Artikel wird weitergegeben"-Message).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box" style="margin-top: 32px;">
+    <strong>Sicherheit:</strong> API-Keys haben Format <code style="color:#c9a84c">sk_ret_{uuid}</code>. Werden beim Händler-Onboarding (retailer-setup) generiert und in der DB gehasht gespeichert (bcrypt). Nur einmal im Klartext angezeigt — danach nicht mehr lesbar. Rate Limit: 100 Requests/Minute pro Händler.
+  </div>
+</div>
+</section>
+
+<!-- 06 WAS MACHT FYNDDS ATTRAKTIVER ALS NUR 8RETURNS -->
+<section>
+<div class="container">
+  <h2><span class="num">06</span> Positioning — Kein Wettbewerb, sondern Erweiterung</h2>
+  <p class="section-sub">FYNDDS verkauft sich nicht als 8returns-Ersatz. FYNDDS verkauft sich als Umsatz-Layer on top.</p>
+
+  <div class="split">
+    <div class="card">
+      <h4>"Wir ersetzen 8returns"</h4>
+      <p style="color:#f87171; font-size:0.9rem;">❌ Hohe Wechselkosten für Händler<br>❌ Langwieriger Sales-Prozess<br>❌ Händler muss alles neu konfigurieren<br>❌ Risiko: "was wenn FYNDDS ausfällt?"</p>
+    </div>
+    <div class="card gold-border">
+      <h4>"Wir stecken uns davor — eine URL"</h4>
+      <p style="color:#4ade80; font-size:0.9rem;">✓ Händler muss nur 1 Webhook-URL in 8returns eintragen<br>✓ Kein Systemwechsel, keine Schulung<br>✓ Sofort live: nächste Retoure = erster FYNDDS-Verkauf<br>✓ ROI messbar ab Tag 1</p>
+    </div>
+  </div>
+
+  <h3>Sales-Script: Was du einem Händler sagst</h3>
+  <div style="background: #050507; border: 1px solid #c9a84c22; border-radius: 12px; padding: 28px; margin-top: 16px;">
+    <p style="color: #f0ebe0; font-style: italic; font-size: 1.05rem; line-height: 1.8;">
+      "Du nutzt schon 8returns — perfekt, das bleibt genau so. Du trägst einmal unsere Webhook-URL ein. Ab sofort wird jede Retoure die du bekommst automatisch auf unserem Marketplace gelistet. Wenn wir einen Käufer finden bevor dein Paket ankommt, leiten wir es direkt um — du siehst das Paket nie wieder, sparst Lager- und Versandkosten, und bekommst trotzdem bezahlt. Wenn kein Käufer vor Ankunft da ist, läuft alles wie gewohnt. Kein Risiko, keine Kosten bis zum ersten Verkauf."
+    </p>
+  </div>
+
+  <div class="timeline" style="margin-top: 32px;">
+    <div class="timeline-item">
+      <div class="week">Setup (15 Min)</div>
+      <ul>
+        <li>Stripe Connect Express</li>
+        <li>Webhook-URL in 8returns</li>
+        <li>FYNDDS API-Key generieren</li>
+      </ul>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Tag 1</div>
+      <ul>
+        <li>Erste Retoure → automatisch gelistet</li>
+        <li>Händler sieht Listing in Dashboard</li>
+        <li>0 Aufwand</li>
+      </ul>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Woche 1-2</div>
+      <ul>
+        <li>Erste Verkäufe auf FYNDDS</li>
+        <li>Erste Rerouting-Events</li>
+        <li>Erstes Payout</li>
+      </ul>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Monat 1</div>
+      <ul>
+        <li>ROI messbar</li>
+        <li>Konversion: Upgrade auf höheres Tier</li>
+        <li>Referenz für nächsten Händler</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- 07 OFFENE BAUSTELLEN ZUSAMMENFASSUNG -->
+<section>
+<div class="container">
+  <h2><span class="num">07</span> Entwicklungs-Roadmap — Was gebaut werden muss</h2>
+  <p class="section-sub">Priorisierte Liste der noch fehlenden Edge Functions + Tasks</p>
+
+  <table>
+    <thead>
+      <tr><th>Priorität</th><th>Was</th><th>Aufwand</th><th>Status</th><th>Abhängigkeit</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1 — Kritisch</td>
+        <td>DHL Developer Account beantragen</td>
+        <td>1h (Formular)</td>
+        <td class="lose"><span class="badge missing">⚠ Fehlt</span></td>
+        <td>Alles andere hängt daran</td>
+      </tr>
+      <tr>
+        <td>2 — Kritisch</td>
+        <td>dhl-create-label Edge Function</td>
+        <td>1-2 Tage</td>
+        <td class="lose"><span class="badge missing">⚠ Fehlt</span></td>
+        <td>DHL Account</td>
+      </tr>
+      <tr>
+        <td>3 — Kritisch</td>
+        <td>retailer-api Edge Function</td>
+        <td>1-2 Tage</td>
+        <td class="lose"><span class="badge missing">⚠ Fehlt</span></td>
+        <td>dhl-create-label</td>
+      </tr>
+      <tr>
+        <td>4 — Kritisch</td>
+        <td>dhl-reroute Edge Function</td>
+        <td>1 Tag</td>
+        <td class="lose"><span class="badge missing">⚠ Fehlt</span></td>
+        <td>DHL Account</td>
+      </tr>
+      <tr>
+        <td>5 — Wichtig</td>
+        <td>Supabase Secrets (Live-Keys)</td>
+        <td>30 Min</td>
+        <td class="lose"><span class="badge missing">⚠ Fehlt</span></td>
+        <td>Stripe Live-Account, Resend</td>
+      </tr>
+      <tr>
+        <td>6 — Wichtig</td>
+        <td>Tier-basierte Platform Fee (statt hardcoded 3%)</td>
+        <td>2h</td>
+        <td class="neutral"><span class="badge mock">Hardcoded</span></td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>7 — Wichtig</td>
+        <td>Stale Pricing UI Fix (€990 → korrekte Tier-Preise)</td>
+        <td>1h (Lovable)</td>
+        <td class="neutral"><span class="badge mock">Stale UI</span></td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>8 — Wichtig</td>
+        <td>End-to-End Testkauf (Stripe Live)</td>
+        <td>2h</td>
+        <td class="lose"><span class="badge missing">⚠ Fehlt</span></td>
+        <td>Secrets + Live-Keys</td>
+      </tr>
+      <tr>
+        <td>9 — Legal</td>
+        <td>Impressum / AGB / Datenschutz (Anwalt)</td>
+        <td>Extern</td>
+        <td class="lose"><span class="badge missing">⚠ Fehlt</span></td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>10 — Phase 2</td>
+        <td>DPD / Hermes / UPS Rerouting</td>
+        <td>3-5 Tage</td>
+        <td class="lose"><span class="badge missing">Später</span></td>
+        <td>DHL stabil</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box" style="margin-top: 32px;">
+    <strong>Realistische Timeline:</strong> DHL Developer Account heute beantragen (3-5 Tage Wartezeit). Parallel: dhl-create-label + retailer-api + dhl-reroute bauen (~5 Entwicklungstage). Dann: Live-Keys setzen + End-to-End Test (1 Tag). Danach: erster Pilot-Händler onboarden. <strong>Launch-ready in ca. 2 Wochen</strong> bei fokussierter Entwicklung.
+  </div>
+</div>
+</section>
+
+<div style="text-align:center; padding: 40px; color: #3a3830; font-size: 0.85rem;">
+  FYNDDS — Retailer Integration Blueprint · Stand 21.05.2026 · <a href="https://fyndds.com" style="color:#c9a84c; text-decoration:none;">fyndds.com</a>
+</div>
+
+</body>
+</html>
