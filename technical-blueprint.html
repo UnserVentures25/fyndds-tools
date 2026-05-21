@@ -602,7 +602,7 @@ payment_intent.succeeded
     <li><a href="#int-flowb">Flow B — 8returns + FYNDDS</a></li>
     <li><a href="#int-warum">Warum wechseln?</a></li>
     <li><a href="#int-rechnung">Rechenbeispiel</a></li>
-    <li><a href="#int-api">API-Spezifikation</a></li>
+    <li><a href="#int-api">API &amp; Interne Logik</a></li>
   </ul>
 </nav>
 
@@ -751,6 +751,31 @@ payment_intent.succeeded
     <strong>Die Lösung:</strong> 8returns hat eine "Custom Carrier" Funktion. Der Händler trägt dort FYNDDS als seinen Paketdienstleister ein. Ab dann erstellt FYNDDS alle Labels — unter FYNDDS' DHL-Konto. Volles Rerouting möglich.
   </div>
 
+  <div class="grid2" style="margin:20px 0">
+    <div class="card card-gold">
+      <div class="card-title">Option 1 — Webhook-Kopplung (empfohlen)</div>
+      <div class="card-body">
+        8returns informiert FYNDDS sobald ein Return-Request eingeht. FYNDDS erstellt das Label.<br/><br/>
+        <span class="ok">✓</span> Händler trägt FYNDDS Webhook-URL in 8returns ein<br/>
+        <span class="ok">✓</span> Bei jedem Return: 8returns → POST an FYNDDS<br/>
+        <span class="ok">✓</span> FYNDDS erstellt DHL-Label (unter FYNDDS EKP)<br/>
+        <span class="ok">✓</span> 8returns-Dashboard zeigt Tracking weiterhin<br/>
+        <span class="ok">✓</span> Volle Rerouting-Befugnis für FYNDDS
+      </div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">Option 2 — 8returns Custom Carrier</div>
+      <div class="card-body">
+        Händler konfiguriert FYNDDS als "Custom Carrier" in 8returns — alle Labels kommen von FYNDDS.<br/><br/>
+        <span class="ok">✓</span> 8returns unterstützt Custom Carrier via API-Key<br/>
+        <span class="ok">✓</span> Kein Webhook nötig — 8returns ruft FYNDDS direkt auf<br/>
+        <span class="ok">✓</span> Transparenter für Händler (weniger Konfiguration)<br/>
+        <span class="ok">✓</span> Einfachste Integration: nur eine Einstellung<br/>
+        <span class="ok">✓</span> Volle Rerouting-Befugnis für FYNDDS
+      </div>
+    </div>
+  </div>
+
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
@@ -853,8 +878,73 @@ POST https://...supabase.co/functions/v1/retailer-api/returns
     </div>
   </div>
 
+  <table style="margin-top:20px">
+    <tr><th>Kriterium</th><th>Nur 8returns</th><th>8returns + FYNDDS</th></tr>
+    <tr>
+      <td>Retoure als Umsatz</td>
+      <td style="color:#e05252">Retoure = Kostenpunkt. Nur Logistik-Optimierung.</td>
+      <td style="color:#38a85a">Retoure = Umsatz. Jede Retoure wird automatisch gelistet und verkauft.</td>
+    </tr>
+    <tr>
+      <td>Rerouting</td>
+      <td style="color:#e05252">Nicht möglich. Paket muss immer ins Lager.</td>
+      <td style="color:#38a85a">50%+ der Pakete kommen nie ins Lager. Spart €4–8 pro Paket (Handling + Lager).</td>
+    </tr>
+    <tr>
+      <td>Systemwechsel</td>
+      <td style="color:#e09a2a">8returns bleibt im Einsatz.</td>
+      <td style="color:#38a85a">Kein Wechsel nötig. FYNDDS läuft parallel, 1 Webhook-URL reicht.</td>
+    </tr>
+    <tr>
+      <td>Käufer-Netzwerk</td>
+      <td style="color:#e05252">Händler muss selbst B-Ware vermarkten.</td>
+      <td style="color:#38a85a">FYNDDS bringt fertige Käufer. Keine eigenen Marketingkosten für B-Ware.</td>
+    </tr>
+    <tr>
+      <td>Lager-Kapazität</td>
+      <td style="color:#e05252">B-Ware blockiert Lagerplatz bis verkauft.</td>
+      <td style="color:#38a85a">Durch Rerouting braucht B-Ware oft gar keinen Lagerplatz.</td>
+    </tr>
+    <tr>
+      <td>Zeitaufwand</td>
+      <td style="color:#e05252">Händler managt Re-Listings, Repricing, Re-Versand.</td>
+      <td style="color:#38a85a">Vollautomatisch nach dem einmaligen Setup.</td>
+    </tr>
+  </table>
+
   <div class="quote" style="margin-top:24px">
     "Du nutzt schon 8returns — perfekt, das bleibt genau so. Du trägst einmal unsere URL ein. Ab sofort wird jede Retoure die du bekommst automatisch auf unserem Marketplace gelistet. Wenn wir einen Käufer finden bevor dein Paket ankommt, leiten wir es direkt um — du siehst das Paket nie wieder, sparst Lager- und Versandkosten, und bekommst trotzdem bezahlt. <strong>Kein Risiko, keine Kosten bis zum ersten Verkauf.</strong>"
+  </div>
+
+  <div style="margin-top:28px">
+    <div class="lbl" style="margin-bottom:16px">Positioning — das ist der Unterschied</div>
+    <div class="grid2">
+      <div class="card card-red">
+        <div class="card-title">❌ "Wir ersetzen 8returns"</div>
+        <div class="card-body">
+          Hohe Wechselkosten für Händler<br/>
+          Langer Sales-Prozess ("ich muss erst mein Team fragen")<br/>
+          Händler muss alles neu konfigurieren<br/>
+          Risiko: "was wenn FYNDDS mal ausfällt?"
+        </div>
+      </div>
+      <div class="card card-green">
+        <div class="card-title">✓ "Wir stecken uns davor — eine URL"</div>
+        <div class="card-body">
+          Händler muss nur 1 Webhook-URL in 8returns eintragen<br/>
+          Kein Systemwechsel, keine Schulung nötig<br/>
+          Sofort live: nächste Retoure = erster FYNDDS-Verkauf<br/>
+          ROI messbar ab Tag 1
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px">
+    <div class="card"><div class="card-title">Setup (15 Min)</div><div class="card-body" style="font-size:11px">Stripe Connect Express · Webhook-URL in 8returns · FYNDDS API-Key generieren</div></div>
+    <div class="card"><div class="card-title">Tag 1</div><div class="card-body" style="font-size:11px">Erste Retoure → automatisch gelistet · Händler sieht Listing im Dashboard · 0 Aufwand</div></div>
+    <div class="card"><div class="card-title">Woche 1–2</div><div class="card-body" style="font-size:11px">Erste Verkäufe auf FYNDDS · Erste Rerouting-Events · Erstes Payout</div></div>
+    <div class="card card-gold"><div class="card-title">Monat 1</div><div class="card-body" style="font-size:11px">ROI messbar · Upgrade auf höheres Tier · Referenz für nächsten Händler</div></div>
   </div>
 </div>
 
@@ -940,6 +1030,32 @@ Response 200:
   <div class="hbox" style="margin-top:16px">
     <strong>API-Key Sicherheit:</strong> Keys haben das Format <code>sk_ret_{uuid}</code> und werden beim Händler-Onboarding generiert. In der DB wird nur der Hash gespeichert. Rate Limit: 100 Requests/Minute pro Händler. Der Key wird nur einmal im Klartext angezeigt — danach nicht mehr lesbar (wie bei Stripe).
   </div>
+
+  <div style="margin-top:28px">
+    <div class="lbl" style="margin-bottom:16px">Interne Logik — was die retailer-api nach dem Aufruf macht</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="font-size:10px">1</div>
+        <div><div class="step-title">API-Key validieren</div><div class="step-body">Händler-ID + API-Key gegen <code>retailers</code> Tabelle prüfen. Bei ungültigem Key: 401 Unauthorized zurückgeben.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="font-size:10px">2</div>
+        <div><div class="step-title">Return in Datenbank anlegen</div><div class="step-body">Insert in <code>return_assets</code> Tabelle: Status = "label_pending". Produkt-Infos, Händler-ID, Kundendaten speichern.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="font-size:10px">3</div>
+        <div><div class="step-title">DHL Return-Label erstellen</div><div class="step-body"><code>dhl-create-label</code> Edge Function aufrufen: POST an DHL mit FYNDDS EKP + Kundenadresse. Label-PDF in Supabase Storage speichern. Tracking-Nummer in DB.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="font-size:10px">4</div>
+        <div><div class="step-title">Produkt auf FYNDDS listen</div><div class="step-body">Insert in <code>products</code> Tabelle. Preis = Original × Tier-Faktor des Händlers. Status = "active". Sofort sichtbar im Marketplace.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="font-size:10px">5</div>
+        <div><div class="step-title">E-Mail an Endkunden mit DHL-Label</div><div class="step-body">Via <code>send-email</code> + Resend: Label-PDF als Anhang, Tracking-Link, optionaler Hinweis: "Dein Artikel wird an einen neuen Käufer weitergegeben".</div></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 </div><!-- /container -->
@@ -955,6 +1071,7 @@ Response 200:
     <li><a href="#road-crit">Kritisch</a></li>
     <li><a href="#road-soon">Bald</a></li>
     <li><a href="#road-later">Später</a></li>
+    <li><a href="#road-table">Alle Punkte</a></li>
     <li><a href="#road-timeline">Timeline</a></li>
   </ul>
 </nav>
@@ -1119,6 +1236,30 @@ Response 200:
       </div>
     </li>
   </ul>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="road-table">
+  <div class="lbl">Entwicklungs-Übersicht</div>
+  <h2>Alle offenen Punkte auf einen Blick<br/><span>Priorität, Aufwand, Status, Abhängigkeiten</span></h2>
+  <table>
+    <tr><th>Priorität</th><th>Was</th><th>Aufwand</th><th>Status</th><th>Abhängigkeit</th></tr>
+    <tr><td>1 — Kritisch</td><td>DHL Developer Account beantragen</td><td>1h (Formular)</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Alles andere hängt daran</td></tr>
+    <tr><td>2 — Kritisch</td><td>dhl-create-label Edge Function</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DHL Account</td></tr>
+    <tr><td>3 — Kritisch</td><td>retailer-api Edge Function</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>dhl-create-label</td></tr>
+    <tr><td>4 — Kritisch</td><td>dhl-reroute Edge Function</td><td>1 Tag</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DHL Account</td></tr>
+    <tr><td>5 — Kritisch</td><td>Supabase Secrets (Live-Keys)</td><td>30 Min</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Stripe Live + Resend</td></tr>
+    <tr><td>6 — Kritisch</td><td>End-to-End Testkauf (Stripe Live)</td><td>2h</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Alle Keys + DHL</td></tr>
+    <tr><td>7 — Wichtig</td><td>Tier-basierte Platform Fee (statt hardcoded 3%)</td><td>2h</td><td><span class="pill pill-gold">Hardcoded</span></td><td>—</td></tr>
+    <tr><td>8 — Wichtig</td><td>Stale Pricing UI Fix (€990 → korrekte Tier-Preise)</td><td>1h (Lovable)</td><td><span class="pill pill-gold">Stale UI</span></td><td>—</td></tr>
+    <tr><td>9 — Wichtig</td><td>Mindestens 1 Pilot-Händler onboarden</td><td>—</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Stripe Live</td></tr>
+    <tr><td>10 — Legal</td><td>Impressum / AGB / Datenschutz (Anwalt)</td><td>Extern</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>—</td></tr>
+    <tr><td>11 — Phase 2</td><td>E-Mail Domain (fyndds.de → fyndds.com)</td><td>1h</td><td><span class="pill pill-gold">Gemischt</span></td><td>Resend DNS</td></tr>
+    <tr><td>12 — Phase 2</td><td>CORS auf "*" → fyndds.com einschränken</td><td>1h</td><td><span class="pill pill-gold">Offen</span></td><td>—</td></tr>
+    <tr><td>13 — Phase 2</td><td>DPD / Hermes / UPS Rerouting</td><td>3–5 Tage</td><td><span class="pill pill-blue">Später</span></td><td>DHL stabil</td></tr>
+    <tr><td>14 — Phase 2</td><td>Shopify / WooCommerce Plugin</td><td>3–5 Tage</td><td><span class="pill pill-blue">Später</span></td><td>retailer-api live</td></tr>
+  </table>
 </div>
 
 <div class="divider"></div>
