@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FYNDDS — Kompletter Prozess-Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f5f4f0;color:#111;font-size:13px;padding:40px 20px 80px}
+
+h1{font-size:28px;font-weight:900;letter-spacing:-0.04em;text-align:center;margin-bottom:6px}
+.subtitle{text-align:center;color:#888;font-size:13px;margin-bottom:48px}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:48px}
+.leg{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.leg-dot{width:12px;height:12px;border-radius:50%}
+
+/* ── PHASE HEADER ── */
+.phase{margin-bottom:8px;margin-top:40px}
+.phase-label{display:inline-block;font-size:9px;font-weight:800;letter-spacing:4px;text-transform:uppercase;padding:5px 14px;border-radius:2px;margin-bottom:20px}
+
+/* ── SWIM LANE CONTAINER ── */
+.lanes{display:grid;grid-template-columns:140px 1fr 1fr 1fr 1fr 1fr;gap:0;position:relative}
+.lane-header{font-size:9px;font-weight:800;letter-spacing:3px;text-transform:uppercase;padding:10px 12px;text-align:center;border-radius:4px 4px 0 0;position:sticky;top:0;z-index:10}
+.lane-col{display:flex;flex-direction:column;align-items:center;padding-top:4px;position:relative}
+.lane-col::before{content:'';position:absolute;top:0;bottom:0;width:2px;background:#e5e3de;left:50%;transform:translateX(-50%);z-index:0}
+
+/* ── STEP BOX ── */
+.step{position:relative;z-index:1;margin:6px 8px;border-radius:6px;padding:10px 12px;font-size:11px;font-weight:600;line-height:1.4;text-align:center;min-width:110px;max-width:130px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.step-note{font-size:10px;font-weight:400;opacity:0.75;margin-top:3px;line-height:1.3}
+.step-empty{min-height:20px;margin:6px 8px}
+
+/* ── ARROW CONNECTOR ── */
+.connector{display:flex;align-items:center;margin:0 8px;font-size:11px;color:#888;font-weight:500}
+.arr{font-size:16px;margin:0 4px}
+
+/* ── ROW (horizontal step across lanes) ── */
+.flow-row{display:grid;grid-template-columns:140px 1fr 1fr 1fr 1fr 1fr;align-items:center;margin:0;position:relative}
+.flow-row::after{content:'';position:absolute;left:140px;right:0;height:1px;background:#ece9e2;top:50%;z-index:0;pointer-events:none}
+
+.row-label{font-size:10px;font-weight:700;color:#888;padding:8px 12px 8px 0;text-align:right;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+
+/* ── ACTOR COLORS ── */
+.kaeufer-a  {background:#dbeafe;color:#1e40af;border:1.5px solid #93c5fd}
+.haendler   {background:#111;color:#c9a84c;border:1.5px solid #c9a84c}
+.fyndds     {background:#c9a84c;color:#111;border:1.5px solid #a8883c;font-weight:700}
+.fyndds-eng {background:#111827;color:#f9fafb;border:1.5px solid #374151}
+.dhl        {background:#fef3c7;color:#92400e;border:1.5px solid #fcd34d}
+.stripe     {background:#ede9fe;color:#4c1d95;border:1.5px solid #c4b5fd}
+.kaeufer-b  {background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7}
+.system     {background:#f1f5f9;color:#475569;border:1.5px solid #cbd5e1;font-style:italic}
+.decision   {background:#fff7ed;color:#9a3412;border:1.5px solid #fed7aa;border-radius:4px}
+
+/* ── PHASE BANDS ── */
+.phase-band{border-radius:6px;padding:6px 16px;margin:32px 0 16px;display:flex;align-items:center;gap:12px}
+.phase-num{font-size:28px;font-weight:900;opacity:0.15}
+.phase-info{}
+.phase-title{font-size:14px;font-weight:800;letter-spacing:-0.02em}
+.phase-sub{font-size:11px;opacity:0.7;margin-top:1px}
+
+/* Colors per phase */
+.ph1{background:#dbeafe;color:#1e3a8a}
+.ph2{background:#fef3c7;color:#78350f}
+.ph3{background:#f3e8ff;color:#581c87}
+.ph4{background:#d1fae5;color:#064e3b}
+.ph5{background:#fee2e2;color:#7f1d1d}
+.ph6{background:#111;color:#c9a84c}
+
+/* ── MAIN TIMELINE ── */
+.timeline{max-width:1100px;margin:0 auto}
+.tl-step{display:flex;gap:0;margin-bottom:0;position:relative}
+
+/* Vertical line */
+.tl-line{width:60px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.tl-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;z-index:1;border:2px solid white;box-shadow:0 0 0 2px currentColor}
+.tl-vline{width:2px;flex:1;min-height:24px}
+
+.tl-content{flex:1;padding:0 0 28px 0}
+.tl-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;margin-top:-2px}
+.tl-num{font-size:9px;font-weight:800;letter-spacing:3px;text-transform:uppercase;opacity:0.5}
+.tl-actor{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px}
+.tl-title{font-size:14px;font-weight:800;letter-spacing:-0.02em;color:#111;margin-bottom:4px}
+.tl-desc{font-size:12px;color:#555;line-height:1.7;max-width:680px}
+.tl-sub{margin-top:8px;background:white;border:1px solid #e5e3de;border-radius:6px;padding:10px 14px;font-size:11px;color:#666;line-height:1.7}
+.tl-sub strong{color:#111;font-weight:700}
+.tl-arrow{font-size:12px;color:#bbb;margin:0 6px}
+
+/* Tech badge */
+.tech{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:2px;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;margin-left:6px}
+.tech-gold{background:#fef9ec;color:#92620a;border-color:#f6d77b}
+.tech-purple{background:#f5f3ff;color:#5b21b6;border-color:#c4b5fd}
+.tech-green{background:#f0fdf4;color:#166534;border-color:#86efac}
+
+/* Actor color classes for dots/lines */
+.c-kaeufer-a{color:#3b82f6}
+.c-haendler{color:#c9a84c}
+.c-fyndds{color:#111}
+.c-dhl{color:#d97706}
+.c-stripe{color:#7c3aed}
+.c-kaeufer-b{color:#059669}
+
+.bg-kaeufer-a{background:#3b82f6}
+.bg-haendler{background:#c9a84c}
+.bg-fyndds{background:#111}
+.bg-dhl{background:#d97706}
+.bg-stripe{background:#7c3aed}
+.bg-kaeufer-b{background:#059669}
+
+/* ── Phase separator ── */
+.sep{display:flex;align-items:center;gap:12px;margin:32px 0 24px;padding:12px 20px;border-radius:8px}
+
+/* Decision box */
+.decision-box{display:inline-flex;align-items:center;gap:8px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:6px;padding:8px 14px;font-size:11px;font-weight:700;color:#9a3412;margin-top:8px}
+
+/* Result pill */
+.result{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-top:6px}
+.result-ok{background:#d1fae5;color:#065f46}
+.result-warn{background:#fef3c7;color:#78350f}
+.result-fail{background:#fee2e2;color:#7f1d1d}
+
+/* Summary table */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px}
+.sum-card{background:white;border:1px solid #e5e3de;border-radius:8px;padding:16px;text-align:center}
+.sum-val{font-size:22px;font-weight:900;letter-spacing:-0.04em;color:#111}
+.sum-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin-top:4px}
+
+@media(max-width:600px){
+  .tl-desc{font-size:11px}
+  .tl-title{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<div style="text-align:center;margin-bottom:8px">
+  <span style="font-size:9px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;border:1px solid rgba(201,168,76,0.3);padding:5px 14px;border-radius:2px;display:inline-block;margin-bottom:20px">FYNDDS · Prozess-Flow</span>
+</div>
+<h1>Wer macht wann was?</h1>
+<p class="subtitle">Der komplette FYNDDS-Flow — von der Original-Bestellung bis zur Auszahlung an den Händler</p>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#3b82f6"></div>Käufer A</div>
+  <div class="leg"><div class="leg-dot" style="background:#c9a84c"></div>Händler</div>
+  <div class="leg"><div class="leg-dot" style="background:#111"></div>FYNDDS</div>
+  <div class="leg"><div class="leg-dot" style="background:#d97706"></div>DHL</div>
+  <div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Stripe</div>
+  <div class="leg"><div class="leg-dot" style="background:#059669"></div>Käufer B</div>
+</div>
+
+<div class="timeline" style="max-width:760px;margin:0 auto">
+
+<!-- ═══════════ PHASE 1 ═══════════ -->
+<div class="sep ph1">
+  <div class="phase-num">1</div>
+  <div class="phase-info">
+    <div class="phase-title">Original-Kauf &amp; Lieferung</div>
+    <div class="phase-sub">Normaler E-Commerce — FYNDDS ist noch nicht involviert</div>
+  </div>
+</div>
+
+<!-- Step 1 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-kaeufer-a" style="margin-top:2px"></div>
+    <div class="tl-vline bg-kaeufer-a" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">01</span>
+      <span class="tl-actor" style="background:#dbeafe;color:#1e40af">Käufer A</span>
+    </div>
+    <div class="tl-title">Käufer A kauft Produkt beim Händler</div>
+    <div class="tl-desc">Ganz normaler Online-Kauf. Käufer A bestellt auf dem Händler-Shop (Shopify, WooCommerce etc.) und bezahlt. FYNDDS ist hier noch gar nicht beteiligt.</div>
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-haendler" style="margin-top:2px"></div>
+    <div class="tl-vline bg-haendler" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">02</span>
+      <span class="tl-actor" style="background:#fef9ec;color:#92620a">Händler + DHL</span>
+    </div>
+    <div class="tl-title">Händler versendet das Paket via DHL</div>
+    <div class="tl-desc">Händler erstellt ein DHL-Label und übergibt das Paket. DHL liefert an Käufer A.</div>
+  </div>
+</div>
+
+<!-- Step 3 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-kaeufer-a" style="margin-top:2px"></div>
+    <div class="tl-vline bg-kaeufer-a" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">03</span>
+      <span class="tl-actor" style="background:#dbeafe;color:#1e40af">Käufer A</span>
+    </div>
+    <div class="tl-title">Käufer A möchte zurückgeben</div>
+    <div class="tl-desc">Käufer A ist unzufrieden — falsches Produkt, passt nicht, Geschmack geändert. Er klickt auf "Retoure anmelden" im Händler-Shop.</div>
+    <div class="tl-sub">💡 <strong>Genau hier setzt FYNDDS an.</strong> Anstatt das Paket einfach einzulagern, wird es über FYNDDS weiterverkauft.</div>
+  </div>
+</div>
+
+
+<!-- ═══════════ PHASE 2 ═══════════ -->
+<div class="sep ph2" style="margin-top:40px">
+  <div class="phase-num">2</div>
+  <div class="phase-info">
+    <div class="phase-title">Return-Portal — Käufer A gibt Paket auf</div>
+    <div class="phase-sub">FYNDDS übernimmt den Rücksende-Prozess</div>
+  </div>
+</div>
+
+<!-- Step 4 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot" style="background:#111;margin-top:2px"></div>
+    <div class="tl-vline" style="background:#111;opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">04</span>
+      <span class="tl-actor" style="background:#111;color:#c9a84c">FYNDDS</span>
+    </div>
+    <div class="tl-title">Händler schickt Käufer A auf das FYNDDS Return-Portal</div>
+    <div class="tl-desc">Der Händler hat das FYNDDS Return-Portal eingebunden (als White-Label-Seite mit eigenem Logo). Käufer A bekommt einen Link, der ihn auf eine Seite führt unter z.B.: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">returns.haendler.de</code></div>
+    <div class="tl-sub">
+      <strong>Was Käufer A auf dem Portal ausfüllt:</strong><br/>
+      → Warenzustand (wie neu / gut / akzeptabel)<br/>
+      → Retourengrund (passt nicht, Beschreibung falsch, etc.)<br/>
+      → Wie lange er die Ware noch hat (Sales-Window-Bestätigung)<br/>
+      → Optional: Fotos hochladen
+    </div>
+  </div>
+</div>
+
+<!-- Step 5 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot" style="background:#111;margin-top:2px"></div>
+    <div class="tl-vline" style="background:#111;opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">05</span>
+      <span class="tl-actor" style="background:#111;color:#c9a84c">FYNDDS Engine</span>
+      <span class="tech tech-gold">API</span>
+    </div>
+    <div class="tl-title">FYNDDS holt Produktdaten vom Händler-Shop</div>
+    <div class="tl-desc">FYNDDS ruft die Händler-API auf (oder 8returns-Webhook) und holt: Produktname, Kategorie, Original-Preis, Bilder, SKU. Damit wird das Listing für den FYNDDS-Marketplace vorbereitet.</div>
+  </div>
+</div>
+
+<!-- Step 6 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-dhl" style="margin-top:2px"></div>
+    <div class="tl-vline bg-dhl" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">06</span>
+      <span class="tl-actor" style="background:#fef3c7;color:#92400e">FYNDDS + DHL</span>
+      <span class="tech">DHL Shipping API</span>
+    </div>
+    <div class="tl-title">FYNDDS erstellt DHL-Retourenlabel unter eigenem EKP</div>
+    <div class="tl-desc">Das ist der <strong>kritische Schritt</strong> für das spätere Rerouting. FYNDDS erstellt das Label über die eigene DHL-Geschäftskunden-Nummer (EKP). Käufer A bekommt einen QR-Code.</div>
+    <div class="tl-sub">
+      ⚠️ <strong>Warum FYNDDS-EKP?</strong> Nur weil das Label unter FYNDDS läuft, kann FYNDDS später die Zieladresse des Pakets ändern. Ein Label das der Händler erstellt hat, kann FYNDDS nicht umeroutern.
+    </div>
+  </div>
+</div>
+
+<!-- Step 7 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-kaeufer-a" style="margin-top:2px"></div>
+    <div class="tl-vline bg-kaeufer-a" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">07</span>
+      <span class="tl-actor" style="background:#dbeafe;color:#1e40af">Käufer A + DHL</span>
+    </div>
+    <div class="tl-title">Käufer A gibt Paket bei DHL ab</div>
+    <div class="tl-desc">Käufer A druckt das Label oder zeigt den QR-Code an der DHL-Filiale. Das Paket ist jetzt offiziell unterwegs. Die Zieladresse im Label ist die FYNDDS-Retourenadresse — <em>vorerst</em>.</div>
+  </div>
+</div>
+
+
+<!-- ═══════════ PHASE 3 ═══════════ -->
+<div class="sep ph3" style="margin-top:40px">
+  <div class="phase-num">3</div>
+  <div class="phase-info">
+    <div class="phase-title">Paket unterwegs → FYNDDS listet das Produkt</div>
+    <div class="phase-sub">Das Sales-Window öffnet sich — die Uhr tickt</div>
+  </div>
+</div>
+
+<!-- Step 8 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-dhl" style="margin-top:2px"></div>
+    <div class="tl-vline bg-dhl" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">08</span>
+      <span class="tl-actor" style="background:#fef3c7;color:#92400e">DHL → FYNDDS</span>
+      <span class="tech">Webhook</span>
+    </div>
+    <div class="tl-title">DHL meldet: "Paket abgeholt"</div>
+    <div class="tl-desc">DHL scannt das Paket bei der Filiale ein. Automatisch schickt DHL einen Webhook (HTTP-POST) an FYNDDS: "Sendung XY wurde abgeholt."</div>
+    <div class="tl-sub"><strong>FYNDDS tracking-webhook empfängt das Event:</strong><br/>Signatur wird geprüft (HMAC-SHA256) → Event wird verarbeitet</div>
+  </div>
+</div>
+
+<!-- Step 9 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot" style="background:#111;margin-top:2px"></div>
+    <div class="tl-vline" style="background:#111;opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">09</span>
+      <span class="tl-actor" style="background:#111;color:#c9a84c">FYNDDS Engine</span>
+    </div>
+    <div class="tl-title">Sales-Window öffnet sich — Produkt erscheint auf Marketplace</div>
+    <div class="tl-desc">FYNDDS setzt den Asset-Status auf <strong>listed</strong> und startet den 48-Stunden-Timer. Das Produkt erscheint sofort im Marketplace mit einem dynamischen Preis.</div>
+    <div class="tl-sub">
+      <strong>Dynamisches Pricing:</strong><br/>
+      → Startpreis: 12% unter Original-Preis<br/>
+      → Preis fällt automatisch alle ~12h weiter<br/>
+      → Nach 48h: max. 35-40% Rabatt<br/>
+      → Je früher Käufer B kauft, desto höher der Preis für den Händler
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ PHASE 4 ═══════════ -->
+<div class="sep ph4" style="margin-top:40px">
+  <div class="phase-num">4</div>
+  <div class="phase-info">
+    <div class="phase-title">Käufer B kauft auf FYNDDS</div>
+    <div class="phase-sub">Stripe-Zahlung + Order-Erstellung</div>
+  </div>
+</div>
+
+<!-- Step 10 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-kaeufer-b" style="margin-top:2px"></div>
+    <div class="tl-vline bg-kaeufer-b" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">10</span>
+      <span class="tl-actor" style="background:#d1fae5;color:#065f46">Käufer B</span>
+    </div>
+    <div class="tl-title">Käufer B findet das Produkt und kauft</div>
+    <div class="tl-desc">Käufer B stöbert im FYNDDS Marketplace, sieht das Produkt mit Countdown-Timer und Rabatt, legt es in den Warenkorb und geht zur Kasse.</div>
+  </div>
+</div>
+
+<!-- Step 11 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-stripe" style="margin-top:2px"></div>
+    <div class="tl-vline bg-stripe" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">11</span>
+      <span class="tl-actor" style="background:#ede9fe;color:#4c1d95">Stripe</span>
+      <span class="tech tech-purple">Stripe Checkout</span>
+    </div>
+    <div class="tl-title">Käufer B bezahlt via Stripe</div>
+    <div class="tl-desc">Käufer B gibt Lieferadresse ein und zahlt. Stripe verarbeitet die Zahlung.</div>
+    <div class="tl-sub">
+      <strong>Was Käufer B zahlt:</strong><br/>
+      → Produktpreis (z.B. €72,00)<br/>
+      → + Rerouting-Gebühr €2.99 (bleibt bei FYNDDS)<br/>
+      → = Total: €74.99<br/><br/>
+      <strong>Wie das Geld aufgeteilt wird (Stripe Connect):</strong><br/>
+      → FYNDDS-Provision: Min(€15, Max(€2.50, Produktpreis × 3%)) = z.B. €2.16<br/>
+      → Händler bekommt: €72.00 − €2.16 = <strong>€69.84</strong> (nach Zustellung)
+    </div>
+  </div>
+</div>
+
+<!-- Step 12 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot" style="background:#111;margin-top:2px"></div>
+    <div class="tl-vline" style="background:#111;opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">12</span>
+      <span class="tl-actor" style="background:#111;color:#c9a84c">FYNDDS Engine</span>
+      <span class="tech">stripe-webhook</span>
+    </div>
+    <div class="tl-title">Stripe bestätigt Zahlung → FYNDDS erstellt Order</div>
+    <div class="tl-desc">Stripe schickt einen Webhook an FYNDDS: "Zahlung erfolgreich." FYNDDS-Engine erstellt in der Datenbank eine Order mit Bestellnummer, Käufer B's Lieferadresse, und setzt das Asset auf "sold".</div>
+  </div>
+</div>
+
+
+<!-- ═══════════ PHASE 5 ═══════════ -->
+<div class="sep ph5" style="margin-top:40px">
+  <div class="phase-num">5</div>
+  <div class="phase-info">
+    <div class="phase-title">Das Rerouting — der Kern von FYNDDS</div>
+    <div class="phase-sub">DHL ändert die Zieladresse des Pakets mid-transit</div>
+  </div>
+</div>
+
+<!-- Step 13 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot" style="background:#111;margin-top:2px"></div>
+    <div class="tl-vline" style="background:#111;opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">13</span>
+      <span class="tl-actor" style="background:#111;color:#c9a84c">FYNDDS Engine</span>
+      <span class="tech">initiate-rerouting</span>
+    </div>
+    <div class="tl-title">FYNDDS prüft ob Rerouting noch möglich ist</div>
+    <div class="tl-desc">Bevor FYNDDS DHL anruft, fragt es zuerst: Wo ist das Paket gerade?</div>
+    <div class="tl-sub">
+      <strong>Status-Check:</strong><br/>
+      ✅ in_transit / pre-transit → Rerouting möglich, weiter<br/>
+      ❌ out_for_delivery / delivered → Zu spät! → Fallback aktivieren
+    </div>
+  </div>
+</div>
+
+<!-- Step 14 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-dhl" style="margin-top:2px"></div>
+    <div class="tl-vline bg-dhl" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">14</span>
+      <span class="tl-actor" style="background:#fef3c7;color:#92400e">FYNDDS → DHL</span>
+      <span class="tech">DHL PATCH /address</span>
+    </div>
+    <div class="tl-title">FYNDDS ändert die Zieladresse beim Paket</div>
+    <div class="tl-desc">FYNDDS schickt einen PATCH-Request an DHL mit der neuen Adresse von Käufer B. DHL ändert intern die Routing-Daten.</div>
+    <div class="tl-sub">
+      <strong>DHL API-Call:</strong><br/>
+      <code style="background:#f8f8f8;padding:2px 6px;border-radius:3px;font-size:10px">PATCH /parcel/de/v1/shipments/{trackingNr}/address</code><br/>
+      Body: name, Straße, PLZ, Stadt von Käufer B<br/><br/>
+      DHL antwortet: 200 OK → Rerouting bestätigt ✅
+    </div>
+  </div>
+</div>
+
+<!-- Step 14b: FALLBACK -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot" style="background:#ef4444;margin-top:2px"></div>
+    <div class="tl-vline" style="background:#ef4444;opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">14b</span>
+      <span class="tl-actor" style="background:#fee2e2;color:#991b1b">Fallback (wenn Rerouting nicht klappt)</span>
+    </div>
+    <div class="tl-title">Paket kann nicht mehr umgeleitet werden</div>
+    <div class="tl-desc">Passiert selten, aber möglich: Paket ist schon beim Fahrer oder zugestellt. DHL antwortet mit 409 (Conflict).</div>
+    <div class="tl-sub">
+      <strong>Was FYNDDS automatisch tut:</strong><br/>
+      1. Bestellung von Käufer B wird storniert<br/>
+      2. Stripe Refund wird ausgelöst (Geld zurück)<br/>
+      3. Asset wird wieder gelistet (+24h Verlängerung)<br/>
+      4. Käufer B bekommt E-Mail: "Leider nicht möglich, Rückerstattung läuft"
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ PHASE 6 ═══════════ -->
+<div class="sep ph6" style="margin-top:40px">
+  <div class="phase-num">6</div>
+  <div class="phase-info">
+    <div class="phase-title">Lieferung &amp; Auszahlung</div>
+    <div class="phase-sub">Käufer B bekommt sein Paket — Händler bekommt sein Geld</div>
+  </div>
+</div>
+
+<!-- Step 15 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-dhl" style="margin-top:2px"></div>
+    <div class="tl-vline bg-dhl" style="opacity:0.2"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">15</span>
+      <span class="tl-actor" style="background:#fef3c7;color:#92400e">DHL</span>
+    </div>
+    <div class="tl-title">DHL liefert das Paket an Käufer B</div>
+    <div class="tl-desc">Das Paket, das ursprünglich auf dem Weg zurück zum Händler war, landet jetzt direkt bei Käufer B. Kein Lager, kein Umweg, kein Aufwand für den Händler.</div>
+  </div>
+</div>
+
+<!-- Step 16 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot" style="background:#111;margin-top:2px"></div>
+    <div class="tl-vline" style="background:#111;opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">16</span>
+      <span class="tl-actor" style="background:#111;color:#c9a84c">DHL → FYNDDS</span>
+      <span class="tech">Webhook "delivered"</span>
+    </div>
+    <div class="tl-title">DHL meldet: "Zugestellt" → Auszahlung wird getriggert</div>
+    <div class="tl-desc">DHL schickt automatisch einen Webhook an FYNDDS: "Paket wurde zugestellt." FYNDDS-Engine startet sofort die Auszahlung an den Händler.</div>
+  </div>
+</div>
+
+<!-- Step 17 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-stripe" style="margin-top:2px"></div>
+    <div class="tl-vline bg-stripe" style="opacity:0.15"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">17</span>
+      <span class="tl-actor" style="background:#ede9fe;color:#4c1d95">Stripe Connect</span>
+      <span class="tech tech-purple">process-payout</span>
+    </div>
+    <div class="tl-title">Auszahlung an den Händler</div>
+    <div class="tl-desc">Stripe überweist den Händler-Anteil direkt auf das Stripe-Konto des Händlers.</div>
+    <div class="tl-sub">
+      <strong>Abrechnung (Beispiel: Produkt €72):</strong><br/>
+      → Verkaufspreis: <strong>€72.00</strong><br/>
+      → FYNDDS-Provision (3%): − €2.16<br/>
+      → Händler bekommt: <strong>€69.84</strong> auf sein Stripe-Konto<br/>
+      → FYNDDS behält: €2.16 (Provision) + €2.99 (Rerouting-Fee) = <strong>€5.15</strong>
+    </div>
+  </div>
+</div>
+
+<!-- Step 18 -->
+<div class="tl-step">
+  <div class="tl-line">
+    <div class="tl-dot bg-haendler" style="margin-top:2px"></div>
+    <div class="tl-vline" style="opacity:0"></div>
+  </div>
+  <div class="tl-content">
+    <div class="tl-header">
+      <span class="tl-num">18</span>
+      <span class="tl-actor" style="background:#fef9ec;color:#92620a">Händler</span>
+    </div>
+    <div class="tl-title">✅ Fertig — Händler hat Geld erhalten</div>
+    <div class="tl-desc">Der Händler hat seine Retoure erfolgreich monetarisiert — ohne Lagerkosten, ohne Aufwand, ohne manuellen Eingriff. Das Paket ist direkt von Käufer A zu Käufer B geflossen.</div>
+    <div class="tl-sub">
+      <strong>Was der Händler gespart hat:</strong><br/>
+      → Keine Lagerkosten für die Retoure (~€8-15/Einheit)<br/>
+      → Kein Aufwand für Qualitätsprüfung &amp; Wiederverkauf<br/>
+      → Kein CO₂ durch Lagerumweg<br/>
+      → Geld nach Zustellung automatisch auf dem Konto
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ ZUSAMMENFASSUNG ═══════════ -->
+<div style="margin-top:60px;padding:32px;background:#111;border-radius:12px;color:white">
+  <div style="font-size:9px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:16px">Zusammenfassung</div>
+  <div style="font-size:18px;font-weight:900;letter-spacing:-0.03em;margin-bottom:20px">Was FYNDDS in einem Satz macht</div>
+  <div style="font-size:13px;color:#ccc;line-height:1.8;margin-bottom:24px">
+    Käufer A schickt ein Paket zurück → bevor es im Lager landet, kauft Käufer B es auf FYNDDS → FYNDDS sagt DHL: "Neue Adresse" → Paket geht direkt zu Käufer B → Händler bekommt Geld ohne Lagerumweg.
+  </div>
+  <div class="summary-grid">
+    <div class="sum-card">
+      <div class="sum-val" style="color:#c9a84c">18</div>
+      <div class="sum-label">Schritte im Flow</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-val" style="color:#059669">€0</div>
+      <div class="sum-label">Lagerkosten für Händler</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-val" style="color:#7c3aed">€2.99</div>
+      <div class="sum-label">Rerouting-Gebühr (Käufer B)</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-val" style="color:#d97706">48h</div>
+      <div class="sum-label">Standard Sales-Window</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /timeline -->
+</body>
+</html>
