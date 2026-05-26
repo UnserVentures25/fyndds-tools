@@ -148,6 +148,7 @@ tr:hover td{background:#fafafa}
   <button class="tab-btn" onclick="showTab('int',this)">02 — Händler-Integration</button>
   <button class="tab-btn" onclick="showTab('road',this)">03 — Status &amp; Roadmap</button>
   <button class="tab-btn" onclick="showTab('rebuild',this)">04 — Lovable Rebuild</button>
+  <button class="tab-btn" onclick="showTab('flow',this)">05 — Flowchart</button>
 </div>
 
 
@@ -2028,5 +2029,315 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => setTimeout(initScrollSpy, 50));
 });
 </script>
+
+
+<!-- ══════════════════════════ TAB 05: FLOWCHART ══════════════════════════ -->
+<div id="tab-flow" class="tab-pane">
+
+<nav class="sec-nav">
+  <ul>
+    <li><a href="#fl-chart">Flowchart</a></li>
+    <li><a href="#fl-steps">Detail-Schritte</a></li>
+    <li><a href="#fl-check">Go-Live Checklist</a></li>
+  </ul>
+</nav>
+
+<div class="cover">
+  <div class="badge">VOLLSTÄNDIGER TECHNISCHER ABLAUF</div>
+  <h1>Wer macht <span>was</span> —<br>Schritt für Schritt</h1>
+  <p class="cover-sub">Von der Retoure bis zur Auszahlung. Alle 17 Schritte technisch erklärt, mit Gefahren und Corner Cases — damit beim Go-Live nichts schiefgeht.</p>
+  <div class="cover-meta">
+    <div class="meta-item"><strong>17</strong>Schritte im Flow</div>
+    <div class="meta-item"><strong>6</strong>Akteure</div>
+    <div class="meta-item"><strong>4</strong>Kritische Lücken</div>
+    <div class="meta-item"><strong>3</strong>APIs</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section" id="fl-chart">
+    <div class="lbl">Visuelles Flowchart</div>
+    <h2>Der komplette <span>FYNDDS Flow</span></h2>
+    <p class="sub">Farbkodiert nach Akteur. Roter Kasten = nicht implementiert / gefährlich. Gestrichelte Linie = Fallback-Pfad.</p>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;font-size:11px;font-weight:600;color:#555">
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#fffbeb;border:2px solid #f59e0b;border-radius:3px;display:inline-block"></span>Händler</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#eff6ff;border:2px solid #3b82f6;border-radius:3px;display:inline-block"></span>Käufer A (Retoure)</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#f8fafc;border:2px solid #94a3b8;border-radius:3px;display:inline-block"></span>FYNDDS Platform</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#fff7ed;border:2px solid #f97316;border-radius:3px;display:inline-block"></span>DHL</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#faf5ff;border:2px solid #a855f7;border-radius:3px;display:inline-block"></span>Stripe</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#f0fdf4;border:2px solid #22c55e;border-radius:3px;display:inline-block"></span>Käufer B (Neukauf)</span>
+      <span style="display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#fff1f2;border:2px solid #f43f5e;border-radius:3px;display:inline-block"></span>Fehlt / Gefahr</span>
+    </div>
+
+    <div id="fc" style="border:1px solid #e8e8e8;border-radius:10px;padding:24px 16px;background:#fff;overflow-x:auto"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="fl-steps">
+    <div class="lbl">Technische Detail-Erklärung</div>
+    <h2>Jeder kritische Schritt <span>im Detail</span></h2>
+    <p class="sub">Was genau im Code passiert, welche Edge Function zuständig ist, was schiefgehen kann.</p>
+
+    <!-- ── SCHRITT 4 ── -->
+    <div class="card card-red" style="margin-bottom:20px">
+      <div style="margin-bottom:10px"><span style="background:#f43f5e;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:1px">SCHRITT 4 — NICHT IMPLEMENTIERT</span></div>
+      <div class="card-title">DHL Retourenlabel erstellen — <code>create-dhl-label</code></div>
+      <div class="card-body">
+        Käufer A braucht ein DHL-Label zum Abschicken. Dieses Label <strong>muss zwingend unter dem FYNDDS EKP (Kundennummer)</strong> erstellt werden — sonst kann FYNDDS das Paket später nicht umleiten.<br><br>
+        <strong>API-Aufruf:</strong><br>
+        <code>POST https://api-eu.dhl.com/parcel/de/shipping/v2/orders</code><br>
+        Body: <code>billingNumber = FYNDDS_EKP</code> · Shipper = Käufer-A-Adresse · Consignee = FYNDDS Depot<br>
+        Antwort: <code>shipmentNumber</code> (Trackingnummer) + <code>label</code> (PDF Base64)<br><br>
+        <strong>Danach:</strong> <code>return_assets.tracking_number = shipmentNumber</code> speichern → Label-PDF per Email an Käufer A.
+      </div>
+      <div class="warnbox" style="margin-top:12px">
+        <strong>⚠ Ohne diesen Schritt ist das gesamte Rerouting in Produktion unmöglich.</strong><br>
+        Wenn der Händler selbst ein DHL-Label erstellt hat → FYNDDS kann nicht umleiten → DHL antwortet mit 403 Forbidden.
+      </div>
+    </div>
+
+    <!-- ── SCHRITT 6 ── -->
+    <div class="card card-gold" style="margin-bottom:20px">
+      <div style="margin-bottom:10px"><span style="background:#f59e0b;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:1px">SCHRITT 6 — DHL WEBHOOK</span></div>
+      <div class="card-title">DHL: picked_up → Asset wird auf Marketplace gelistet</div>
+      <div class="card-body">
+        DHL scannt das Paket bei Abholung → sendet HTTP POST an <code>/functions/v1/tracking-webhook</code>.<br>
+        Header: <code>x-dhl-signature: HMAC-SHA256(body, DHL_WEBHOOK_SECRET)</code><br><br>
+        <strong>Was FYNDDS macht:</strong><br>
+        1. Signatur validieren — wenn Secret gesetzt aber keine Signatur → <strong>401 Reject</strong><br>
+        2. Asset per <code>tracking_number</code> suchen<br>
+        3. <code>status = "listed"</code>, <code>sales_window_start = NOW()</code>, <code>sales_window_end = NOW() + 48h</code><br>
+        4. Asset erscheint auf Marketplace — Käufer B kann jetzt kaufen
+      </div>
+      <div class="hbox" style="margin-top:12px">
+        <strong>Corner Cases:</strong> Doppelter Webhook → idempotent (kein Problem). | Tracking-Number unbekannt → 200 OK (kein Retry-Storm). | 48h Sales-Window ist hardcoded — sollte pro Händler konfigurierbar sein. | Was passiert wenn Window abläuft und niemand kauft? → Asset braucht einen Rückgabe-Flow.
+      </div>
+    </div>
+
+    <!-- ── SCHRITT 9 ── -->
+    <div class="card card-red" style="margin-bottom:20px">
+      <div style="margin-bottom:10px"><span style="background:#f43f5e;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:1px">SCHRITT 9 — RACE CONDITION</span></div>
+      <div class="card-title">create-checkout — zwei Käufer gleichzeitig</div>
+      <div class="card-body">
+        Käufer B klickt "Kaufen" → <code>POST /functions/v1/create-checkout</code>:<br>
+        1. Prüft: <code>status = "listed" AND sales_window_end &gt; NOW()</code><br>
+        2. Setzt <code>status = "reserved"</code><br>
+        3. Erstellt Stripe Checkout Session: <code>on_behalf_of = händler_stripe_account_id</code>, Platform Fee berechnet<br>
+        4. Gibt <code>checkoutUrl</code> zurück → Redirect zu Stripe
+      </div>
+      <div class="warnbox" style="margin-top:12px">
+        <strong>⚠ Race Condition:</strong> Zwei Käufer klicken gleichzeitig "Kaufen". Beide sehen "listed", beide erstellen Sessions, beide zahlen → zwei Orders für ein Asset!<br>
+        <strong>Fix:</strong> <code>UPDATE return_assets SET status='reserved' WHERE id=X AND status='listed'</code> — wenn 0 Rows updated → Asset weg, keine Session erstellen.
+      </div>
+      <div class="warnbox" style="margin-top:8px">
+        <strong>⚠ Abgebrochener Checkout:</strong> Asset bleibt dauerhaft auf "reserved" wenn Käufer B wegklickt. Nötig: Cron-Job der nach X Minuten "reserved" → "listed" zurücksetzt. Nicht implementiert.
+      </div>
+    </div>
+
+    <!-- ── SCHRITTE 12-13 ── -->
+    <div class="card card-gold" style="margin-bottom:20px">
+      <div style="margin-bottom:10px"><span style="background:#f97316;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:1px">SCHRITTE 12–13 — KERNFUNKTION</span></div>
+      <div class="card-title">DHL Rerouting — das Herzstück von FYNDDS</div>
+      <div class="card-body">
+        <strong>Ablauf in <code>initiate-rerouting</code>:</strong><br>
+        1. DHL OAuth Token: <code>POST /parcel/de/account/auth/ropc/v1/token</code><br>
+        2. Status check: <code>GET /track/shipments?trackingNumber={nr}</code> → geblockt bei: <code>out_for_delivery, delivered, returned, failure</code><br>
+        3. Adresse ändern: <code>PATCH /parcel/de/v1/shipments/{nr}/address</code><br>
+        &nbsp;&nbsp;&nbsp;Body: <code>{ consignee: { name1, addressStreet, postalCode, city, country } }</code><br>
+        4. DHL 409 → Fallback: Order cancelled + Asset re-listed + <strong>kein automatischer Refund!</strong><br>
+        5. DHL 2xx → Rerouting bestätigt → DB schreiben → Email an Händler
+      </div>
+      <div class="warnbox" style="margin-top:12px">
+        <strong>⚠ EKP-Problem (kritischstes Problem):</strong> DHL erlaubt Rerouting NUR wenn das Label unter dem FYNDDS EKP erstellt wurde. Das ist der Grund warum Schritt 4 (<code>create-dhl-label</code>) die absolute Grundvoraussetzung ist.
+      </div>
+      <div class="warnbox" style="margin-top:8px">
+        <strong>⚠ Kein automatischer Stripe Refund bei Fehlschlag:</strong> Rerouting schlägt fehl → Order cancelled + re-listed — aber Käufer B hat bereits gezahlt und erhält kein automatisches Refund. Muss implementiert werden: <code>stripe.refunds.create({ payment_intent: pi_XXX })</code>.
+      </div>
+      <div class="warnbox" style="margin-top:8px">
+        <strong>⚠ out_for_delivery nicht geblockt:</strong> Wenn DHL "out_for_delivery" Webhook kommt, wird das Asset aktuell NICHT automatisch auf "unavailable" gesetzt. Käufer B kann noch kaufen, Rerouting schlägt dann mit 409 fehl → Refund-Problem.
+      </div>
+    </div>
+
+    <!-- ── SCHRITT 16 ── -->
+    <div class="card card-blue" style="margin-bottom:20px">
+      <div style="margin-bottom:10px"><span style="background:#a855f7;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:1px">SCHRITT 16 — AUSZAHLUNG</span></div>
+      <div class="card-title">process-payout — Stripe Transfer an Händler</div>
+      <div class="card-body">
+        Getriggert durch DHL "delivered" Webhook → <code>process-payout</code>:<br>
+        <code>stripe.transfers.create({ amount: netCents, currency: "eur", destination: "acct_RETAILER" })</code><br><br>
+        <strong>Berechnung:</strong> <code>netCents = salePriceCents − platformFeeCents − 299</code> (€2,99 Rerouting Fee)<br>
+        Platform Fee: derzeit hardcoded 3% — sollte tier-basiert aus <code>pricingEngine.ts</code> kommen.
+      </div>
+      <div class="warnbox" style="margin-top:12px">
+        <strong>⚠ Doppel-Auszahlung:</strong> DHL "delivered" Webhook kann mehrfach gesendet werden. Kein Idempotenz-Check → Stripe Transfer zweimal ausgeführt = doppelte Auszahlung an Händler.<br>
+        <strong>Fix:</strong> Unique Constraint auf <code>payouts.order_id</code> + vor Transfer prüfen ob bereits ausgezahlt.
+      </div>
+      <div class="warnbox" style="margin-top:8px">
+        <strong>⚠ Inaktiver Stripe Account:</strong> Wenn Händler seinen Stripe-Account deaktiviert → Transfer schlägt fehl. Geld steckt im FYNDDS Platform Account. Nicht verloren, aber blockiert — manueller Eingriff nötig.
+      </div>
+    </div>
+
+  </div><!-- fl-steps -->
+
+  <div class="divider"></div>
+
+  <div class="section" id="fl-check">
+    <div class="lbl">Go-Live Vorbereitung</div>
+    <h2>Was muss vor <span>Launch</span> fertig sein</h2>
+    <p class="sub">In dieser Reihenfolge abarbeiten. Rot = blockiert Launch. Gelb = wichtig. Blau = nice-to-have.</p>
+
+    <ul class="check-list">
+      <li class="crit">
+        <span class="ci">🚨</span>
+        <span class="ct"><strong>create-dhl-label implementieren</strong><span>Ohne diese Edge Function ist Rerouting in Produktion unmöglich. Label muss unter FYNDDS EKP (Kundennummer) erstellt werden.</span></span>
+      </li>
+      <li class="crit">
+        <span class="ci">🚨</span>
+        <span class="ct"><strong>Stripe Refund bei Rerouting-Fehler</strong><span>Käufer B zahlt, Rerouting scheitert → aktuell kein automatischer Refund. Muss vor Launch implementiert sein: <code>stripe.refunds.create</code>.</span></span>
+      </li>
+      <li class="crit">
+        <span class="ci">🚨</span>
+        <span class="ct"><strong>Idempotenz bei process-payout</strong><span>Doppelter "delivered" Webhook = doppelte Auszahlung an Händler. Unique Constraint + Vorab-Check nötig.</span></span>
+      </li>
+      <li class="crit">
+        <span class="ci">🚨</span>
+        <span class="ct"><strong>Multi-Vendor Stripe Transfers</strong><span>Bei mehreren Händlern im Warenkorb: kein automatischer Transfer pro Händler. Geld bleibt im Platform Account stecken.</span></span>
+      </li>
+      <li class="soon">
+        <span class="ci">⚠</span>
+        <span class="ct"><strong>Race Condition beim Doppelkauf verhindern</strong><span>Atomisches DB-UPDATE verhindert dass zwei Käufer gleichzeitig dasselbe Asset kaufen.</span></span>
+      </li>
+      <li class="soon">
+        <span class="ci">⚠</span>
+        <span class="ct"><strong>Cron Job: reserved → listed nach Timeout</strong><span>Abgebrochene Checkouts lassen Assets dauerhaft auf "reserved" — Käufer können es nicht mehr kaufen.</span></span>
+      </li>
+      <li class="soon">
+        <span class="ci">⚠</span>
+        <span class="ct"><strong>out_for_delivery setzt Asset auf "unavailable"</strong><span>Verhindert Kauf wenn Rerouting nicht mehr möglich ist — sonst: Zahlung durch, Rerouting 409, kein Refund.</span></span>
+      </li>
+      <li class="soon">
+        <span class="ci">⚠</span>
+        <span class="ct"><strong>Platform Fee tier-basiert (pricingEngine.ts)</strong><span>Aktuell hardcoded 3% in create-checkout und process-payout statt pro Händler-Tier.</span></span>
+      </li>
+      <li class="later">
+        <span class="ci">ℹ</span>
+        <span class="ct"><strong>Alle Supabase Secrets setzen</strong><span>STRIPE_SECRET_KEY · STRIPE_WEBHOOK_SECRET · DHL_API_KEY · DHL_API_SECRET · DHL_BILLING_NUMBER · DHL_WEBHOOK_SECRET · RESEND_API_KEY</span></span>
+      </li>
+      <li class="later">
+        <span class="ci">ℹ</span>
+        <span class="ct"><strong>End-to-End Test mit simulate-delivery</strong><span>picked_up → in_transit → out_for_delivery → delivered. Stripe Test-Mode + DHL Sandbox. Rerouting-Fallback testen (force 409).</span></span>
+      </li>
+      <li class="done">
+        <span class="ci">✓</span>
+        <span class="ct"><strong>DHL Rerouting — korrekter Endpoint + Signatur-Pflicht</strong><span>PATCH /address implementiert. HMAC-SHA256 Webhook-Signatur ist Pflicht wenn Secret gesetzt.</span></span>
+      </li>
+      <li class="done">
+        <span class="ci">✓</span>
+        <span class="ct"><strong>Checkout Multi-Vendor Fix</strong><span>on_behalf_of + alle Retailer-IDs in Metadata korrekt gesetzt. In-Memory Idempotenz entfernt.</span></span>
+      </li>
+      <li class="done">
+        <span class="ci">✓</span>
+        <span class="ct"><strong>post_schedule RLS — anon-Zugriff gesperrt</strong><span>Nur authentifizierte User können eigene Posts lesen/schreiben/bearbeiten/löschen.</span></span>
+      </li>
+      <li class="done">
+        <span class="ci">✓</span>
+        <span class="ct"><strong>simulate-delivery Edge Function</strong><span>Vollständiger End-to-End Test ohne echte DHL-Credentials. picked_up → delivered → Auszahlung testbar.</span></span>
+      </li>
+    </ul>
+  </div>
+
+</div><!-- container -->
+</div><!-- tab-flow -->
+
+
+<script>
+(function(){
+  function buildFC(){
+    var el=document.getElementById('fc');
+    if(!el)return;
+    var ST=[
+      {t:"Händler registriert sich",       s:"Supabase Auth + Stripe Connect Express",  c:"R"},
+      {t:"Return-Portal einrichten",        s:"Portal-URL, Kategorien, Rückgaberegeln",  c:"R"},
+      {t:"Käufer A — Retoure einreichen",   s:"Formular: Artikel, Grund, Zustand",       c:"A"},
+      {t:"DHL Label erstellen  ⚡ FEHLT",   s:"create-dhl-label — nicht implementiert",  c:"X"},
+      {t:"Label-Email an Käufer A",         s:"PDF via Resend API · drucken & aufkleben",c:"A"},
+      {t:"DHL Webhook: picked_up",          s:"Signatur OK → Asset: listed, 48h Window", c:"D"},
+      {t:"Asset erscheint auf Marketplace", s:"pricingEngine · Käufer B kann kaufen",    c:"F"},
+      {t:"Käufer B kauft",                  s:"Lieferadresse eingeben · Checkout",        c:"B"},
+      {t:"Stripe Checkout Session",         s:"Asset: reserved · on_behalf_of Händler",  c:"F"},
+      {t:"Käufer B zahlt",                  s:"Kreditkarte / SEPA via Stripe",            c:"S"},
+      {t:"checkout.session.completed",      s:"stripe-webhook → Order erstellt, Asset: sold",c:"S"},
+      {t:"DHL Status prüfen",               s:"Nicht: out_for_delivery / delivered",      c:"D"},
+      {t:"PATCH /address — Rerouting",      s:"Käufer-B Adresse · 409 = Fallback!",      c:"D",fb:1},
+      {t:"Rerouting bestätigt",             s:"Order: shipped · Email an Händler",        c:"F"},
+      {t:"DHL Webhook: delivered",          s:"Asset: delivered → process-payout",        c:"D"},
+      {t:"process-payout",                  s:"stripe.transfers.create → Händler",        c:"S"},
+      {t:"Händler erhält Geld  ✓",         s:"Preis − Platform Fee − €2.99 Rerouting",   c:"R",last:1}
+    ];
+    var CL={
+      R:{f:"#fffbeb",k:"#f59e0b"},A:{f:"#eff6ff",k:"#3b82f6"},
+      F:{f:"#f8fafc",k:"#94a3b8"},D:{f:"#fff7ed",k:"#f97316"},
+      S:{f:"#faf5ff",k:"#a855f7"},B:{f:"#f0fdf4",k:"#22c55e"},
+      X:{f:"#fff1f2",k:"#f43f5e"}
+    };
+    var CX=345,BW=325,BH=66,SH=138,SX=CX-Math.floor(BW/2);
+    var W=760,H=50+ST.length*SH+80;
+    var o='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:760px;display:block">'
+      +'<defs>'
+      +'<marker id="fah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#d1d5db"/></marker>'
+      +'<marker id="fahr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#f43f5e"/></marker>'
+      +'</defs>'
+      +'<rect width="'+W+'" height="'+H+'" fill="white"/>';
+
+    ST.forEach(function(s,i){
+      var y=50+i*SH,c=CL[s.c],tc=s.c==="X"?"#be123c":"#111";
+      /* shadow */
+      o+='<rect x="'+(SX+2)+'" y="'+(y+3)+'" width="'+BW+'" height="'+BH+'" rx="10" fill="#00000007"/>';
+      /* box */
+      o+='<rect x="'+SX+'" y="'+y+'" width="'+BW+'" height="'+BH+'" rx="10" fill="'+c.f+'" stroke="'+c.k+'" stroke-width="2"/>';
+      /* step number */
+      var cx2=SX+23,cy2=y+Math.floor(BH/2);
+      o+='<circle cx="'+cx2+'" cy="'+cy2+'" r="14" fill="'+c.k+'" fill-opacity="0.13" stroke="'+c.k+'" stroke-width="1.5"/>';
+      o+='<text x="'+cx2+'" y="'+(cy2+4)+'" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="11" font-weight="800" fill="'+c.k+'">'+(i+1)+'</text>';
+      /* title */
+      o+='<text x="'+(SX+47)+'" y="'+(y+25)+'" font-family="Plus Jakarta Sans,sans-serif" font-size="12.5" font-weight="700" fill="'+tc+'">'+s.t+'</text>';
+      /* subtitle */
+      o+='<text x="'+(SX+47)+'" y="'+(y+44)+'" font-family="Plus Jakarta Sans,sans-serif" font-size="10" fill="#9ca3af">'+s.s+'</text>';
+      /* arrow down */
+      if(i<ST.length-1){
+        o+='<line x1="'+CX+'" y1="'+(y+BH)+'" x2="'+CX+'" y2="'+(y+SH-4)+'" stroke="#e5e7eb" stroke-width="2" marker-end="url(#fah)"/>';
+      }
+      /* fallback branch */
+      if(s.fb){
+        var bx=SX+BW+12,by=y,bw=W-bx-8,bh=BH+32,my=y+Math.floor(BH/2);
+        o+='<line x1="'+(SX+BW)+'" y1="'+my+'" x2="'+(bx-4)+'" y2="'+my+'" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#fahr)"/>';
+        o+='<rect x="'+bx+'" y="'+by+'" width="'+bw+'" height="'+bh+'" rx="8" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.5"/>';
+        o+='<text x="'+(bx+9)+'" y="'+(by+18)+'" font-family="Plus Jakarta Sans,sans-serif" font-size="10" font-weight="700" fill="#be123c">⚠ Rerouting fehlgeschlagen</text>';
+        o+='<text x="'+(bx+9)+'" y="'+(by+32)+'" font-family="Plus Jakarta Sans,sans-serif" font-size="9" fill="#6b7280">409 DHL / API Error</text>';
+        o+='<text x="'+(bx+9)+'" y="'+(by+46)+'" font-family="Plus Jakarta Sans,sans-serif" font-size="9" fill="#ef4444">Order cancelled + re-listed</text>';
+        o+='<text x="'+(bx+9)+'" y="'+(by+60)+'" font-family="Plus Jakarta Sans,sans-serif" font-size="9" fill="#ef4444">⚡ Kein Stripe Refund!</text>';
+        o+='<text x="'+(bx+9)+'" y="'+(by+76)+'" font-family="Plus Jakarta Sans,sans-serif" font-size="9" fill="#ef4444">Manueller Eingriff nötig</text>';
+      }
+      /* last step checkmark */
+      if(s.last){
+        var lx=SX+BW+36,ly=y+Math.floor(BH/2);
+        o+='<circle cx="'+lx+'" cy="'+ly+'" r="22" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>';
+        o+='<text x="'+lx+'" y="'+(ly+7)+'" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="20" fill="#16a34a">✓</text>';
+      }
+    });
+    o+='</svg>';
+    el.innerHTML=o;
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',buildFC);
+  } else {
+    buildFC();
+  }
+})();
+</script>
+
 </body>
 </html>
