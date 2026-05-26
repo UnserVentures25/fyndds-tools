@@ -1335,9 +1335,10 @@ Response 200:
 
 <nav class="sec-nav">
   <ul>
-    <li><a href="#rb-how">Wie vorgehen</a></li>
-    <li><a href="#rb-foundation">Foundation Prompt</a></li>
-    <li><a href="#rb-design">Design Prompt</a></li>
+    <li><a href="#rb-how">Reihenfolge</a></li>
+    <li><a href="#rb-foundation">Prompt 1 — Design</a></li>
+    <li><a href="#rb-design">Prompt 2 — Seiten</a></li>
+    <li><a href="#rb-backend">Prompt 3 — Backend</a></li>
   </ul>
 </nav>
 
@@ -1347,9 +1348,10 @@ Response 200:
     <h1>Kompletter<br/><span>Rebuild-Guide</span></h1>
     <p class="cover-sub">Alles was Lovable braucht um FYNDDS neu aufzubauen — ohne Architektur-Fehler, mit dem exakten bestehenden Design. Zwei Prompts: Architektur + Design. Einfach kopieren und einfügen.</p>
     <div class="cover-meta">
-      <div class="meta-item"><strong>Schritt 1</strong>GitHub-Repo verbinden</div>
-      <div class="meta-item"><strong>Schritt 2</strong>Foundation Prompt einfügen</div>
-      <div class="meta-item"><strong>Schritt 3</strong>Design Prompt einfügen</div>
+      <div class="meta-item"><strong>Prompt 1</strong>Design-System einrichten</div>
+      <div class="meta-item"><strong>Prompt 2</strong>Seiten &amp; App-Struktur</div>
+      <div class="meta-item"><strong>Prompt 3</strong>Backend &amp; Edge Functions</div>
+      <div class="meta-item"><strong>Kein GitHub-Import</strong>komplett von null</div>
     </div>
   </div>
 </div>
@@ -1357,35 +1359,32 @@ Response 200:
 <div class="container">
 
 <div class="section" id="rb-how">
-  <div class="lbl">So geht's</div>
-  <h2>GitHub-Import ist der beste Weg<br/><span>kein Design-Verlust, kein Code-Verlust</span></h2>
-  <p class="sub">Wenn du ein "neues" Lovable-Projekt aufmachst, aber das bestehende Design behalten willst — importiere das bestehende GitHub-Repo. Lovable lädt dann den kompletten Code inklusive aller Komponenten, Farben und Layouts. Du fängst nicht bei null an, sondern auf dem Stand des aktuellen Codes.</p>
+  <div class="lbl">Reihenfolge — Komplett von Null</div>
+  <h2>3 Prompts, saubere Basis<br/><span>kein Legacy-Code, keine Altlasten</span></h2>
+  <p class="sub">Neues leeres Lovable-Projekt erstellen. Dann diese 3 Prompts der Reihe nach einfügen. Lovable baut FYNDDS von Grund auf neu — mit dem exakten Design, der korrekten Architektur und ohne die alten Bugs.</p>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px">
     <div class="card card-gold">
-      <div class="card-title">✅ Empfohlen: GitHub-Import</div>
-      <div class="card-body">
-        <strong>Lovable → "New Project" → "Import from GitHub"</strong><br/><br/>
-        Repo: <code>UnserVentures25/zeroloops</code><br/><br/>
-        Lovable lädt den kompletten Code. Dann den <strong>Foundation Prompt</strong> einfügen — Lovable weiß sofort was zu fixen und zu bauen ist. Das Design ist automatisch drin.
-      </div>
+      <div class="card-title">Prompt 1 — Design</div>
+      <div class="card-body">Font, CSS-Variablen, Tailwind-Config, alle shadcn-Komponenten, globale Klassen, Animationen. Erst wenn das steht, weiter mit Prompt 2.</div>
     </div>
     <div class="card">
-      <div class="card-title">⚠️ Fallback: Blank + Design Prompt</div>
-      <div class="card-body">
-        Falls GitHub-Import nicht funktioniert: Neues Projekt → zuerst den <strong>Design Prompt</strong> einfügen (CSS-Variablen, Tailwind-Config, Komponenten-Liste), dann den <strong>Foundation Prompt</strong>. Mehr Arbeit, gleiches Ergebnis.
-      </div>
+      <div class="card-title">Prompt 2 — App + Seiten</div>
+      <div class="card-body">App.tsx mit allen Providers, komplettes Routing, jede Seite mit Beschreibung, Hooks, Navigation.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Prompt 3 — Backend</div>
+      <div class="card-body">Alle Edge Functions (mit korrektem Code), Datenbank-Schema, Stripe-Architektur, DHL-Integration, RLS-Regeln.</div>
     </div>
   </div>
 
   <div style="background:#111;border-radius:6px;padding:20px 24px;margin-top:20px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:#c9a84c;margin-bottom:12px">REIHENFOLGE</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:#c9a84c;margin-bottom:12px">WICHTIG VOR DEM START</div>
     <div style="color:#ccc;font-size:13px;line-height:2">
-      1. Lovable → New Project → Import from GitHub → <code style="color:#c9a84c">UnserVentures25/zeroloops</code><br/>
-      2. Warte bis Code geladen ist<br/>
-      3. Foundation Prompt unten kopieren → in Lovable-Chat einfügen<br/>
-      4. Lovable fixt alle Bugs + baut fehlende Edge Functions<br/>
-      5. Falls Design-Abweichungen: Design Prompt unten kopieren → einfügen
+      1. Neues Lovable-Projekt erstellen (blank, kein Template)<br/>
+      2. Logo-Dateien hochladen: <code style="color:#c9a84c">fyndds-logo-white.png</code> und <code style="color:#c9a84c">fyndds-logo-black.png</code> aus dem alten Repo<br/>
+      3. Supabase-Projekt ID: <code style="color:#c9a84c">sidjdgxnjcnornstjolt</code> — dasselbe Projekt verbinden<br/>
+      4. Prompt 1 → warten → Prompt 2 → warten → Prompt 3
     </div>
   </div>
 </div>
@@ -1393,174 +1392,19 @@ Response 200:
 <div class="divider"></div>
 
 <div class="section" id="rb-foundation">
-  <div class="lbl">Prompt 1 von 2</div>
-  <h2>Foundation Prompt<br/><span>Architektur, Bugs, fehlende Features — alles drin</span></h2>
-  <p class="sub">Diesen Prompt als erstes in Lovable einfügen. Er erklärt die gesamte Architektur, welche Bugs bereits behoben wurden, was noch fehlt und wie alles korrekt gebaut wird.</p>
-
-  <div style="position:relative;margin-top:20px">
-    <button onclick="copyText('foundation-prompt')" style="position:absolute;top:12px;right:12px;z-index:10;background:#c9a84c;color:#111;border:none;border-radius:4px;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer">KOPIEREN</button>
-    <textarea id="foundation-prompt" readonly style="width:100%;height:600px;background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:20px;font-family:monospace;font-size:11px;line-height:1.7;resize:vertical;outline:none">Du arbeitest an FYNDDS (fyndds.com) — einer Recommerce-Plattform für Markenretouren in DE/AT/CH.
-
-## Kernidee
-Händler geben Retouren frei. Käufer kaufen sie mit Rabatt (10–40% unter UVP).
-Das Paket läuft zurück Richtung Händlerlager — FYNDDS leitet es per DHL-API direkt zum Käufer um.
-Kein Lagerumweg. Das nennen wir "Rerouting".
-
-## Design
-Das bestehende Frontend-Design EXAKT beibehalten.
-Alle Farben, Komponenten, Layouts, Animationen aus dem bestehenden Code übernehmen. Nichts ändern.
-
-## Tech Stack
-- React 18 + TypeScript + Vite + Tailwind + shadcn/ui
-- Supabase (Auth, PostgreSQL, Edge Functions als Deno/TypeScript)
-- Stripe (Checkout Sessions + Connect Express für Split-Payment)
-- DHL Parcel DE API (Tracking + Address-PATCH für Rerouting)
-- Resend (Transaktionsmails)
-
-## Bugs die BEREITS behoben wurden (nicht rückgängig machen!)
-
-### Fix 1 — initiate-rerouting/index.ts
-DHL Endpoint war falsch (POST /shipping/v2/orders statt PATCH /address). Jetzt korrekt:
-- Step 1: GET https://api-eu.dhl.com/track/shipments?trackingNumber={nr} — Status prüfen
-  - Blockiert wenn: delivered, failure, returned, out_for_delivery → wirft DHL_REROUTING_TOO_LATE
-- Step 2: PATCH https://api-eu.dhl.com/parcel/de/v1/shipments/{nr}/address
-  - Body: { consignee: { name1, addressStreet, postalCode, city, country: { countryISOCode } } }
-  - 409 → DHL_REROUTING_TOO_LATE; non-2xx → DHL_REROUTING_FAILED
-- Kein silent success / pending_intervention mehr
-
-### Fix 2 — tracking-webhook/index.ts
-Signature-Bypass war offen: if (!signature) return true; — jetzt:
-  const webhookSecret = Deno.env.get("DHL_WEBHOOK_SECRET");
-  if (webhookSecret && !signature) return false; // reject!
-  if (!webhookSecret) return true; // dev-mode
-
-### Fix 3 — create-checkout/index.ts
-- In-memory Map für Idempotenz entfernt (war wertlos bei Cold-Starts)
-- on_behalf_of = retailer.stripe_account_id (korrekt gesetzt)
-- Single-Vendor: transfer_data.destination = retailer (ohne amount)
-- Multi-Vendor: kein transfer_data — stripe-webhook macht per-Asset Transfers
-- metadata.retailer_ids = ALLE Händler-IDs (kommagetrennt, nicht nur der erste!)
-- Platform Fee NUR auf Produktsubtotal: Min(€15.00, Max(€2.50, subtotal × 3%))
-
-### Fix 4 — post_schedule RLS
-Migration 20260526000001_fix_post_schedule_rls.sql:
-Alle anon-Policies entfernt. Nur: authenticated + auth.uid() = user_id
-
-## Was noch gebaut werden muss
-
-### 1. create-dhl-label Edge Function (KRITISCH — ohne das kein Rerouting!)
-Voraussetzung: FYNDDS eigenes DHL-EKP (Geschäftskunden-Nr.) vorhanden.
-Endpoint: POST https://api-eu.dhl.com/parcel/de/shipping/v2/orders
-Auth: Bearer Token von getDHLAccessToken()
-Body:
-{
-  "shipments": [{
-    "product": "V01PAK",
-    "billingNumber": "{DHL_BILLING_NUMBER}",
-    "shipper": { name1, addressStreet, postalCode, city, country: {countryISOCode: "DEU"} },
-    "consignee": {
-      "name1": "FYNDDS Retourenservice",
-      "addressStreet": "Musterstraße 1",
-      "postalCode": "10115",
-      "city": "Berlin",
-      "country": {"countryISOCode": "DEU"},
-      "email": "returns@fyndds.com"
-    },
-    "details": { "weight": {"uom": "kg", "value": 1} }
-  }]
-}
-Output speichern: dhl_labels Tabelle (shipmentNumber, labelUrl) + tracking_number in return_assets
-
-### 2. retailer-api Edge Function (8returns-Integration)
-Empfängt Webhooks von 8returns wenn ein Return eintrifft.
-Auth: X-FYNDDS-API-Key Header (Custom Key aus DB)
-Input: { event, orderId, trackingNumber, carrier, product: {name, sku, originalPrice, category}, returnReason, retailerId }
-Logik: Asset in return_assets erstellen, bei return.received + tracking vorhanden → sofort listen
-
-### 3. stripe-webhook: Multi-Vendor Transfers
-Wenn metadata.multi_vendor === "true": für jedes Asset separaten Transfer:
-  await stripe.transfers.create({
-    amount: Math.round((assetPrice - assetPlatformFee) * 100),
-    currency: "eur",
-    destination: retailerStripeAccountId,
-    transfer_group: `order_${orderNumber}`,
-    source_transaction: paymentIntent.charges.data[0].id,
-  })
-
-### 4. Tabellen anlegen (Migrations)
-dhl_labels: id, asset_id, shipment_number, label_url, label_base64, billing_number, created_at
-order_groups: id, checkout_session_id, asset_ids[], buyer_id, created_at
-payout_records: id, order_id, retailer_id, amount, stripe_transfer_id, paid_at
-
-## Pricing Engine (src/services/pricingEngine.ts — NICHT ÄNDERN)
-Bereits korrekt:
-  FYNDDS_TIERS: free (5%, €0/Mo), starter (4%, €0/Mo), growth (3%, €49/Mo), enterprise (2%, custom)
-  REROUTING_FEE = 2.99
-  ZEROLOOP_PRICING.setupFee = 0
-
-## UI-Bugs die noch offen sind
-- Stale Pricing: "€990" in Dashboard, FreemiumGate, PaymentTab → ZEROLOOP_PRICING aus pricingEngine.ts
-- "1,99 €" in FAQ + FeaturesDemo → REROUTING_FEE aus pricingEngine.ts (= 2.99)
-- E-Mail Domain: fyndds.de vs fyndds.com → alles auf fyndds.com
-- CORS "*" in Edge Functions → https://fyndds.com in Produktion
-
-## Supabase Secrets (vor Launch setzen)
-STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, DHL_API_KEY, DHL_API_SECRET,
-DHL_BILLING_NUMBER, DHL_WEBHOOK_SECRET, RESEND_API_KEY
-
-## Datenbank-Kern (vollständiges Schema)
-profiles: user_id, email, full_name, company_name, stripe_account_id, stripe_onboarding_completed
-return_assets: id, asset_id, retailer_id, buyer_id, sku, product_name, category, original_price,
-  current_price, condition, images[], carrier, tracking_number, sales_window_start, sales_window_end,
-  sales_window_hours, status (pending/listed/sold/rerouted/delivered/returned_to_warehouse/archived),
-  rerouting_address (jsonb), label_url, return_reason, customer_email
-orders: id, order_number, asset_id, buyer_id, retailer_id, sale_price, platform_fee,
-  shipping_address (jsonb), status, tracking_status, tracking_number, carrier, estimated_delivery
-rerouting_requests: id, asset_id, order_id, tracking_number, carrier, original_destination,
-  new_destination, rerouting_status (pending/submitted/confirmed/failed/completed),
-  carrier_request_id, failure_reason, submitted_at, confirmed_at
-asset_logistics_events: id, asset_id, event_type, event_description, location, carrier_event_code,
-  event_timestamp, raw_payload
-retailer_settings: retailer_id, default_sales_window_hours, initial_discount_percent,
-  max_discount_percent, company_legal_name, vat_id, business_street, dhl_account_number,
-  notify_on_sale, notify_on_rerouting, notify_on_payout, notification_email
-post_schedule: id, user_id, content, scheduled_at, status — RLS: nur auth.uid() = user_id
-
-## RLS-Regeln
-return_assets: listed für alle sichtbar; Händler bearbeitet eigene; Buyer sieht gekaufte
-orders: Buyer + Händler sehen eigene
-profiles: User sieht nur eigenes
-post_schedule: NUR authenticated + auth.uid() = user_id (kein anon!)
-rerouting_requests: Händler sieht eigene; Buyer sieht seine Order-Umleitungen</textarea>
-  </div>
-</div>
-
-<div class="divider"></div>
-
-<div class="section" id="rb-design">
-  <div class="lbl">Prompt 2 von 2</div>
-  <h2>Design Prompt<br/><span>nur nötig wenn du von einem leeren Projekt startest</span></h2>
-  <p class="sub">Wenn du das GitHub-Repo importiert hast, brauchst du diesen Prompt <strong>nicht</strong> — das Design ist bereits im Code. Nur wenn Lovable das Design neu aufbauen soll (leeres Projekt), diesen Prompt <strong>vor</strong> dem Foundation Prompt einfügen.</p>
-
-  <div style="background:#111;border-radius:6px;padding:16px 20px;margin:16px 0;border-left:3px solid #c9a84c">
-    <div style="font-size:10px;color:#c9a84c;font-weight:700;letter-spacing:3px;margin-bottom:8px">WANN DIESEN PROMPT VERWENDEN</div>
-    <div style="color:#ccc;font-size:12px;line-height:1.8">
-      ✗ GitHub-Import → Design bereits drin, Prompt überspringen<br/>
-      ✓ Blank-Projekt → diesen Prompt als <strong>allererste Nachricht</strong> einfügen, dann Foundation Prompt
-    </div>
-  </div>
+  <div class="lbl">Prompt 1 von 3 — Als erstes einfügen</div>
+  <h2>Design-System<br/><span>Font · CSS-Variablen · Tailwind · Komponenten</span></h2>
+  <p class="sub">Dieser Prompt richtet das gesamte visuelle Fundament ein. Erst wenn Lovable das fertig hat, Prompt 2 einfügen.</p>
 
   <div style="position:relative;margin-top:20px">
     <button onclick="copyText('design-prompt')" style="position:absolute;top:12px;right:12px;z-index:10;background:#c9a84c;color:#111;border:none;border-radius:4px;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer">KOPIEREN</button>
-    <textarea id="design-prompt" readonly style="width:100%;height:700px;background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:20px;font-family:monospace;font-size:11px;line-height:1.7;resize:vertical;outline:none">Richte das Design-System für FYNDDS ein. Übernimm alle Werte exakt — nichts erfinden.
+    <textarea id="design-prompt" readonly style="width:100%;height:600px;background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:20px;font-family:monospace;font-size:11px;line-height:1.7;resize:vertical;outline:none">Richte das komplette Design-System für FYNDDS ein. Alles exakt übernehmen.
 
-## Font
-npm install @fontsource/plus-jakarta-sans
-Font: Plus Jakarta Sans für Überschriften UND Fließtext.
-In index.html: <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+## Font einrichten
+In index.html <head>:
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-## CSS Custom Properties (src/index.css)
-Ersetze den :root Block und .dark Block komplett mit folgendem:
+## src/index.css — :root und .dark komplett ersetzen
 
 :root {
   --background: 40 20% 96%;
@@ -1588,16 +1432,11 @@ Ersetze den :root Block und .dark Block komplett mit folgendem:
   --zl-cream: 40 20% 96%;
   --zl-beige: 40 25% 92%;
   --zl-sand: 35 20% 85%;
-  --zl-gray-50: 40 15% 97%;
-  --zl-gray-100: 40 15% 94%;
-  --zl-gray-200: 40 10% 88%;
-  --zl-gray-300: 0 0% 78%;
-  --zl-gray-400: 0 0% 55%;
-  --zl-gray-500: 0 0% 40%;
-  --zl-gray-600: 0 0% 28%;
-  --zl-gray-700: 0 0% 18%;
-  --zl-gray-800: 0 0% 12%;
-  --zl-gray-900: 0 0% 8%;
+  --zl-gray-50: 40 15% 97%;   --zl-gray-100: 40 15% 94%;
+  --zl-gray-200: 40 10% 88%;  --zl-gray-300: 0 0% 78%;
+  --zl-gray-400: 0 0% 55%;    --zl-gray-500: 0 0% 40%;
+  --zl-gray-600: 0 0% 28%;    --zl-gray-700: 0 0% 18%;
+  --zl-gray-800: 0 0% 12%;    --zl-gray-900: 0 0% 8%;
   --zl-accent: 0 0% 18%;
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
@@ -1628,60 +1467,519 @@ Ersetze den :root Block und .dark Block komplett mit folgendem:
   --zl-cream: 0 0% 10%;
 }
 
-## Tailwind Config (tailwind.config.ts)
-theme.extend.fontFamily:
-  heading: ['Plus Jakarta Sans', 'sans-serif']
-  body: ['Plus Jakarta Sans', 'sans-serif']
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+  h1,h2,h3,h4,h5,h6 {
+    font-family: var(--font-heading);
+    @apply font-semibold tracking-tight;
+  }
+  [data-animate] { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+  [data-animate].visible { opacity: 1; transform: translateY(0); }
+}
 
-theme.extend.colors — zl Palette:
-  zl.black, zl.white, zl.cream, zl.beige, zl.sand
-  zl.gray.50 bis zl.gray.900 (10 Stufen)
-  zl.accent
+@layer components {
+  .premium-card { @apply bg-card border border-border rounded-md shadow-sm hover:shadow-md transition-shadow duration-300; }
+  .premium-card-hover { @apply bg-card border border-border rounded-md shadow-sm hover:shadow-lg hover:border-foreground/20 transition-all duration-300; }
+  .btn-primary { @apply bg-foreground text-background px-6 py-3 rounded-md font-medium hover:bg-foreground/90 transition-colors; }
+  .btn-gold { @apply bg-[#c9a84c] text-black px-6 py-3 rounded-md font-semibold hover:bg-[#b8973b] transition-colors; }
+  .section-label { @apply text-[10px] font-bold tracking-[4px] uppercase text-[#c9a84c]; }
+}
 
-theme.extend.borderRadius:
-  lg: var(--radius)     → 0.375rem
-  2xl: 0.5rem
-  3xl: 0.625rem
+## tailwind.config.ts — theme.extend ergänzen
 
-theme.extend.boxShadow:
-  soft: 0 2px 8px -2px rgba(0,0,0,0.05)
-  soft-md: 0 4px 12px -4px rgba(0,0,0,0.08)
-  soft-lg: 0 8px 24px -8px rgba(0,0,0,0.1)
-  premium: 0 4px 20px -4px rgba(0,0,0,0.08)
+fontFamily: { heading: ['Plus Jakarta Sans','sans-serif'], body: ['Plus Jakarta Sans','sans-serif'] }
 
-theme.extend.keyframes + animation:
-  fade-up: { from: opacity 0, translateY 20px → to: opacity 1, translateY 0 } — 0.5s ease-out
-  fade-in: { from: opacity 0 → to: opacity 1 } — 0.6s ease-out
-  marquee: translateX(0) → translateX(-33.333%) — 30s linear infinite
+colors zl: {
+  black: 'hsl(var(--zl-black))', white: 'hsl(var(--zl-white))',
+  cream: 'hsl(var(--zl-cream))', beige: 'hsl(var(--zl-beige))', sand: 'hsl(var(--zl-sand))',
+  accent: 'hsl(var(--zl-accent))',
+  gray: { 50:'hsl(var(--zl-gray-50))', 100:'hsl(var(--zl-gray-100))', 200:'hsl(var(--zl-gray-200))',
+    300:'hsl(var(--zl-gray-300))', 400:'hsl(var(--zl-gray-400))', 500:'hsl(var(--zl-gray-500))',
+    600:'hsl(var(--zl-gray-600))', 700:'hsl(var(--zl-gray-700))', 800:'hsl(var(--zl-gray-800))',
+    900:'hsl(var(--zl-gray-900))' }
+}
 
-plugins: [require("tailwindcss-animate")]
+borderRadius: { lg:'var(--radius)', '2xl':'0.5rem', '3xl':'0.625rem' }
 
-## Globale CSS-Klassen (src/index.css @layer components)
-.premium-card { @apply bg-card border border-border rounded-md shadow-sm hover:shadow-md transition-shadow duration-300; }
-.premium-card-hover { @apply bg-card border border-border rounded-md shadow-sm hover:shadow-lg hover:border-foreground/20 transition-all duration-300; }
-.btn-primary { @apply bg-foreground text-background px-6 py-3 rounded-md font-medium hover:bg-foreground/90 transition-colors; }
+boxShadow: {
+  soft:'0 2px 8px -2px rgba(0,0,0,0.05)',
+  'soft-md':'0 4px 12px -4px rgba(0,0,0,0.08)',
+  'soft-lg':'0 8px 24px -8px rgba(0,0,0,0.1)',
+  premium:'0 4px 20px -4px rgba(0,0,0,0.08)'
+}
 
-## shadcn/ui Komponenten installieren
-npx shadcn@latest add accordion alert alert-dialog avatar badge breadcrumb button calendar card
-  carousel chart checkbox collapsible command context-menu dialog drawer dropdown-menu form
-  hover-card input input-otp label menubar navigation-menu pagination radio-group resizable
-  scroll-area select separator sheet sidebar skeleton slider sonner switch table tabs textarea
-  toast toggle toggle-group tooltip
+keyframes: {
+  'fade-up': { from:{opacity:'0',transform:'translateY(20px)'}, to:{opacity:'1',transform:'translateY(0)'} },
+  'fade-in': { from:{opacity:'0'}, to:{opacity:'1'} },
+  marquee: { '0%':{transform:'translateX(0)'}, '100%':{transform:'translateX(-33.333%)'} }
+}
+animation: { 'fade-up':'fade-up 0.5s ease-out forwards', 'fade-in':'fade-in 0.6s ease-out forwards', marquee:'marquee 30s linear infinite' }
 
-## Logo-Dateien
-/src/assets/fyndds-logo-white.png — für dunklen Hintergrund
-/src/assets/fyndds-logo-black.png — für hellen Hintergrund
-Logos vom bestehenden GitHub-Repo kopieren (public/assets oder src/assets)
+plugins: [require('tailwindcss-animate')]
 
-## Design-Prinzipien
-- Minimalistisch, kein unnötiger Schnickschnack
-- Plus Jakarta Sans: Überschriften font-weight 700–900, Fließtext 400–500
-- Dark Mode primär (background #09090b / hsl 0 0% 6%)
-- Gold (#c9a84c) nur für Akzente und CTAs — nicht überstrapazieren
-- Buttons: abgerundet (rounded-md), klar, keine Schatten-Exzesse
-- Cards: border + sehr leichter Schatten, hover effect
-- Scroll-Animationen: data-animate + visible class (opacity + translateY)
-- Kein Fake-Content: keine Placeholder-Kommentare, keine Demo-Social-Proof-Zahlen</textarea>
+## shadcn/ui Komponenten — alle auf einmal installieren
+npx shadcn@latest init
+npx shadcn@latest add accordion alert alert-dialog avatar badge breadcrumb button calendar card carousel chart checkbox collapsible command context-menu dialog drawer dropdown-menu form hover-card input input-otp label menubar navigation-menu pagination radio-group resizable scroll-area select separator sheet sidebar skeleton slider sonner switch table tabs textarea toast toggle toggle-group tooltip
+
+## Design-Regeln (nie brechen)
+- Font ausschließlich Plus Jakarta Sans, weight 300–900
+- Gold #c9a84c (= hsl 43 52% 54%) NUR für Akzente, CTAs, Highlights — sparsam einsetzen
+- Dark Mode ist der primäre Modus (background hsl 0 0% 6% = fast schwarz)
+- Buttons: rounded-md, klare Kontraste, kein overengineering
+- Kein Fake-Content, keine Platzhalter-Zahlen, keine Demo-Social-Proof-Daten
+- Page transitions: framer-motion, opacity + translateY, 0.35s ease</textarea>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="rb-design">
+  <div class="lbl">Prompt 2 von 3 — Nach Prompt 1 einfügen</div>
+  <h2>App-Struktur &amp; alle Seiten<br/><span>Routing · Providers · jede Seite mit Beschreibung</span></h2>
+  <p class="sub">Baut die komplette App-Struktur auf: alle Providers, alle Routen, jede Seite mit genauer Beschreibung was sie zeigen soll.</p>
+
+  <div style="position:relative;margin-top:20px">
+    <button onclick="copyText('pages-prompt')" style="position:absolute;top:12px;right:12px;z-index:10;background:#c9a84c;color:#111;border:none;border-radius:4px;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer">KOPIEREN</button>
+    <textarea id="pages-prompt" readonly style="width:100%;height:700px;background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:20px;font-family:monospace;font-size:11px;line-height:1.7;resize:vertical;outline:none">Baue die komplette App-Struktur für FYNDDS auf.
+
+## Abhängigkeiten installieren
+npm install @tanstack/react-query react-router-dom framer-motion @supabase/supabase-js stripe lucide-react date-fns
+
+## src/App.tsx — Providers + Routing
+
+Wrapper-Reihenfolge (außen nach innen):
+QueryClientProvider → LanguageProvider → AuthProvider → FreemiumGateProvider → CartProvider → TooltipProvider → BrowserRouter → ScrollToTop + ScrollProgressBar + AnimatedRoutes + CookieBanner
+
+Page transitions via framer-motion AnimatePresence:
+  initial: { opacity: 0, y: 16 }
+  animate: { opacity: 1, y: 0 }
+  exit: { opacity: 0, y: -8 }
+  transition: duration 0.35s, ease [0.22, 1, 0.36, 1]
+
+Alle Routen (lazy-loaded außer Index, Shop, Auth, NotFound):
+  /                     → Index
+  /marketplace, /shop   → Shop
+  /auth                 → Auth
+  /about                → About
+  /haendler, /retailers → Haendler
+  /dashboard            → Dashboard (protected: only retailer role)
+  /dashboard/create-asset → CreateAsset (protected)
+  /dashboard/settings   → Settings (protected)
+  /dashboard/reports    → Reports (protected)
+  /dashboard/onboarding → RetailerOnboarding (protected)
+  /checkout             → Checkout (protected: must be logged in)
+  /checkout/success     → CheckoutSuccess
+  /asset/:assetId       → AssetDetail
+  /product/:productId   → ProductDetail
+  /order/:orderId       → OrderTracking (protected)
+  /my-orders            → MyOrders (protected)
+  /watchlist            → MyWatchlist (protected)
+  /return-portal/:token → ReturnPortal (no auth — token-based)
+  /discover             → Discover
+  /c/:l1/:l2/:l3/:l4    → CategoryPage (1–4 URL segments)
+  /club                 → ZeroLoopClub
+  /investor-demo, /live-demo → InvestorDemo
+  /agb                  → AGB
+  /datenschutz          → Datenschutz
+  /impressum            → Impressum
+  /admin                → Admin (protected: admin role only)
+  *                     → NotFound
+
+## Hooks (src/hooks/)
+
+useAuth: Supabase auth state, user object, signIn, signOut, signUp, loading
+  - Liest user role aus user_roles Tabelle
+  - Nach Login: if role === 'retailer' → redirect /dashboard, else → /marketplace
+  - exports: user, profile, role, isRetailer, isBuyer, isAdmin, loading
+
+useCart: Cart state in memory (+ localStorage)
+  - items: Array<{assetId, productName, price, image}>
+  - addItem, removeItem, clearCart, total, itemCount
+  - CartDrawer Component: slide-in Sheet von rechts
+
+useLanguage: DE/EN toggle, stored in localStorage
+  Sprache ist Deutsch (DE) als Default. EN optional.
+
+useFreemiumGate: prüft ob Händler Stripe Connect abgeschlossen hat
+  - isGated: boolean
+  - showGate: () => void (öffnet Modal)
+
+## Seiten — Was jede zeigen soll
+
+### / (Index — Landing Page)
+HERO: Großes dunkles Bild/Video, animierter Headline-Text:
+  "Retouren kaufen." (klein, gold) + "Schlau einkaufen." (groß, weiß)
+  Subtext: "Markenprodukte bis 40% günstiger — direkt vom Händler zu dir"
+  2 CTAs: "Marketplace entdecken" (primary/gold) + "Als Händler starten" (outline)
+
+TRUST-BAR (3 Zahlen): 530 Mio. Retouren/Jahr · €2.99 Rerouting · 48h Sales-Window
+
+HOW IT WORKS (3 Schritte):
+  1. Händler gibt Retoure frei (Icon: package)
+  2. Käufer kauft mit Rabatt (Icon: tag)
+  3. Paket wird direkt umgeleitet (Icon: route)
+
+PRODUKT-SLIDER: Horizontales Scroll, ProductCards (aus DB, status=listed)
+
+CATEGORIES GRID: Fashion / Elektronik / Schuhe / Accessoires / Heim — je Bild + Label
+
+SUSTAINABILITY COUNTER: animiert hochzählend — "X kg CO₂ gespart"
+
+NEWSLETTER SECTION: E-Mail Input + "Anmelden" — speichert in newsletter_subscribers
+
+FOOTER: Links (Marketplace, Händler, Über uns, AGB, Datenschutz, Impressum) + Social Icons + Logo
+
+### /marketplace (/shop)
+NAV: Sticky top navbar mit Logo links, Suche Mitte, Cart-Icon + User-Icon rechts
+FILTER SIDEBAR (desktop) / Filter-Drawer (mobile):
+  Kategorien, Zustand (wie neu/gut/akzeptabel), Preis-Range, Marke, Träger
+PRODUCT GRID: 3–4 Spalten Desktop, 2 Mobile
+  ProductCard: Bild, Marke, Produktname, aktueller Preis + Rabatt %, Countdown-Timer
+  Bei Hover: Quick-View Button
+SORT: Zeit verbleibend / Preis aufsteigend / Neueste
+EMPTY STATE: wenn keine Produkte gefunden
+
+### /auth
+2 Tabs: "Anmelden" + "Registrieren"
+Anmelden: E-Mail + Passwort + "Anmelden" Button + "Passwort vergessen?"
+Registrieren: Name + E-Mail + Passwort + Rolle-Select (Käufer / Händler) + "Konto erstellen"
+Nach Login: redirect basierend auf Rolle
+Logo oben zentriert
+
+### /haendler (Retailer Landing)
+HERO: Dunkler Hintergrund, Headline: "Retouren verwandeln sich in Umsatz."
+Subtext erklärt Rerouting in einem Satz
+CTA: "Jetzt kostenlos starten" → /auth?mode=register&role=retailer
+
+HOW IT WORKS (Händler-Perspektive, 3 Schritte):
+  1. Tracking-Nummer eingeben
+  2. Paket wird gelistet
+  3. Käufer gefunden → Geld kommt automatisch
+
+PRICING TABLE (4 Tiers, Werte aus pricingEngine.ts):
+  Free: 5% Provision, €0/Mo, bis 50 Retouren
+  Starter: 4%, €0/Mo, bis 500
+  Growth: 3%, €49/Mo, bis 2.000 — als "Empfohlen" markieren
+  Enterprise: 2%, Preis auf Anfrage, unbegrenzt
+
+RECHENBEISPIEL: Produkt €120 UVP → FYNDDS Verkauf €85 → Provision €2.55 → Händler bekommt €82.45 (statt Lagerkosten)
+
+FAQ: 5–7 häufige Fragen über Rerouting, Zahlungen, DHL, Integration
+
+### /dashboard (Händler — protected)
+Prüfen: auth.uid() in user_roles mit role='retailer', sonst redirect /auth
+HEADER: "Hallo {name}" + "Neues Asset erstellen" Button (→ /dashboard/create-asset)
+
+STATS GRID (4 Kacheln):
+  Aktive Listings (count status=listed), Gesamtumsatz (sum sale_price where status=completed),
+  Offene Bestellungen (count status=paid/shipped), Konversionsrate
+
+ASSET LIST: Tabelle mit Spalten: Produktname, Status (Badge), Aktueller Preis, Zeit verbleibend, Tracking-Nr, Aktionen
+  Status-Badges: pending (grau), listed (grün), sold (blau), rerouted (orange), delivered (dunkelgrün)
+
+RECENT ORDERS: Letzte 5 Bestellungen mit Bestellnummer, Käufer (anonymisiert), Betrag, Status
+
+STRIPE CONNECT BANNER: falls stripe_onboarding_completed === false → Banner mit CTA "Jetzt verbinden" → /dashboard/onboarding
+
+### /dashboard/create-asset
+FORM:
+  Produktname*, SKU*, Kategorie (Select)*, UVP (originalPrice)*, Aktueller Startpreis*
+  Zustand (Select: wie neu/sehr gut/gut/akzeptabel)*, Beschreibung
+  Bilder Upload (max 5, supabase storage bucket 'product-images')
+  DHL Tracking-Nummer*, Carrier (Select: DHL/DPD/Hermes/UPS)*
+  Sales-Window Dauer (24h/48h/72h, default 48h)
+Submit → insert in return_assets (status='pending'), redirect /dashboard
+
+### /checkout (protected — must be logged in)
+ORDER SUMMARY: Liste der Cart-Items mit Bild, Name, Preis
+REROUTING-GEBÜHR: €2.99 als separate Zeile
+TOTAL BERECHNUNG
+SHIPPING ADDRESS FORM: Name*, Straße*, Stadt*, PLZ*, Land (DE/AT/CH)*
+"Sicher bezahlen" Button → ruft create-checkout Edge Function auf → redirect zu Stripe Checkout URL
+
+### /checkout/success
+Bestell-Bestätigung mit Bestellnummer (aus URL ?session_id=...)
+"Dein Paket wird direkt zu dir umgeleitet — kein Lagerumweg"
+Geschätzte Lieferzeit +2 Tage
+Button: "Meine Bestellungen ansehen" → /my-orders
+
+### /asset/:assetId (Produkt-Detail)
+Lädt return_asset aus DB by ID
+BILDER: Großes Hauptbild + Thumbnails
+COUNTDOWN TIMER: Zeit bis Sales-Window-Ende (live update jede Sekunde)
+AKTUELLER PREIS: dynamisch (aus pricingEngine calculateCurrentPrice)
+NÄCHSTER PREISRÜCKGANG: Datum + nächster Preis
+"In den Warenkorb" / "Jetzt kaufen" Button
+PRODUKT-INFO: Kategorie, Zustand, Beschreibung, Original-Preis
+
+### /order/:orderId (Order Tracking — protected)
+Lädt order aus DB, prüft buyer_id === auth.uid()
+STATUS TIMELINE (vertikal):
+  Bestellt ✓ → Bezahlt ✓ → Umgeleitet → Unterwegs → Zugestellt
+Aktueller Status: tracking_status aus orders Tabelle
+Tracking-Nummer + Carrier anzeigen
+Geschätzte Lieferung: estimated_delivery aus orders
+
+### /dashboard/onboarding (Retailer Stripe Connect)
+STEP 1: Firmendaten (company_legal_name, vat_id, business_street, business_city, business_postal_code)
+  → Speichern in retailer_settings
+STEP 2: Stripe Connect Express Onboarding
+  → Button "Stripe-Konto verbinden" → ruft stripe-connect Edge Function auf → redirect zu Stripe onboarding URL
+STEP 3: Bestätigung (stripe_onboarding_completed = true)
+
+### /return-portal/:token
+Token-basierter Zugang (kein Login) — validiert über return_access_tokens Tabelle
+Zeigt: Produktname, Retourengrund, Status
+Aktion: Fotos hochladen (supabase storage)
+Zeigt DHL-Label als QR-Code falls vorhanden (label_qr_code aus return_assets)
+
+### /admin (protected — admin role)
+Übersicht aller Assets, Orders, User
+Kann Asset-Status manuell ändern
+Kann Payout manuell triggern
+
+### /my-orders (protected)
+Liste aller Bestellungen des eingeloggten Käufers
+Spalten: Bestellnummer, Produkt, Preis, Status, Lieferstatus
+Link zu /order/:orderId
+
+### /agb, /datenschutz, /impressum
+Standard Rechtstexte. Auf Deutsch. Kein Dummy-Content — echte Platzhalter markieren.
+
+## Globale Komponenten (immer sichtbar)
+- Navbar: Logo links, Navigation Mitte, Cart + User rechts. Sticky. Dark background.
+- CookieBanner: DSGVO-konform, unten fixiert, "Akzeptieren" + "Ablehnen"
+- ScrollToTop: Beim Route-Wechsel nach oben scrollen
+- ScrollProgressBar: Dünne goldene Linie oben beim Scrollen</textarea>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="rb-backend">
+  <div class="lbl">Prompt 3 von 3 — Zuletzt einfügen</div>
+  <h2>Backend — Edge Functions &amp; Datenbank<br/><span>Supabase · Stripe · DHL · vollständiger korrekter Code</span></h2>
+  <p class="sub">Baut alle Supabase Edge Functions, das vollständige DB-Schema und alle Integrationen. Dieser Prompt enthält den exakten, bereits korrigierten Code.</p>
+
+  <div style="position:relative;margin-top:20px">
+    <button onclick="copyText('foundation-prompt')" style="position:absolute;top:12px;right:12px;z-index:10;background:#c9a84c;color:#111;border:none;border-radius:4px;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer">KOPIEREN</button>
+    <textarea id="foundation-prompt" readonly style="width:100%;height:700px;background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:20px;font-family:monospace;font-size:11px;line-height:1.7;resize:vertical;outline:none">Baue das komplette Backend für FYNDDS auf.
+
+## Supabase-Client (src/lib/supabase.ts)
+import { createClient } from '@supabase/supabase-js'
+export const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
+
+## Datenbank-Schema (Migrations in supabase/migrations/)
+
+### Tabelle: profiles
+user_id UUID REFERENCES auth.users UNIQUE NOT NULL, email TEXT, full_name TEXT,
+company_name TEXT, stripe_account_id TEXT, stripe_onboarding_completed BOOLEAN DEFAULT false,
+stripe_account_status TEXT DEFAULT 'not_connected'
+Trigger: handle_new_user() → auto-insert bei auth.users INSERT
+
+### Tabelle: user_roles
+user_id UUID REFERENCES auth.users, role TEXT CHECK (role IN ('admin','retailer','customer','logistics_partner'))
+Nach Registrierung als Händler: role = 'retailer' inserieren
+
+### Tabelle: return_assets
+id UUID PK, asset_id TEXT UNIQUE (Format: ZL-YYYYMMDD-XXXXXXXX),
+retailer_id UUID REFERENCES auth.users NOT NULL, buyer_id UUID REFERENCES auth.users,
+sku TEXT, product_name TEXT, category TEXT, original_price DECIMAL(10,2), current_price DECIMAL(10,2),
+condition TEXT DEFAULT 'like_new', description TEXT, images TEXT[],
+carrier TEXT CHECK (carrier IN ('dhl','dpd','hermes','ups')),
+tracking_number TEXT, sales_window_hours INT DEFAULT 48,
+sales_window_start TIMESTAMPTZ, sales_window_end TIMESTAMPTZ,
+status TEXT DEFAULT 'pending' CHECK (status IN ('pending','listed','sold','rerouted','delivered','returned_to_warehouse','archived')),
+rerouting_address JSONB, label_url TEXT, label_qr_code TEXT, return_reason TEXT, customer_email TEXT,
+created_at TIMESTAMPTZ DEFAULT now(), updated_at TIMESTAMPTZ DEFAULT now()
+
+### Tabelle: orders
+id UUID PK, order_number TEXT UNIQUE, asset_id UUID REFERENCES return_assets,
+buyer_id UUID REFERENCES auth.users, retailer_id UUID REFERENCES auth.users,
+sale_price DECIMAL(10,2), platform_fee DECIMAL(10,2) DEFAULT 2.50,
+shipping_address JSONB, status TEXT DEFAULT 'pending',
+tracking_status TEXT, tracking_number TEXT, carrier TEXT, estimated_delivery TIMESTAMPTZ,
+created_at TIMESTAMPTZ DEFAULT now(), updated_at TIMESTAMPTZ DEFAULT now()
+
+### Tabelle: rerouting_requests
+id UUID PK, asset_id UUID REFERENCES return_assets, order_id UUID REFERENCES orders,
+original_destination JSONB, new_destination JSONB, carrier TEXT DEFAULT 'dhl',
+tracking_number TEXT, rerouting_status TEXT DEFAULT 'pending'
+  CHECK (rerouting_status IN ('pending','submitted','confirmed','failed','completed')),
+carrier_request_id TEXT, carrier_response JSONB, failure_reason TEXT,
+submitted_at TIMESTAMPTZ, confirmed_at TIMESTAMPTZ, created_at TIMESTAMPTZ DEFAULT now()
+
+### Tabelle: asset_logistics_events
+id UUID PK, asset_id UUID REFERENCES return_assets, event_type TEXT,
+event_description TEXT, location TEXT, carrier_event_code TEXT,
+event_timestamp TIMESTAMPTZ DEFAULT now(), raw_payload JSONB, created_at TIMESTAMPTZ DEFAULT now()
+
+### Tabelle: retailer_settings
+retailer_id UUID REFERENCES auth.users UNIQUE, default_sales_window_hours INT DEFAULT 48,
+initial_discount_percent DECIMAL DEFAULT 12, max_discount_percent DECIMAL DEFAULT 35,
+company_legal_name TEXT, vat_id TEXT, business_street TEXT, business_city TEXT,
+business_postal_code TEXT, business_country TEXT DEFAULT 'DE',
+dhl_account_number TEXT, preferred_carrier TEXT DEFAULT 'dhl',
+notify_on_sale BOOLEAN DEFAULT true, notify_on_rerouting BOOLEAN DEFAULT true,
+notify_on_payout BOOLEAN DEFAULT true, notification_email TEXT,
+onboarding_completed BOOLEAN DEFAULT false
+
+### Tabelle: dhl_labels (NEU)
+id UUID PK, asset_id UUID REFERENCES return_assets,
+shipment_number TEXT NOT NULL, label_url TEXT, label_base64 TEXT,
+billing_number TEXT, created_at TIMESTAMPTZ DEFAULT now()
+
+### Tabelle: newsletter_subscribers
+id UUID PK, email TEXT UNIQUE, subscribed_at TIMESTAMPTZ DEFAULT now(),
+source TEXT DEFAULT 'marketplace', is_active BOOLEAN DEFAULT true
+
+### Tabelle: post_schedule
+id UUID PK, user_id UUID REFERENCES auth.users ON DELETE CASCADE,
+content TEXT, scheduled_at TIMESTAMPTZ, status TEXT DEFAULT 'scheduled',
+created_at TIMESTAMPTZ DEFAULT now()
+
+### RLS-Regeln (alle Tabellen mit RLS aktivieren!)
+profiles: SELECT/UPDATE WHERE auth.uid() = user_id
+return_assets:
+  SELECT: status='listed' OR retailer_id=auth.uid() OR buyer_id=auth.uid()
+  INSERT: has_role(auth.uid(),'retailer') AND retailer_id=auth.uid()
+  UPDATE: retailer_id=auth.uid()
+orders:
+  SELECT: buyer_id=auth.uid() OR retailer_id=auth.uid()
+  INSERT: buyer_id=auth.uid()
+rerouting_requests:
+  SELECT: EXISTS(return_assets WHERE retailer_id=auth.uid()) OR EXISTS(orders WHERE buyer_id=auth.uid())
+asset_logistics_events: SELECT public (nur lesen)
+post_schedule: ALLE Operationen: auth.uid() = user_id, TO authenticated (KEIN anon!)
+newsletter_subscribers: INSERT WITH CHECK (true) — anon darf subscriben
+
+## Pricing Engine (src/services/pricingEngine.ts — exakt so bauen)
+
+export const FYNDDS_TIERS = {
+  free:       { commissionPercent: 5, monthlyFee: 0,    reroutingFee: 2.99, maxReturns: 50 },
+  starter:    { commissionPercent: 4, monthlyFee: 0,    reroutingFee: 2.49, maxReturns: 500 },
+  growth:     { commissionPercent: 3, monthlyFee: 49,   reroutingFee: 1.99, maxReturns: 2000 },
+  enterprise: { commissionPercent: 2, monthlyFee: null, reroutingFee: 1.49, maxReturns: null },
+} as const;
+export const REROUTING_FEE = 2.99;
+export const ZEROLOOP_PRICING = { setupFee: 0, commissionPercent: 3, reroutingFee: REROUTING_FEE,
+  stripeProductId: 'prod_Ts0dUT0kIFM8ka', stripePriceId: 'price_1SuGbmB7TkYtWUttvrasJHzo' };
+// Dynamisches Zeit-Pricing: calculateCurrentPrice(originalPrice, windowStart, windowEnd, config)
+// Preis fällt von initialDiscountPercent auf maxDiscountPercent in priceDropIntervals Schritten
+
+## Edge Functions (supabase/functions/)
+
+### create-checkout/index.ts — KORRIGIERTER CODE
+// Imports + CORS Headers
+import Stripe from 'https://esm.sh/stripe@18.5.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
+const PLATFORM_FEE_PERCENT = 3; const PLATFORM_FEE_MIN = 250; const PLATFORM_FEE_MAX = 1500;
+const REROUTING_FEE_CENTS = 299;
+// Auth: Supabase JWT required (Bearer token)
+// Preise: aus DB laden, NICHT aus Client-Request
+// Line Items: je Asset + Rerouting-Gebühr ("Rerouting-Gebühr", €2.99)
+// payment_method_types: ["card", "link", "sepa_debit"]
+// expires_at: jetzt + 1800 Sekunden
+// SPLIT PAYMENT:
+//   uniqueRetailerIds = [...new Set(assets.map(a => a.retailer_id))]
+//   isSingleRetailer = uniqueRetailerIds.length === 1
+//   platformFee = Min(1500, Max(250, subtotalCents * 3 / 100))
+//   payment_intent_data.on_behalf_of = retailerProfile.stripe_account_id
+//   payment_intent_data.application_fee_amount = platformFee
+//   if isSingleRetailer: payment_intent_data.transfer_data = { destination: stripe_account_id }
+//   if multi-vendor: KEIN transfer_data — stripe-webhook macht per-Asset Transfers
+// metadata: user_id, asset_ids, retailer_ids (ALLE kommagetrennt), shipping_address, request_id, multi_vendor
+// KEIN in-memory Cache!
+
+### stripe-webhook/index.ts
+// STRIPE_WEBHOOK_SECRET ist Pflicht — ohne Secret → 500 zurückgeben, NICHT verarbeiten
+// Signatur validieren: stripe.webhooks.constructEventAsync(body, sig, secret)
+// checkout.session.completed:
+//   Für jedes asset: Order erstellen (order_number ZL-{timestamp36}-{random4}),
+//   Asset status='sold', buyer_id setzen, initiate-rerouting aufrufen
+//   Bei unavailable asset: sofort refund
+// Multi-Vendor (metadata.multi_vendor === 'true'):
+//   Für jedes Asset: stripe.transfers.create({ amount, currency:'eur', destination, transfer_group })
+
+### initiate-rerouting/index.ts — KORRIGIERTER CODE
+// DHL Auth: POST https://api-eu.dhl.com/parcel/de/account/auth/ropc/v1/token
+//   body: grant_type=client_credentials, client_id=DHL_API_KEY, client_secret=DHL_API_SECRET
+// Wenn keine Credentials → mockReroutingResponse() (95% success rate)
+// Step 1: Status prüfen:
+//   GET https://api-eu.dhl.com/track/shipments?trackingNumber={nr}
+//   Header: DHL-API-Key: {apiKey}
+//   Blockierte Status: delivered, failure, returned, out_for_delivery → DHL_REROUTING_TOO_LATE werfen
+// Step 2: Adresse ändern:
+//   PATCH https://api-eu.dhl.com/parcel/de/v1/shipments/{trackingNumber}/address
+//   Header: Authorization: Bearer {accessToken}
+//   Body: { consignee: { name1, addressStreet, postalCode, city, country: { countryISOCode } } }
+//   409 → DHL_REROUTING_TOO_LATE; non-2xx → DHL_REROUTING_FAILED
+// KEIN silent success, KEIN pending_intervention!
+// Fallback bei Fehler: Order cancelled, Asset re-listed (+24h window), Käufer E-Mail
+
+### tracking-webhook/index.ts — KORRIGIERTER CODE
+// validateDHLSignature(payload, signature):
+//   webhookSecret = Deno.env.get('DHL_WEBHOOK_SECRET')
+//   if (webhookSecret && !signature) → return false  ← SICHERHEIT
+//   if (!webhookSecret) → warn + return true  ← DEV-MODE
+//   HMAC-SHA256: crypto.subtle.importKey + sign → compare mit signature.replace('sha256=','')
+// Events:
+//   picked_up → Asset status='listed', sales_window_start=now, sales_window_end=+{windowHours}h
+//   in_transit / out_for_delivery → orders.tracking_status updaten
+//   delivered → orders.status='delivered', process-payout aufrufen
+//   returned → Asset zurück auf pending
+
+### process-payout/index.ts
+// Aufgerufen nach delivery event
+// Idempotenz: if order.status === 'completed' → skip
+// Berechnung: Min(€15, Max(€2.50, salePrice * 3%))
+// stripe.transfers.create({ amount: retailerPayout * 100, currency:'eur', destination: stripe_account_id })
+// Order status → 'completed'
+
+### create-dhl-label/index.ts — NEU BAUEN (kritisch!)
+// Input: { assetId, retailerAddress: { name, street, city, postalCode } }
+// Auth: getDHLAccessToken()
+// POST https://api-eu.dhl.com/parcel/de/shipping/v2/orders
+// billingNumber: DHL_BILLING_NUMBER (FYNDDS EKP)
+// shipper: Händler-Adresse aus retailerAddress
+// consignee: FYNDDS Return-Adresse (returns@fyndds.com)
+// Response: { shipmentNumber, label (base64 PDF) }
+// Speichern: dhl_labels Tabelle + return_assets.tracking_number updaten
+
+### retailer-api/index.ts — NEU BAUEN (8returns-Integration)
+// Auth: X-FYNDDS-API-Key Header (validieren gegen DB-Tabelle api_keys)
+// Input: 8returns Webhook: { event, orderId, trackingNumber, carrier, product:{name,sku,price,category} }
+// event === 'return.received' + tracking vorhanden → Asset in return_assets erstellen + listen
+
+### send-email/index.ts
+// Resend API: POST https://api.resend.com/emails
+// RESEND_API_KEY aus Env
+// E-Mail-Typen:
+//   order_confirmation: Bestätigungsmail an Käufer
+//   asset_rerouted: an Händler wenn Paket umgeleitet
+//   order_cancelled: an Käufer wenn Rerouting fehlgeschlagen
+//   payout_initiated: an Händler nach Auszahlung
+//   asset_listed: an Händler wenn Asset gelistet wurde
+// Absender: noreply@fyndds.com (NICHT fyndds.de!)
+
+## Supabase Secrets (in Supabase Dashboard setzen)
+STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+DHL_API_KEY, DHL_API_SECRET, DHL_BILLING_NUMBER, DHL_WEBHOOK_SECRET,
+RESEND_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
+
+## .env (Vite Frontend)
+VITE_SUPABASE_URL=https://sidjdgxnjcnornstjolt.supabase.co
+VITE_SUPABASE_ANON_KEY={anon key}
+VITE_STRIPE_PUBLISHABLE_KEY={pk_live_...}</textarea>
   </div>
 </div>
 
