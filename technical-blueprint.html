@@ -147,6 +147,7 @@ tr:hover td{background:#fafafa}
   <button class="tab-btn active" onclick="showTab('arch',this)">01 — Wie FYNDDS funktioniert</button>
   <button class="tab-btn" onclick="showTab('int',this)">02 — Händler-Integration</button>
   <button class="tab-btn" onclick="showTab('road',this)">03 — Status &amp; Roadmap</button>
+  <button class="tab-btn" onclick="showTab('rebuild',this)">04 — Lovable Rebuild</button>
 </div>
 
 
@@ -1327,6 +1328,376 @@ Response 200:
 
 </div><!-- /container -->
 </div><!-- /tab-road -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════ TAB 04 -->
+<div id="tab-rebuild" class="tab-pane">
+
+<nav class="sec-nav">
+  <ul>
+    <li><a href="#rb-how">Wie vorgehen</a></li>
+    <li><a href="#rb-foundation">Foundation Prompt</a></li>
+    <li><a href="#rb-design">Design Prompt</a></li>
+  </ul>
+</nav>
+
+<div class="cover">
+  <div class="container">
+    <div class="badge">Lovable · Rebuild ohne Fehler</div>
+    <h1>Kompletter<br/><span>Rebuild-Guide</span></h1>
+    <p class="cover-sub">Alles was Lovable braucht um FYNDDS neu aufzubauen — ohne Architektur-Fehler, mit dem exakten bestehenden Design. Zwei Prompts: Architektur + Design. Einfach kopieren und einfügen.</p>
+    <div class="cover-meta">
+      <div class="meta-item"><strong>Schritt 1</strong>GitHub-Repo verbinden</div>
+      <div class="meta-item"><strong>Schritt 2</strong>Foundation Prompt einfügen</div>
+      <div class="meta-item"><strong>Schritt 3</strong>Design Prompt einfügen</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="section" id="rb-how">
+  <div class="lbl">So geht's</div>
+  <h2>GitHub-Import ist der beste Weg<br/><span>kein Design-Verlust, kein Code-Verlust</span></h2>
+  <p class="sub">Wenn du ein "neues" Lovable-Projekt aufmachst, aber das bestehende Design behalten willst — importiere das bestehende GitHub-Repo. Lovable lädt dann den kompletten Code inklusive aller Komponenten, Farben und Layouts. Du fängst nicht bei null an, sondern auf dem Stand des aktuellen Codes.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px">
+    <div class="card card-gold">
+      <div class="card-title">✅ Empfohlen: GitHub-Import</div>
+      <div class="card-body">
+        <strong>Lovable → "New Project" → "Import from GitHub"</strong><br/><br/>
+        Repo: <code>UnserVentures25/zeroloops</code><br/><br/>
+        Lovable lädt den kompletten Code. Dann den <strong>Foundation Prompt</strong> einfügen — Lovable weiß sofort was zu fixen und zu bauen ist. Das Design ist automatisch drin.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚠️ Fallback: Blank + Design Prompt</div>
+      <div class="card-body">
+        Falls GitHub-Import nicht funktioniert: Neues Projekt → zuerst den <strong>Design Prompt</strong> einfügen (CSS-Variablen, Tailwind-Config, Komponenten-Liste), dann den <strong>Foundation Prompt</strong>. Mehr Arbeit, gleiches Ergebnis.
+      </div>
+    </div>
+  </div>
+
+  <div style="background:#111;border-radius:6px;padding:20px 24px;margin-top:20px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:#c9a84c;margin-bottom:12px">REIHENFOLGE</div>
+    <div style="color:#ccc;font-size:13px;line-height:2">
+      1. Lovable → New Project → Import from GitHub → <code style="color:#c9a84c">UnserVentures25/zeroloops</code><br/>
+      2. Warte bis Code geladen ist<br/>
+      3. Foundation Prompt unten kopieren → in Lovable-Chat einfügen<br/>
+      4. Lovable fixt alle Bugs + baut fehlende Edge Functions<br/>
+      5. Falls Design-Abweichungen: Design Prompt unten kopieren → einfügen
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="rb-foundation">
+  <div class="lbl">Prompt 1 von 2</div>
+  <h2>Foundation Prompt<br/><span>Architektur, Bugs, fehlende Features — alles drin</span></h2>
+  <p class="sub">Diesen Prompt als erstes in Lovable einfügen. Er erklärt die gesamte Architektur, welche Bugs bereits behoben wurden, was noch fehlt und wie alles korrekt gebaut wird.</p>
+
+  <div style="position:relative;margin-top:20px">
+    <button onclick="copyText('foundation-prompt')" style="position:absolute;top:12px;right:12px;z-index:10;background:#c9a84c;color:#111;border:none;border-radius:4px;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer">KOPIEREN</button>
+    <textarea id="foundation-prompt" readonly style="width:100%;height:600px;background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:20px;font-family:monospace;font-size:11px;line-height:1.7;resize:vertical;outline:none">Du arbeitest an FYNDDS (fyndds.com) — einer Recommerce-Plattform für Markenretouren in DE/AT/CH.
+
+## Kernidee
+Händler geben Retouren frei. Käufer kaufen sie mit Rabatt (10–40% unter UVP).
+Das Paket läuft zurück Richtung Händlerlager — FYNDDS leitet es per DHL-API direkt zum Käufer um.
+Kein Lagerumweg. Das nennen wir "Rerouting".
+
+## Design
+Das bestehende Frontend-Design EXAKT beibehalten.
+Alle Farben, Komponenten, Layouts, Animationen aus dem bestehenden Code übernehmen. Nichts ändern.
+
+## Tech Stack
+- React 18 + TypeScript + Vite + Tailwind + shadcn/ui
+- Supabase (Auth, PostgreSQL, Edge Functions als Deno/TypeScript)
+- Stripe (Checkout Sessions + Connect Express für Split-Payment)
+- DHL Parcel DE API (Tracking + Address-PATCH für Rerouting)
+- Resend (Transaktionsmails)
+
+## Bugs die BEREITS behoben wurden (nicht rückgängig machen!)
+
+### Fix 1 — initiate-rerouting/index.ts
+DHL Endpoint war falsch (POST /shipping/v2/orders statt PATCH /address). Jetzt korrekt:
+- Step 1: GET https://api-eu.dhl.com/track/shipments?trackingNumber={nr} — Status prüfen
+  - Blockiert wenn: delivered, failure, returned, out_for_delivery → wirft DHL_REROUTING_TOO_LATE
+- Step 2: PATCH https://api-eu.dhl.com/parcel/de/v1/shipments/{nr}/address
+  - Body: { consignee: { name1, addressStreet, postalCode, city, country: { countryISOCode } } }
+  - 409 → DHL_REROUTING_TOO_LATE; non-2xx → DHL_REROUTING_FAILED
+- Kein silent success / pending_intervention mehr
+
+### Fix 2 — tracking-webhook/index.ts
+Signature-Bypass war offen: if (!signature) return true; — jetzt:
+  const webhookSecret = Deno.env.get("DHL_WEBHOOK_SECRET");
+  if (webhookSecret && !signature) return false; // reject!
+  if (!webhookSecret) return true; // dev-mode
+
+### Fix 3 — create-checkout/index.ts
+- In-memory Map für Idempotenz entfernt (war wertlos bei Cold-Starts)
+- on_behalf_of = retailer.stripe_account_id (korrekt gesetzt)
+- Single-Vendor: transfer_data.destination = retailer (ohne amount)
+- Multi-Vendor: kein transfer_data — stripe-webhook macht per-Asset Transfers
+- metadata.retailer_ids = ALLE Händler-IDs (kommagetrennt, nicht nur der erste!)
+- Platform Fee NUR auf Produktsubtotal: Min(€15.00, Max(€2.50, subtotal × 3%))
+
+### Fix 4 — post_schedule RLS
+Migration 20260526000001_fix_post_schedule_rls.sql:
+Alle anon-Policies entfernt. Nur: authenticated + auth.uid() = user_id
+
+## Was noch gebaut werden muss
+
+### 1. create-dhl-label Edge Function (KRITISCH — ohne das kein Rerouting!)
+Voraussetzung: FYNDDS eigenes DHL-EKP (Geschäftskunden-Nr.) vorhanden.
+Endpoint: POST https://api-eu.dhl.com/parcel/de/shipping/v2/orders
+Auth: Bearer Token von getDHLAccessToken()
+Body:
+{
+  "shipments": [{
+    "product": "V01PAK",
+    "billingNumber": "{DHL_BILLING_NUMBER}",
+    "shipper": { name1, addressStreet, postalCode, city, country: {countryISOCode: "DEU"} },
+    "consignee": {
+      "name1": "FYNDDS Retourenservice",
+      "addressStreet": "Musterstraße 1",
+      "postalCode": "10115",
+      "city": "Berlin",
+      "country": {"countryISOCode": "DEU"},
+      "email": "returns@fyndds.com"
+    },
+    "details": { "weight": {"uom": "kg", "value": 1} }
+  }]
+}
+Output speichern: dhl_labels Tabelle (shipmentNumber, labelUrl) + tracking_number in return_assets
+
+### 2. retailer-api Edge Function (8returns-Integration)
+Empfängt Webhooks von 8returns wenn ein Return eintrifft.
+Auth: X-FYNDDS-API-Key Header (Custom Key aus DB)
+Input: { event, orderId, trackingNumber, carrier, product: {name, sku, originalPrice, category}, returnReason, retailerId }
+Logik: Asset in return_assets erstellen, bei return.received + tracking vorhanden → sofort listen
+
+### 3. stripe-webhook: Multi-Vendor Transfers
+Wenn metadata.multi_vendor === "true": für jedes Asset separaten Transfer:
+  await stripe.transfers.create({
+    amount: Math.round((assetPrice - assetPlatformFee) * 100),
+    currency: "eur",
+    destination: retailerStripeAccountId,
+    transfer_group: `order_${orderNumber}`,
+    source_transaction: paymentIntent.charges.data[0].id,
+  })
+
+### 4. Tabellen anlegen (Migrations)
+dhl_labels: id, asset_id, shipment_number, label_url, label_base64, billing_number, created_at
+order_groups: id, checkout_session_id, asset_ids[], buyer_id, created_at
+payout_records: id, order_id, retailer_id, amount, stripe_transfer_id, paid_at
+
+## Pricing Engine (src/services/pricingEngine.ts — NICHT ÄNDERN)
+Bereits korrekt:
+  FYNDDS_TIERS: free (5%, €0/Mo), starter (4%, €0/Mo), growth (3%, €49/Mo), enterprise (2%, custom)
+  REROUTING_FEE = 2.99
+  ZEROLOOP_PRICING.setupFee = 0
+
+## UI-Bugs die noch offen sind
+- Stale Pricing: "€990" in Dashboard, FreemiumGate, PaymentTab → ZEROLOOP_PRICING aus pricingEngine.ts
+- "1,99 €" in FAQ + FeaturesDemo → REROUTING_FEE aus pricingEngine.ts (= 2.99)
+- E-Mail Domain: fyndds.de vs fyndds.com → alles auf fyndds.com
+- CORS "*" in Edge Functions → https://fyndds.com in Produktion
+
+## Supabase Secrets (vor Launch setzen)
+STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, DHL_API_KEY, DHL_API_SECRET,
+DHL_BILLING_NUMBER, DHL_WEBHOOK_SECRET, RESEND_API_KEY
+
+## Datenbank-Kern (vollständiges Schema)
+profiles: user_id, email, full_name, company_name, stripe_account_id, stripe_onboarding_completed
+return_assets: id, asset_id, retailer_id, buyer_id, sku, product_name, category, original_price,
+  current_price, condition, images[], carrier, tracking_number, sales_window_start, sales_window_end,
+  sales_window_hours, status (pending/listed/sold/rerouted/delivered/returned_to_warehouse/archived),
+  rerouting_address (jsonb), label_url, return_reason, customer_email
+orders: id, order_number, asset_id, buyer_id, retailer_id, sale_price, platform_fee,
+  shipping_address (jsonb), status, tracking_status, tracking_number, carrier, estimated_delivery
+rerouting_requests: id, asset_id, order_id, tracking_number, carrier, original_destination,
+  new_destination, rerouting_status (pending/submitted/confirmed/failed/completed),
+  carrier_request_id, failure_reason, submitted_at, confirmed_at
+asset_logistics_events: id, asset_id, event_type, event_description, location, carrier_event_code,
+  event_timestamp, raw_payload
+retailer_settings: retailer_id, default_sales_window_hours, initial_discount_percent,
+  max_discount_percent, company_legal_name, vat_id, business_street, dhl_account_number,
+  notify_on_sale, notify_on_rerouting, notify_on_payout, notification_email
+post_schedule: id, user_id, content, scheduled_at, status — RLS: nur auth.uid() = user_id
+
+## RLS-Regeln
+return_assets: listed für alle sichtbar; Händler bearbeitet eigene; Buyer sieht gekaufte
+orders: Buyer + Händler sehen eigene
+profiles: User sieht nur eigenes
+post_schedule: NUR authenticated + auth.uid() = user_id (kein anon!)
+rerouting_requests: Händler sieht eigene; Buyer sieht seine Order-Umleitungen</textarea>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="rb-design">
+  <div class="lbl">Prompt 2 von 2</div>
+  <h2>Design Prompt<br/><span>nur nötig wenn du von einem leeren Projekt startest</span></h2>
+  <p class="sub">Wenn du das GitHub-Repo importiert hast, brauchst du diesen Prompt <strong>nicht</strong> — das Design ist bereits im Code. Nur wenn Lovable das Design neu aufbauen soll (leeres Projekt), diesen Prompt <strong>vor</strong> dem Foundation Prompt einfügen.</p>
+
+  <div style="background:#111;border-radius:6px;padding:16px 20px;margin:16px 0;border-left:3px solid #c9a84c">
+    <div style="font-size:10px;color:#c9a84c;font-weight:700;letter-spacing:3px;margin-bottom:8px">WANN DIESEN PROMPT VERWENDEN</div>
+    <div style="color:#ccc;font-size:12px;line-height:1.8">
+      ✗ GitHub-Import → Design bereits drin, Prompt überspringen<br/>
+      ✓ Blank-Projekt → diesen Prompt als <strong>allererste Nachricht</strong> einfügen, dann Foundation Prompt
+    </div>
+  </div>
+
+  <div style="position:relative;margin-top:20px">
+    <button onclick="copyText('design-prompt')" style="position:absolute;top:12px;right:12px;z-index:10;background:#c9a84c;color:#111;border:none;border-radius:4px;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer">KOPIEREN</button>
+    <textarea id="design-prompt" readonly style="width:100%;height:700px;background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:20px;font-family:monospace;font-size:11px;line-height:1.7;resize:vertical;outline:none">Richte das Design-System für FYNDDS ein. Übernimm alle Werte exakt — nichts erfinden.
+
+## Font
+npm install @fontsource/plus-jakarta-sans
+Font: Plus Jakarta Sans für Überschriften UND Fließtext.
+In index.html: <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+## CSS Custom Properties (src/index.css)
+Ersetze den :root Block und .dark Block komplett mit folgendem:
+
+:root {
+  --background: 40 20% 96%;
+  --foreground: 0 0% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 8%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 8%;
+  --primary: 0 0% 8%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 40 25% 92%;
+  --secondary-foreground: 0 0% 8%;
+  --muted: 40 15% 90%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 0 0% 18%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 40 10% 88%;
+  --input: 40 10% 88%;
+  --ring: 0 0% 8%;
+  --radius: 0.375rem;
+  --zl-black: 0 0% 8%;
+  --zl-white: 0 0% 100%;
+  --zl-cream: 40 20% 96%;
+  --zl-beige: 40 25% 92%;
+  --zl-sand: 35 20% 85%;
+  --zl-gray-50: 40 15% 97%;
+  --zl-gray-100: 40 15% 94%;
+  --zl-gray-200: 40 10% 88%;
+  --zl-gray-300: 0 0% 78%;
+  --zl-gray-400: 0 0% 55%;
+  --zl-gray-500: 0 0% 40%;
+  --zl-gray-600: 0 0% 28%;
+  --zl-gray-700: 0 0% 18%;
+  --zl-gray-800: 0 0% 12%;
+  --zl-gray-900: 0 0% 8%;
+  --zl-accent: 0 0% 18%;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+.dark {
+  --background: 0 0% 6%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 0 0% 96%;
+  --primary-foreground: 0 0% 8%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 0 0% 18%;
+  --muted-foreground: 0 0% 60%;
+  --accent: 0 0% 25%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62% 35%;
+  --destructive-foreground: 0 0% 96%;
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
+  --ring: 0 0% 96%;
+  --zl-black: 0 0% 96%;
+  --zl-white: 0 0% 6%;
+  --zl-cream: 0 0% 10%;
+}
+
+## Tailwind Config (tailwind.config.ts)
+theme.extend.fontFamily:
+  heading: ['Plus Jakarta Sans', 'sans-serif']
+  body: ['Plus Jakarta Sans', 'sans-serif']
+
+theme.extend.colors — zl Palette:
+  zl.black, zl.white, zl.cream, zl.beige, zl.sand
+  zl.gray.50 bis zl.gray.900 (10 Stufen)
+  zl.accent
+
+theme.extend.borderRadius:
+  lg: var(--radius)     → 0.375rem
+  2xl: 0.5rem
+  3xl: 0.625rem
+
+theme.extend.boxShadow:
+  soft: 0 2px 8px -2px rgba(0,0,0,0.05)
+  soft-md: 0 4px 12px -4px rgba(0,0,0,0.08)
+  soft-lg: 0 8px 24px -8px rgba(0,0,0,0.1)
+  premium: 0 4px 20px -4px rgba(0,0,0,0.08)
+
+theme.extend.keyframes + animation:
+  fade-up: { from: opacity 0, translateY 20px → to: opacity 1, translateY 0 } — 0.5s ease-out
+  fade-in: { from: opacity 0 → to: opacity 1 } — 0.6s ease-out
+  marquee: translateX(0) → translateX(-33.333%) — 30s linear infinite
+
+plugins: [require("tailwindcss-animate")]
+
+## Globale CSS-Klassen (src/index.css @layer components)
+.premium-card { @apply bg-card border border-border rounded-md shadow-sm hover:shadow-md transition-shadow duration-300; }
+.premium-card-hover { @apply bg-card border border-border rounded-md shadow-sm hover:shadow-lg hover:border-foreground/20 transition-all duration-300; }
+.btn-primary { @apply bg-foreground text-background px-6 py-3 rounded-md font-medium hover:bg-foreground/90 transition-colors; }
+
+## shadcn/ui Komponenten installieren
+npx shadcn@latest add accordion alert alert-dialog avatar badge breadcrumb button calendar card
+  carousel chart checkbox collapsible command context-menu dialog drawer dropdown-menu form
+  hover-card input input-otp label menubar navigation-menu pagination radio-group resizable
+  scroll-area select separator sheet sidebar skeleton slider sonner switch table tabs textarea
+  toast toggle toggle-group tooltip
+
+## Logo-Dateien
+/src/assets/fyndds-logo-white.png — für dunklen Hintergrund
+/src/assets/fyndds-logo-black.png — für hellen Hintergrund
+Logos vom bestehenden GitHub-Repo kopieren (public/assets oder src/assets)
+
+## Design-Prinzipien
+- Minimalistisch, kein unnötiger Schnickschnack
+- Plus Jakarta Sans: Überschriften font-weight 700–900, Fließtext 400–500
+- Dark Mode primär (background #09090b / hsl 0 0% 6%)
+- Gold (#c9a84c) nur für Akzente und CTAs — nicht überstrapazieren
+- Buttons: abgerundet (rounded-md), klar, keine Schatten-Exzesse
+- Cards: border + sehr leichter Schatten, hover effect
+- Scroll-Animationen: data-animate + visible class (opacity + translateY)
+- Kein Fake-Content: keine Placeholder-Kommentare, keine Demo-Social-Proof-Zahlen</textarea>
+  </div>
+</div>
+
+</div><!-- /container -->
+</div><!-- /tab-rebuild -->
+
+
+<script>
+function copyText(id) {
+  const el = document.getElementById(id);
+  el.select();
+  document.execCommand('copy');
+  event.target.textContent = '✓ KOPIERT';
+  setTimeout(() => event.target.textContent = 'KOPIEREN', 2000);
+}
+</script>
 
 
 <script>
