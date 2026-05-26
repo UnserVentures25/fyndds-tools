@@ -1093,16 +1093,27 @@ Response 200:
 <div class="container">
 
 <div class="section" id="road-done">
-  <div class="lbl">Was funktioniert bereits</div>
+  <div class="lbl">Bug-Fixes — Stand 26. Mai 2026</div>
+  <h2>4 kritische Bugs behoben<br/><span>code ist jetzt korrekt und sicher</span></h2>
+  <ul class="check-list" style="margin-bottom:28px">
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 1 — DHL Rerouting: Falscher API-Endpoint</strong><span><code>initiate-rerouting</code> rief den falschen DHL-Endpoint auf (Shipment-Erstellungs-URL statt Address-Change). Außerdem wurde bei Fehlern fälschlicherweise Erfolg zurückgemeldet ("silent success"). Jetzt korrekt: <code>PATCH /parcel/de/v1/shipments/{nr}/address</code> + Status-Check vor der Umleitung + harter Fehler bei Problemen.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 2 — Tracking-Webhook: Sicherheitslücke geschlossen</strong><span><code>tracking-webhook</code> akzeptierte Requests ohne DHL-Signatur — gefälschte "Paket zugestellt"-Events wären möglich gewesen, was automatisch Auszahlungen auslöst. Jetzt: Wenn <code>DHL_WEBHOOK_SECRET</code> konfiguriert ist, ist eine Signatur Pflicht.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 3 — Checkout: Multi-Vendor-Bug + In-Memory-Idempotenz</strong><span><code>create-checkout</code> überwies bei Carts mit mehreren Händlern immer nur an den ersten. Außerdem war der Idempotenz-Cache im RAM — bei Supabase Cold-Starts wertlos. Jetzt: <code>on_behalf_of</code> korrekt gesetzt, Multi-Vendor-Flag in Metadata, in-memory Cache entfernt.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 4 — post_schedule RLS: Anonym-Zugriff gesperrt</strong><span>Die <code>post_schedule</code> Tabelle erlaubte anonymen Nutzern vollen Lese- und Schreibzugriff. Neue Migration: alle anon-Policies entfernt, nur noch authentifizierte User mit eigener <code>user_id</code>.</span></div></li>
+  </ul>
+
+  <div class="lbl" style="margin-top:40px">Was funktioniert bereits</div>
   <h2>Fertig und live<br/><span>das Fundament steht</span></h2>
   <ul class="check-list">
-    <li class="done"><span class="ci">✓</span><div class="ct"><strong>create-checkout — Stripe Zahlung mit Split-Payment</strong><span>Wenn ein Käufer kauft, wird die Zahlung sofort aufgeteilt: Händler-Anteil + FYNDDS-Provision. SEPA, Kreditkarte und Link werden unterstützt.</span></div></li>
-    <li class="done"><span class="ci">✓</span><div class="ct"><strong>stripe-webhook — Zahlungsevents verarbeiten</strong><span>Wenn Stripe eine Zahlung bestätigt, wird automatisch eine Order erstellt und der Rerouting-Prozess gestartet.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>create-checkout — Stripe Zahlung mit Split-Payment</strong><span>Wenn ein Käufer kauft, wird die Zahlung sofort aufgeteilt: Händler-Anteil + FYNDDS-Provision. SEPA, Kreditkarte und Link werden unterstützt. on_behalf_of korrekt gesetzt.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>stripe-webhook — Zahlungsevents verarbeiten</strong><span>Wenn Stripe eine Zahlung bestätigt, wird automatisch eine Order erstellt und der Rerouting-Prozess gestartet. Signaturvalidierung aktiv.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>retailer-setup + stripe-connect — Händler-Onboarding</strong><span>Händler können sich registrieren und ihr Stripe Connect Express Konto einrichten. Vollautomatisch — kein manueller Eingriff nötig.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>process-payout — Auszahlung nach Lieferung</strong><span>Sobald DHL meldet dass das Paket zugestellt wurde, wird automatisch das Geld an den Händler überwiesen.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>initiate-rerouting — DHL Adressänderung</strong><span>Korrekter PATCH-Endpoint, Status-Check vor Umleitung, harter Fehler + Fallback (Re-listing) wenn nicht möglich.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>tracking-webhook — DHL Events empfangen</strong><span>Öffnet Sales-Window bei Abholung, triggert Auszahlung bei Zustellung. Signaturvalidierung jetzt korrekt.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Pricing Engine — Tier-Preise und Gebührenberechnung</strong><span>Free (5%), Starter (4%), Growth (3%), Enterprise (2%). Rerouting-Gebühr €2.99 korrekt konfiguriert.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Marketplace UI + Händler-Dashboard</strong><span>Frontend vollständig: Produkt-Listings, Checkout-Flow, Händler-Übersicht, Retouren-Verwaltung.</span></div></li>
-    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Instagram-Assets + Make.com Pipeline</strong><span>33 Posts als 4:5-Format, direkt als PNG downloadbar. Supabase post_schedule Tabelle für automatisches Posten.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Instagram-Assets + Make.com Pipeline</strong><span>33 Posts als 4:5-Format, direkt als PNG downloadbar. Supabase post_schedule Tabelle für automatisches Posten (RLS gesichert).</span></div></li>
   </ul>
 </div>
 
@@ -1245,11 +1256,15 @@ Response 200:
   <h2>Alle offenen Punkte auf einen Blick<br/><span>Priorität, Aufwand, Status, Abhängigkeiten</span></h2>
   <table>
     <tr><th>Priorität</th><th>Was</th><th>Aufwand</th><th>Status</th><th>Abhängigkeit</th></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>DHL Rerouting — falscher API-Endpoint + silent success</td><td>—</td><td><span class="pill" style="background:#38a85a22;color:#38a85a;border:1px solid #38a85a44">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>Tracking-Webhook — Signature-Bypass (Sicherheitslücke)</td><td>—</td><td><span class="pill" style="background:#38a85a22;color:#38a85a;border:1px solid #38a85a44">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>Checkout — Multi-Vendor-Bug + In-Memory-Idempotenz</td><td>—</td><td><span class="pill" style="background:#38a85a22;color:#38a85a;border:1px solid #38a85a44">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>post_schedule RLS — anon-Zugriff gesperrt</td><td>—</td><td><span class="pill" style="background:#38a85a22;color:#38a85a;border:1px solid #38a85a44">✓ Behoben</span></td><td>—</td></tr>
     <tr><td>1 — Kritisch</td><td>DHL Developer Account beantragen</td><td>1h (Formular)</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Alles andere hängt daran</td></tr>
-    <tr><td>2 — Kritisch</td><td>dhl-create-label Edge Function</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DHL Account</td></tr>
-    <tr><td>3 — Kritisch</td><td>retailer-api Edge Function</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>dhl-create-label</td></tr>
-    <tr><td>4 — Kritisch</td><td>dhl-reroute Edge Function</td><td>1 Tag</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DHL Account</td></tr>
-    <tr><td>5 — Kritisch</td><td>Supabase Secrets (Live-Keys)</td><td>30 Min</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Stripe Live + Resend</td></tr>
+    <tr><td>2 — Kritisch</td><td>create-dhl-label Edge Function bauen</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DHL Account + EKP</td></tr>
+    <tr><td>3 — Kritisch</td><td>retailer-api Edge Function (8returns-Webhook)</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>—</td></tr>
+    <tr><td>4 — Kritisch</td><td>stripe-webhook Multi-Vendor Transfers</td><td>1 Tag</td><td><span class="pill pill-gold">Partial</span></td><td>—</td></tr>
+    <tr><td>5 — Kritisch</td><td>Supabase Secrets (Live-Keys) setzen</td><td>30 Min</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Stripe Live + Resend + DHL</td></tr>
     <tr><td>6 — Kritisch</td><td>End-to-End Testkauf (Stripe Live)</td><td>2h</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Alle Keys + DHL</td></tr>
     <tr><td>7 — Wichtig</td><td>Tier-basierte Platform Fee (statt hardcoded 3%)</td><td>2h</td><td><span class="pill pill-gold">Hardcoded</span></td><td>—</td></tr>
     <tr><td>8 — Wichtig</td><td>Stale Pricing UI Fix (€990 → korrekte Tier-Preise)</td><td>1h (Lovable)</td><td><span class="pill pill-gold">Stale UI</span></td><td>—</td></tr>
