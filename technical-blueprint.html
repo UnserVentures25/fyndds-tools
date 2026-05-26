@@ -2332,11 +2332,17 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       <div class="card-title">Frage 1 — Beleg / Rechnung an Käufer B: Wer erstellt ihn im Namen des Händlers?</div>
       <div style="margin-bottom:10px"><span class="pill pill-green">Entscheidung: Hybrid — Stripe + FYNDDS</span></div>
       <div class="card-body">
-        <p><strong>A) Stripe (automatisch):</strong> Sobald <code>receipt_email</code> im PaymentIntent/Checkout gesetzt ist und die Session <code>on_behalf_of</code> des Händlers läuft, sendet Stripe automatisch eine Zahlungsbestätigung (Receipt) an Käufer B — mit dem <em>Händlernamen</em> als Merchant. Kein Extra-Code, keine Kosten.</p>
-        <p><strong>B) FYNDDS generiert PDF-Rechnung (zusätzlich):</strong> Nach <code>checkout.session.completed</code> Webhook erstellt FYNDDS eine vollständige, gesetzeskonforme PDF-Rechnung mit Händler-Steuernummer, Adresse, Artikeldetails und MwSt. Gespeichert in Supabase Storage, versandt via Resend API an Käufer B.</p>
-        <p><strong>Option c) Händler-eigenes System:</strong> Nicht sinnvoll — zu komplex, zu fehleranfällig, nicht skalierbar für alle Händlertypen.</p>
+        <p><strong>Hintergrund:</strong> Wenn Käufer B etwas auf FYNDDS kauft, braucht er nach dem Kauf zwei Dinge: (1) eine <em>Zahlungsbestätigung</em> — "deine Zahlung war erfolgreich" — wie ein Kassenbon. Und (2) eine gesetzlich vorgeschriebene <em>Rechnung</em> mit Händlername, Adresse, Steuernummer und ausgewiesenem MwSt-Betrag. Diese Rechnung muss im Namen des <em>Händlers</em> sein, nicht von FYNDDS — denn der Händler ist der eigentliche Verkäufer.</p>
+
+        <p><strong>Option a) Stripe — Zahlungsbestätigung (automatisch, kostenlos):</strong> Stripe schickt nach jeder erfolgreichen Zahlung automatisch eine E-Mail an Käufer B. Weil FYNDDS die Zahlung technisch "im Namen des Händlers" abwickelt (Stripe-Parameter <code>on_behalf_of</code>), steht auf dieser Bestätigung der <em>Händlername</em> — nicht "FYNDDS". Kein extra Code. Aber: das ist <strong>kein steuerrechtlich gültiges Rechnungsdokument</strong> — es fehlen Steuernummer, MwSt-Aufschlüsselung und Pflichtangaben nach UStG/UGB.</p>
+
+        <p><strong>Option b) FYNDDS generiert die echte Rechnung (Pflicht):</strong> Direkt nach dem Kauf (ausgelöst durch Stripe Webhook <code>checkout.session.completed</code>) erstellt FYNDDS eine vollständige PDF-Rechnung — mit Händlername, Adresse, Steuernummer, Artikelbeschreibung, Nettobetrag, MwSt-Satz und Bruttobetrag. Diese PDF wird per E-Mail an Käufer B gesendet (via Resend API) und im Händler-Dashboard hinterlegt.</p>
+
+        <p><strong>Option c) Händler schickt selbst (Daten-Connect):</strong> Bei Amazon z.B. bekommt der Händler die Bestelldaten und schickt selbst die Rechnung aus seinem eigenen System. Das setzt voraus, dass jeder Händler ein funktionierendes Rechnungssystem hat — nicht realistisch für alle FYNDDS-Händler. Fällt weg.</p>
+
+        <p><strong>Ergebnis Hybrid:</strong> Stripe liefert sofortige Zahlungsbestätigung (Option a, automatisch), FYNDDS liefert die gesetzeskonforme Rechnung (Option b, eigene Funktion). Käufer B erhält beide per E-Mail.</p>
       </div>
-      <div class="warnbox"><strong>To-Do:</strong> Edge Function <code>generate-invoice</code> bauen. PDF-Lib: <code>@react-pdf/renderer</code> (Deno-kompatibel) oder externer Service (PDFMonkey, Doppio). Händlerdaten aus <code>retailers</code>-Tabelle, Kaufdaten aus <code>orders</code>-Tabelle.</div>
+      <div class="warnbox"><strong>To-Do:</strong> Supabase Edge Function <code>generate-invoice</code> bauen. PDF-Bibliothek: <code>@react-pdf/renderer</code> (Deno-kompatibel) oder externer Dienst (z.B. PDFMonkey). Händlerdaten aus <code>retailers</code>-Tabelle holen, Kaufdaten aus <code>orders</code>-Tabelle. Funktion wird vom <code>stripe-webhook</code> auf <code>checkout.session.completed</code> getriggert.</div>
     </div>
 
     <div class="card card-gold" style="margin-bottom:16px">
