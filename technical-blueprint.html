@@ -2036,6 +2036,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 <nav class="sec-nav">
   <ul>
+    <li><a href="#fl-net">System-Übersicht</a></li>
     <li><a href="#fl-a">Variante A — Standard</a></li>
     <li><a href="#fl-b">Variante B — 8returns</a></li>
     <li><a href="#fl-retour">Käufer B Retoure</a></li>
@@ -2073,6 +2074,18 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     <span style="display:flex;align-items:center;gap:5px"><span style="width:13px;height:13px;background:#fff1f2;border:2px solid #f43f5e;border-radius:3px;display:inline-block"></span>Nicht implementiert / Gefahr</span>
     <span style="display:flex;align-items:center;gap:5px"><span style="width:13px;height:13px;background:#f8f9ff;border:2px solid #6366f1;border-radius:3px;border-style:dashed;display:inline-block"></span>Merge / Zusammenführung</span>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!--  SYSTEM-ÜBERSICHT NETZWERKDIAGRAMM               -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="section" id="fl-net">
+    <div class="lbl">System-Übersicht — Architektur</div>
+    <h2>Wer verbindet sich mit <span>wem?</span></h2>
+    <p class="sub">2D-Netzwerkdiagramm aller Akteure. Jeder Pfeil zeigt: welche API, welche Daten, welche Richtung. Registrierungen sind in den Boxen beschriftet. Stripe-Geldaufteilung unten rechts.</p>
+    <div id="nd-main" style="border:1px solid #e8e8e8;border-radius:10px;padding:16px;background:#fff;overflow-x:auto"></div>
+  </div>
+
+  <div class="divider"></div>
 
   <!-- ═══════════════════════════════════════════════════ -->
   <!--  VARIANTE A                                        -->
@@ -2374,6 +2387,152 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     o+='</svg>';
     el.innerHTML=o;
   }
+
+  /* ══════════════════════════════════════════════════════
+     NETWORK DIAGRAM — buildNetDiagram()
+     Actors: Händler · Käufer A · FYNDDS Engine · DHL ·
+             8returns · Stripe · Käufer B
+  ══════════════════════════════════════════════════════ */
+  function buildNetDiagram(id){
+    var el=document.getElementById(id);
+    if(!el)return;
+    var W=980,H=740;
+
+    // ── actor definitions ──────────────────────────────
+    var AC={
+      R:{id:"R",label:"Händler",       sub:"Stripe Connect Express\ngeregistriert",   x:425,y:30, w:160,h:72,  fill:"#fffbeb",stroke:"#f59e0b",tc:"#92400e"},
+      A:{id:"A",label:"Käufer A",      sub:"FYNDDS Return-Portal",                    x:20, y:260,w:155,h:68,  fill:"#eff6ff",stroke:"#3b82f6",tc:"#1e40af"},
+      F:{id:"F",label:"FYNDDS Engine", sub:"Supabase Edge Functions\n+ Marketplace",  x:355,y:380,w:210,h:88,  fill:"#0f172a",stroke:"#334155",tc:"#f8fafc",dark:true},
+      D:{id:"D",label:"DHL",           sub:"FYNDDS EKP-Account\nAPI-Anbindung",       x:20, y:560,w:150,h:68,  fill:"#fff7ed",stroke:"#f97316",tc:"#9a3412"},
+      T:{id:"T",label:"8returns",      sub:"Webhook → retailer-api",                  x:205,y:560,w:140,h:68,  fill:"#f0fdfa",stroke:"#14b8a6",tc:"#065f46"},
+      S:{id:"S",label:"Stripe",        sub:"Platform Account\n+ Connect Express",     x:700,y:430,w:155,h:68,  fill:"#faf5ff",stroke:"#a855f7",tc:"#6b21a8"},
+      B:{id:"B",label:"Käufer B",      sub:"Marketplace\nCheckout",                   x:815,y:150,w:155,h:68,  fill:"#f0fdf4",stroke:"#22c55e",tc:"#14532d"}
+    };
+
+    // helper: center of actor box
+    function cx(a){return AC[a].x+AC[a].w/2;}
+    function cy(a){return AC[a].y+AC[a].h/2;}
+
+    var defs='<defs>';
+    var markers={
+      R:"#f59e0b",A:"#3b82f6",F:"#94a3b8",D:"#f97316",
+      T:"#14b8a6",S:"#a855f7",B:"#22c55e",X:"#f43f5e"
+    };
+    Object.keys(markers).forEach(function(k){
+      defs+='<marker id="arr'+k+'" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
+        +'<polygon points="0 0,9 3.5,0 7" fill="'+markers[k]+'"/></marker>';
+    });
+    defs+='<filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="3" flood-opacity="0.07"/></filter>';
+    defs+='</defs>';
+
+    var o='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:'+W+'px;display:block;font-family:Plus Jakarta Sans,system-ui,sans-serif">'+defs;
+    o+='<rect width="'+W+'" height="'+H+'" fill="#fafafa" rx="8"/>';
+
+    // ── connections ─────────────────────────────────────
+    // Each: {from,to,d (custom path),col,lbl,sub,lx,ly,la (anchor)}
+    var CONN=[
+      // 1. Händler → FYNDDS: registriert sich
+      {p:"M"+(cx('R'))+","+(AC['R'].y+AC['R'].h)+" C"+cx('R')+","+(cy('R')+120)+" "+cx('F')+","+(cy('F')-120)+" "+cx('F')+","+(AC['F'].y),
+       col:"#f59e0b",arr:"arrR",lbl:"Registrierung",sub:"Stripe Connect Express",lx:505,ly:240,la:"middle"},
+      // 2. FYNDDS → Händler: API Produkt-Abfrage
+      {p:"M"+(cx('F')-30)+","+(AC['F'].y)+" C"+(cx('F')-80)+","+(cy('F')-100)+" "+(cx('R')-20)+","+(AC['R'].y+AC['R'].h+80)+" "+(cx('R')-20)+","+(AC['R'].y+AC['R'].h),
+       col:"#94a3b8",arr:"arrF",lbl:"Händler-API Abfrage",sub:"erkennt Produkt, Kategorie,\nPreisempfehlung",lx:330,ly:245,la:"end"},
+      // 3. Käufer A → FYNDDS: Retoure einreichen
+      {p:"M"+(AC['A'].x+AC['A'].w)+","+(cy('A'))+" C"+(cx('A')+120)+","+(cy('A'))+" "+(cx('F')-120)+","+(cy('F')-20)+" "+(AC['F'].x)+","+(cy('F')-20),
+       col:"#3b82f6",arr:"arrA",lbl:"Retoure einreichen",sub:"Artikel, Grund, Zustand\nvia Return-Portal",lx:224,ly:337,la:"middle"},
+      // 4. FYNDDS → DHL: Label erstellen
+      {p:"M"+(cx('F')-60)+","+(AC['F'].y+AC['F'].h)+" C"+(cx('F')-60)+","+(cy('F')+80)+" "+cx('D')+","+(AC['D'].y-60)+" "+cx('D')+","+(AC['D'].y),
+       col:"#94a3b8",arr:"arrF",lbl:"POST /shipping/v2/orders",sub:"Label erstellen\n⚡ create-dhl-label fehlt!",lx:168,ly:512,la:"middle"},
+      // 5. DHL → FYNDDS: Webhooks
+      {p:"M"+(AC['D'].x+AC['D'].w)+","+(cy('D'))+" C"+(cx('D')+90)+","+(cy('D'))+" "+(cx('F')-90)+","+(AC['F'].y+AC['F'].h)+" "+(cx('F')-30)+","+(AC['F'].y+AC['F'].h),
+       col:"#f97316",arr:"arrD",lbl:"Webhooks",sub:"picked_up / delivered\nreturned — HMAC-SHA256",lx:295,ly:634,la:"middle"},
+      // 6. FYNDDS → Stripe: Checkout Session
+      {p:"M"+(AC['F'].x+AC['F'].w)+","+(cy('F'))+" C"+(cx('F')+80)+","+(cy('F'))+" "+AC['S'].x+","+(cy('S'))+" "+AC['S'].x+","+(cy('S')),
+       col:"#94a3b8",arr:"arrF",lbl:"Checkout Session",sub:"on_behalf_of Händler\napplication_fee_amount",lx:625,ly:452,la:"middle"},
+      // 7. Stripe → FYNDDS: Webhook
+      {p:"M"+AC['S'].x+","+(cy('S')+18)+" C"+(cx('S')-80)+","+(cy('S')+60)+" "+(cx('F')+60)+","+(AC['F'].y+AC['F'].h+30)+" "+(cx('F')+30)+","+(AC['F'].y+AC['F'].h),
+       col:"#a855f7",arr:"arrS",lbl:"checkout.completed",sub:"stripe-webhook\nOrder → sold",lx:575,ly:554,la:"middle"},
+      // 8. Käufer B → Stripe: Bezahlung
+      {p:"M"+AC['B'].x+","+(cy('B'))+" C"+(cx('B')-60)+","+(cy('B'))+" "+(AC['S'].x+AC['S'].w)+","+(cy('S')-20)+" "+(AC['S'].x+AC['S'].w)+","+(cy('S')-20),
+       col:"#22c55e",arr:"arrB",lbl:"Bezahlung",sub:"Kreditkarte / SEPA\nneue Lieferadresse",lx:820,ly:375,la:"start"},
+      // 9. Stripe → Händler: process-payout
+      {p:"M"+(cx('S'))+","+(AC['S'].y)+" C"+cx('S')+","+(AC['S'].y-80)+" "+(cx('R')+50)+","+(AC['R'].y+AC['R'].h+80)+" "+(cx('R')+50)+","+(AC['R'].y+AC['R'].h),
+       col:"#a855f7",arr:"arrS",lbl:"process-payout",sub:"stripe.transfers.create\nnach: delivered",lx:762,ly:280,la:"start"},
+      // 10. 8returns → FYNDDS: Webhook
+      {p:"M"+(AC['T'].x+AC['T'].w)+","+(cy('T'))+" C"+(cx('T')+80)+","+(cy('T'))+" "+(cx('F')-20)+","+(AC['F'].y+AC['F'].h+30)+" "+(cx('F')-20)+","+(AC['F'].y+AC['F'].h),
+       col:"#14b8a6",arr:"arrT",lbl:"Webhook → retailer-api",sub:"⚡ nicht implementiert\nAuto-Asset erstellen",lx:352,ly:648,la:"end"},
+      // 11. FYNDDS → Käufer A: Label Email
+      {p:"M"+AC['F'].x+","+(cy('F')-10)+" C"+(cx('F')-90)+","+(cy('F')-10)+" "+(AC['A'].x+AC['A'].w)+","+(cy('A')+20)+" "+(AC['A'].x+AC['A'].w)+","+(cy('A')+20),
+       col:"#94a3b8",arr:"arrF",lbl:"Label-Email",sub:"PDF via Resend API",lx:155,ly:385,la:"end"},
+      // 12. FYNDDS → Käufer B: Bestätigung
+      {p:"M"+(AC['F'].x+AC['F'].w)+","+(cy('F')-20)+" C"+(cx('F')+120)+","+(cy('F')-20)+" "+(cx('B'))+","+(AC['B'].y+AC['B'].h+60)+" "+(cx('B'))+","+(AC['B'].y+AC['B'].h),
+       col:"#94a3b8",arr:"arrF",lbl:"Kaufbestätigung",sub:"Sendungsnummer\nTracking-Link",lx:845,ly:320,la:"middle"},
+      // 13. DHL → Käufer B: großer Bogen (Rerouting!)
+      {p:"M"+cx('D')+","+(AC['D'].y)+" C"+cx('D')+",30 "+cx('B')+",30 "+cx('B')+","+(AC['B'].y),
+       col:"#f97316",arr:"arrD",lbl:"PATCH /address → Rerouting",sub:"Paket wird zu Käufer B\numgeleitet (Kern-Feature)",lx:480,ly:20,la:"middle",big:true}
+    ];
+
+    CONN.forEach(function(c){
+      var sw=c.big?2.5:1.8, da=c.big?"":" stroke-dasharray='none'";
+      o+='<path d="'+c.p+'" fill="none" stroke="'+c.col+'" stroke-width="'+sw+'" marker-end="url(#'+c.arr+')"'+(c.big?' stroke-dasharray="10,4"':'')+'/>';
+    });
+
+    // ── actor boxes ──────────────────────────────────────
+    Object.keys(AC).forEach(function(k){
+      var a=AC[k];
+      o+='<rect x="'+(a.x+2)+'" y="'+(a.y+3)+'" width="'+a.w+'" height="'+a.h+'" rx="11" fill="#00000008"/>';
+      o+='<rect x="'+a.x+'" y="'+a.y+'" width="'+a.w+'" height="'+a.h+'" rx="11" fill="'+a.fill+'" stroke="'+a.stroke+'" stroke-width="2" filter="url(#sh)"/>';
+      var tcMain=a.dark?"#f8fafc":"#111827";
+      var tcSub=a.dark?"#94a3b8":"#9ca3af";
+      o+='<text x="'+(a.x+a.w/2)+'" y="'+(a.y+a.h/2-8)+'" text-anchor="middle" font-size="14" font-weight="800" fill="'+tcMain+'">'+a.label+'</text>';
+      var lines=a.sub.split('\n');
+      lines.forEach(function(ln,li){
+        o+='<text x="'+(a.x+a.w/2)+'" y="'+(a.y+a.h/2+9+(li*13))+'" text-anchor="middle" font-size="9.5" fill="'+tcSub+'">'+ln+'</text>';
+      });
+      // registration dot
+      o+='<circle cx="'+(a.x+a.w-10)+'" cy="'+(a.y+10)+'" r="4" fill="'+a.stroke+'" opacity="0.6"/>';
+    });
+
+    // ── connection labels (drawn after boxes so they're on top) ─
+    CONN.forEach(function(c){
+      var bg=c.big?"#fff3e0":"rgba(255,255,255,0.92)";
+      var bc=c.big?c.col:"transparent";
+      var lines=[c.lbl];
+      if(c.sub)c.sub.split('\n').forEach(function(l){lines.push(l);});
+      var lw=0;lines.forEach(function(l){if(l.length>lw)lw=l.length;});
+      var bw2=lw*5.8+16, bh2=lines.length*13+10;
+      var bx=c.lx-(c.la==="start"?0:c.la==="end"?bw2:bw2/2), by=c.ly-bh2/2;
+      o+='<rect x="'+(bx-2)+'" y="'+(by-2)+'" width="'+(bw2+4)+'" height="'+(bh2+4)+'" rx="5" fill="'+bg+'" stroke="'+bc+'" stroke-width="'+(c.big?1.5:0)+'"/>';
+      lines.forEach(function(ln,li){
+        var fw=li===0?"700":"400", fs=li===0?"10":"8.5", fc=li===0?c.col:"#6b7280";
+        if(ln.charAt(0)==='⚡')fc="#ef4444";
+        o+='<text x="'+c.lx+'" y="'+(c.ly-bh2/2+13+(li*13))+'" text-anchor="'+c.la+'" font-size="'+fs+'" font-weight="'+fw+'" fill="'+fc+'">'+ln+'</text>';
+      });
+    });
+
+    // ── Stripe money split inset ────────────────────────
+    var sx2=695,sy2=565,sw2=270,sh2=120;
+    o+='<rect x="'+sx2+'" y="'+sy2+'" width="'+sw2+'" height="'+sh2+'" rx="8" fill="#faf5ff" stroke="#a855f7" stroke-width="1.5"/>';
+    o+='<text x="'+(sx2+10)+'" y="'+(sy2+18)+'" font-size="9" font-weight="800" letter-spacing="1.5" fill="#7e22ce">STRIPE GELDAUFTEILUNG</text>';
+    var rows=[
+      ["Verkaufspreis (Käufer B zahlt)","100%","#374151"],
+      ["− Platform Fee (FYNDDS)","2–5%","#7e22ce"],
+      ["− Rerouting Fee","€ 2,99","#7e22ce"],
+      ["− Stripe Processing Fee","~1,4% + 0,25€","#9ca3af"],
+      ["= Auszahlung an Händler","Rest","#16a34a"]
+    ];
+    rows.forEach(function(r,i){
+      var bold=i===rows.length-1;
+      o+='<text x="'+(sx2+10)+'" y="'+(sy2+36+i*16)+'" font-size="9.5" font-weight="'+(bold?"700":"400")+'" fill="'+r[2]+'">'+r[0]+'</text>';
+      o+='<text x="'+(sx2+sw2-10)+'" y="'+(sy2+36+i*16)+'" text-anchor="end" font-size="9.5" font-weight="'+(bold?"700":"400")+'" fill="'+r[2]+'">'+r[1]+'</text>';
+      if(i===rows.length-2)o+='<line x1="'+(sx2+10)+'" y1="'+(sy2+40+i*16)+'" x2="'+(sx2+sw2-10)+'" y2="'+(sy2+40+i*16)+'" stroke="#e9d5ff" stroke-width="1"/>';
+    });
+
+    o+='</svg>';
+    el.innerHTML=o;
+  }
+
+  buildNetDiagram('nd-main');
 
   /* ── VARIANTE A: 17 Schritte ── */
   mkFC('fc-a',[
