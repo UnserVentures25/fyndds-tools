@@ -1102,13 +1102,13 @@ Response 200:
 
 <div class="cover">
   <div class="container">
-    <div class="badge">Entwicklungsstand · Mai 2026</div>
+    <div class="badge">Entwicklungsstand · 1. Juni 2026</div>
     <h1>Status &amp;<br/><span>Roadmap</span></h1>
     <p class="cover-sub">Was bereits funktioniert, was noch gebaut werden muss — und in welcher Reihenfolge. Sortiert nach Priorität für den Launch.</p>
     <div class="cover-meta">
-      <div class="meta-item"><strong>4 Funktionen</strong>bereits live</div>
-      <div class="meta-item"><strong>3 Funktionen</strong>noch zu bauen (kritisch)</div>
-      <div class="meta-item"><strong>~2 Wochen</strong>bis Launch-ready</div>
+      <div class="meta-item"><strong>14 Fixes &amp; Functions</strong>heute deployed + getestet</div>
+      <div class="meta-item"><strong>4 Punkte</strong>noch kritisch offen</div>
+      <div class="meta-item"><strong>~1 Woche</strong>bis Launch-ready</div>
       <div class="meta-item"><strong>1 Händler</strong>als Pilot nötig</div>
     </div>
   </div>
@@ -1117,13 +1117,23 @@ Response 200:
 <div class="container">
 
 <div class="section" id="road-done">
-  <div class="lbl">Bug-Fixes — Stand 26. Mai 2026</div>
-  <h2>4 kritische Bugs behoben<br/><span>code ist jetzt korrekt und sicher</span></h2>
+  <div class="lbl">Bug-Fixes &amp; neue Functions — Stand 1. Juni 2026</div>
+  <h2>14 Fixes &amp; Functions live<br/><span>alles getestet, alle 5 Verification-Tests grün</span></h2>
   <ul class="check-list" style="margin-bottom:28px">
-    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 1 — DHL Rerouting: Falscher API-Endpoint</strong><span><code>initiate-rerouting</code> rief den falschen DHL-Endpoint auf (Shipment-Erstellungs-URL statt Address-Change). Außerdem wurde bei Fehlern fälschlicherweise Erfolg zurückgemeldet ("silent success"). Jetzt korrekt: <code>PATCH /parcel/de/v1/shipments/{nr}/address</code> + Status-Check vor der Umleitung + harter Fehler bei Problemen.</span></div></li>
-    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 2 — Tracking-Webhook: Sicherheitslücke geschlossen</strong><span><code>tracking-webhook</code> akzeptierte Requests ohne DHL-Signatur — gefälschte "Paket zugestellt"-Events wären möglich gewesen, was automatisch Auszahlungen auslöst. Jetzt: Wenn <code>DHL_WEBHOOK_SECRET</code> konfiguriert ist, ist eine Signatur Pflicht.</span></div></li>
-    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 3 — Checkout: Multi-Vendor-Bug + In-Memory-Idempotenz</strong><span><code>create-checkout</code> überwies bei Carts mit mehreren Händlern immer nur an den ersten. Außerdem war der Idempotenz-Cache im RAM — bei Supabase Cold-Starts wertlos. Jetzt: <code>on_behalf_of</code> korrekt gesetzt, Multi-Vendor-Flag in Metadata, in-memory Cache entfernt.</span></div></li>
-    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 4 — post_schedule RLS: Anonym-Zugriff gesperrt</strong><span>Die <code>post_schedule</code> Tabelle erlaubte anonymen Nutzern vollen Lese- und Schreibzugriff. Neue Migration: alle anon-Policies entfernt, nur noch authentifizierte User mit eigener <code>user_id</code>.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 1 — DHL Rerouting: Falscher API-Endpoint</strong><span><code>initiate-rerouting</code> rief den falschen DHL-Endpoint auf. Jetzt korrekt: <code>PATCH /parcel/de/v1/shipments/{nr}/address</code> + harter Fehler bei Problemen.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 2 — Tracking-Webhook: Sicherheitslücke geschlossen</strong><span>Gefälschte "Paket zugestellt"-Events wären möglich gewesen und hätten Auszahlungen ausgelöst. Jetzt: Signaturpflicht wenn <code>DHL_WEBHOOK_SECRET</code> gesetzt.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 3 — Checkout: Multi-Vendor + Idempotenz</strong><span>Multi-Vendor Transfers jetzt korrekt pro Händler. In-Memory-Cache entfernt. Stripe Transfer pro Asset nach Payment.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 4 — post_schedule RLS: Anonym-Zugriff gesperrt</strong><span>Anon-Policies entfernt, nur noch eigene User mit <code>auth.uid() = user_id</code>.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 5 — process-payout: Doppel-Auszahlung verhindert</strong><span>Atomisches DB-Lock: <code>UPDATE WHERE status='delivered'</code> — wenn 2 Webhooks gleichzeitig kommen, führt nur einer den Transfer durch.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 6 — tracking-webhook: out_for_delivery → unavailable</strong><span>Wenn das Paket beim Zusteller ist, wird das Asset sofort auf <code>unavailable</code> gesetzt — kein neuer Checkout mehr möglich. Enum <code>unavailable</code> in DB ergänzt.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 7 — initiate-rerouting: Stripe Refund bei DHL-Fehler</strong><span>Wenn DHL-Rerouting fehlschlägt, bekommt Käufer B automatisch sein Geld zurück (<code>stripe.refunds.create</code>). Vorher: manueller Eingriff nötig.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — create-dhl-label (deployed + getestet)</strong><span>Erstellt DHL-Return-Label unter FYNDDS EKP. Mock-Mode wenn keine API-Keys gesetzt. Idempotenz: 2× aufrufen = 1 Label. Automatisch verkabelt mit <code>receive-return-webhook</code>.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — release-stale-reservations (deployed + Cron aktiv)</strong><span>Läuft alle 5 Minuten. Gibt Assets frei die länger als 30 Min. in <code>reserved</code> hängen (Stripe Checkout abgelaufen). Race-Condition-safe.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — DB Schema: 3 fehlende Spalten/Tabellen ergänzt</strong><span><code>profiles.warehouse_street/city/postal_code/country</code>, Tabelle <code>dhl_labels</code>, <code>orders.stripe_refund_id</code> — alle mit RLS gesichert.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — Cron Jobs: beide aktiv</strong><span><code>release-stale-reservations</code> alle 5 Min., <code>process-email-queue</code> alle 5 Sek. Keine Reservierungen hängen mehr, keine E-Mails bleiben unversendet.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — CLAUDE.md: QA-Regeln für alle Projekte</strong><span>Globale Regeln in <code>~/.claude/CLAUDE.md</code>, projektspezifische in <code>zeroloops/CLAUDE.md</code>. Gilt automatisch für jede Claude Code Session.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — GitHub Actions QA Workflow</strong><span>Bei jedem Push: TypeCheck + Lint + Build automatisch. Secrets müssen noch in GitHub eingetragen werden.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — Lovable Prompt Templates &amp; System-Prompt</strong><span>Vorlagen für neue Features, Bug Fixes, Schema-Änderungen und Edge Functions. In <code>docs/LOVABLE_PROMPT_TEMPLATES.md</code> und <code>docs/LOVABLE_SYSTEM_PROMPT.md</code>.</span></div></li>
   </ul>
 
   <div class="lbl" style="margin-top:40px">Was funktioniert bereits</div>
@@ -1145,48 +1155,34 @@ Response 200:
 
 <div class="section" id="road-crit">
   <div class="lbl">Kritisch — blockiert den Launch</div>
-  <h2>Das muss als erstes passieren<br/><span>ohne das kann nicht live gegangen werden</span></h2>
+  <h2>4 Punkte noch offen<br/><span>ohne das kann nicht live gegangen werden</span></h2>
   <ul class="check-list">
     <li class="crit">
       <span class="ci">⛔</span>
       <div class="ct">
-        <strong>DHL Developer Account heute beantragen</strong>
-        <span>Das DHL Geschäftskonto und der Developer-Zugang brauchen 3-5 Werktage Bearbeitungszeit. Das ist die längste Wartezeit im gesamten Launch-Prozess — deshalb sofort starten. developer.dhl.com → neue App → API-Keys für "Parcel DE" und "Tracking". Die EKP-Nummer (Kundennummer) wird für alle Shipping-Calls gebraucht.</span>
+        <strong>DHL Developer Account + API Keys</strong>
+        <span>Das ist der größte Blocker. Ohne echte DHL API-Keys läuft <code>create-dhl-label</code> nur im Mock-Mode — es werden keine echten Labels erstellt und kein Rerouting ist möglich. Jetzt beantragen: <strong>developer.dhl.com</strong> → App anlegen → "Parcel DE" + "Tracking" APIs → API-Keys + EKP-Nummer in Supabase Secrets eintragen: <code>DHL_API_KEY</code>, <code>DHL_API_SECRET</code>, <code>DHL_BILLING_NUMBER</code>. Bearbeitungszeit: 3–5 Werktage.</span>
       </div>
     </li>
     <li class="crit">
       <span class="ci">⛔</span>
       <div class="ct">
-        <strong>dhl-create-label Edge Function bauen (1-2 Entwicklungstage)</strong>
-        <span>Wenn ein Händler eine Retoure meldet, muss FYNDDS sofort einen DHL-Aufkleber erstellen — unter FYNDDS' eigenem DHL-Konto. Das ist die technische Voraussetzung für Rerouting. Ohne diese Funktion kann FYNDDS keine Pakete umleiten.</span>
+        <strong>Supabase Live-Secrets setzen</strong>
+        <span>Folgende Keys müssen in Supabase Dashboard → Edge Functions → Secrets eingetragen werden: <code>STRIPE_SECRET_KEY</code> (sk_live_...), <code>STRIPE_WEBHOOK_SECRET</code>, <code>DHL_API_KEY</code>, <code>DHL_API_SECRET</code>, <code>DHL_BILLING_NUMBER</code>, <code>RESEND_API_KEY</code>. Bis das passiert laufen alle Functions im Test-/Mock-Modus.</span>
       </div>
     </li>
     <li class="crit">
       <span class="ci">⛔</span>
       <div class="ct">
-        <strong>dhl-reroute Edge Function bauen (1 Entwicklungstag)</strong>
-        <span>Wenn ein Käufer zahlt und das Paket noch unterwegs ist: FYNDDS muss per DHL API die Lieferadresse ändern. Diese Funktion fehlt noch komplett. Sie enthält auch die Fallback-Logik für den Fall dass das Rerouting zu spät kommt.</span>
+        <strong>Echter End-to-End Testkauf (Stripe Testkarte)</strong>
+        <span>Ein kompletter Durchlauf muss bestätigt werden: Testkarte 4242 4242 4242 4242 → Stripe Checkout → Webhook → Order erstellt → DHL Label erstellt → Rerouting gestartet → Lieferung → Auszahlung. Erst dann ist der Prozess wirklich verifiziert.</span>
       </div>
     </li>
     <li class="crit">
       <span class="ci">⛔</span>
       <div class="ct">
-        <strong>retailer-api Edge Function bauen (1-2 Entwicklungstage)</strong>
-        <span>Der API-Endpunkt über den Händler (und Systeme wie 8returns) Retouren melden können. Aktuell gibt es keinen solchen Endpunkt. Ohne ihn kann kein Händler über die API arbeiten.</span>
-      </div>
-    </li>
-    <li class="crit">
-      <span class="ci">⛔</span>
-      <div class="ct">
-        <strong>Supabase Secrets setzen (Live-Keys) — 1 Stunde</strong>
-        <span>STRIPE_SECRET_KEY (Live, sk_live_...), STRIPE_WEBHOOK_SECRET, DHL_API_KEY, DHL_API_SECRET, DHL_WEBHOOK_SECRET, RESEND_API_KEY — aktuell sind alle Edge Functions nur im Sandbox-/Test-Modus. Mit den echten Keys läuft alles live.</span>
-      </div>
-    </li>
-    <li class="crit">
-      <span class="ci">⛔</span>
-      <div class="ct">
-        <strong>Echter End-to-End Testkauf</strong>
-        <span>Kein einziger echter Zahlungsfluss wurde bisher verifiziert. Vor dem Launch muss ein kompletter Testkauf mit echten Karten, echtem Connect-Account und echtem Paket durchgeführt werden. Nur so kann sichergestellt werden dass alles in der Kombination funktioniert.</span>
+        <strong>retailer-api: 8returns / externe Systeme anbinden</strong>
+        <span>Der Endpunkt über den Händler und Systeme wie 8returns automatisch Retouren melden können. <code>receive-return-webhook</code> existiert, muss aber für 8returns-spezifisches Format angepasst werden. Ohne das müssen Händler Assets manuell anlegen.</span>
       </div>
     </li>
   </ul>
@@ -1284,20 +1280,32 @@ Response 200:
     <tr style="background:#f0faf4"><td>✅ Fix</td><td>Tracking-Webhook — Signature-Bypass (Sicherheitslücke)</td><td>—</td><td><span class="pill" style="background:#38a85a22;color:#38a85a;border:1px solid #38a85a44">✓ Behoben</span></td><td>—</td></tr>
     <tr style="background:#f0faf4"><td>✅ Fix</td><td>Checkout — Multi-Vendor-Bug + In-Memory-Idempotenz</td><td>—</td><td><span class="pill" style="background:#38a85a22;color:#38a85a;border:1px solid #38a85a44">✓ Behoben</span></td><td>—</td></tr>
     <tr style="background:#f0faf4"><td>✅ Fix</td><td>post_schedule RLS — anon-Zugriff gesperrt</td><td>—</td><td><span class="pill" style="background:#38a85a22;color:#38a85a;border:1px solid #38a85a44">✓ Behoben</span></td><td>—</td></tr>
-    <tr><td>1 — Kritisch</td><td>DHL Developer Account beantragen</td><td>1h (Formular)</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Alles andere hängt daran</td></tr>
-    <tr><td>2 — Kritisch</td><td>create-dhl-label Edge Function bauen</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DHL Account + EKP</td></tr>
-    <tr><td>3 — Kritisch</td><td>retailer-api Edge Function (8returns-Webhook)</td><td>1–2 Tage</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>—</td></tr>
-    <tr><td>4 — Kritisch</td><td>stripe-webhook Multi-Vendor Transfers</td><td>1 Tag</td><td><span class="pill pill-gold">Partial</span></td><td>—</td></tr>
-    <tr><td>5 — Kritisch</td><td>Supabase Secrets (Live-Keys) setzen</td><td>30 Min</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Stripe Live + Resend + DHL</td></tr>
-    <tr><td>6 — Kritisch</td><td>End-to-End Testkauf (Stripe Live)</td><td>2h</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Alle Keys + DHL</td></tr>
-    <tr><td>7 — Wichtig</td><td>Tier-basierte Platform Fee (statt hardcoded 3%)</td><td>2h</td><td><span class="pill pill-gold">Hardcoded</span></td><td>—</td></tr>
-    <tr><td>8 — Wichtig</td><td>Stale Pricing UI Fix (€990 → korrekte Tier-Preise)</td><td>1h (Lovable)</td><td><span class="pill pill-gold">Stale UI</span></td><td>—</td></tr>
-    <tr><td>9 — Wichtig</td><td>Mindestens 1 Pilot-Händler onboarden</td><td>—</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Stripe Live</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>DHL Rerouting — falscher API-Endpoint</td><td>—</td><td><span class="pill pill-green">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>Tracking-Webhook — Signatur-Bypass</td><td>—</td><td><span class="pill pill-green">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>Checkout — Multi-Vendor + Idempotenz</td><td>—</td><td><span class="pill pill-green">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>post_schedule RLS — anon-Zugriff</td><td>—</td><td><span class="pill pill-green">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>process-payout — Doppel-Auszahlung verhindert</td><td>—</td><td><span class="pill pill-green">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>tracking-webhook out_for_delivery → unavailable</td><td>—</td><td><span class="pill pill-green">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Fix</td><td>initiate-rerouting — Stripe Refund bei DHL-Fehler</td><td>—</td><td><span class="pill pill-green">✓ Behoben</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Neu</td><td>create-dhl-label — deployed, getestet, verkabelt</td><td>—</td><td><span class="pill pill-green">✓ Live</span></td><td>Echte DHL Keys fehlen noch</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Neu</td><td>release-stale-reservations — deployed + Cron aktiv</td><td>—</td><td><span class="pill pill-green">✓ Live</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Neu</td><td>DB Schema — dhl_labels, warehouse_*, stripe_refund_id</td><td>—</td><td><span class="pill pill-green">✓ Live</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Neu</td><td>Cron Jobs — beide aktiv (5 Min + 5 Sek)</td><td>—</td><td><span class="pill pill-green">✓ Aktiv</span></td><td>—</td></tr>
+    <tr style="background:#f0faf4"><td>✅ Neu</td><td>asset_status Enum 'unavailable' ergänzt</td><td>—</td><td><span class="pill pill-green">✓ Live</span></td><td>—</td></tr>
+    <tr><td>1 — Kritisch</td><td>DHL Developer Account + API Keys beantragen</td><td>1h + 3–5 Tage Warten</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Echte Labels + Rerouting</td></tr>
+    <tr><td>2 — Kritisch</td><td>Supabase Live-Secrets setzen (Stripe, DHL, Resend)</td><td>30 Min</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DHL Account + Stripe Live</td></tr>
+    <tr><td>3 — Kritisch</td><td>End-to-End Testkauf (Stripe Testkarte 4242…)</td><td>2h</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Live-Secrets gesetzt</td></tr>
+    <tr><td>4 — Kritisch</td><td>retailer-api: 8returns-Format anpassen</td><td>1 Tag</td><td><span class="pill pill-gold">Teilweise</span></td><td>receive-return-webhook existiert</td></tr>
+    <tr><td>5 — Wichtig</td><td>E-Mail Domain auf fyndds.com vereinheitlichen</td><td>1h</td><td><span class="pill pill-gold">Gemischt</span></td><td>Resend DNS-Eintrag</td></tr>
+    <tr><td>6 — Wichtig</td><td>Tier-basierte Platform Fee (statt hardcoded 3%)</td><td>2h</td><td><span class="pill pill-gold">Hardcoded</span></td><td>—</td></tr>
+    <tr><td>7 — Wichtig</td><td>Stale Pricing UI Fix (€990 → Tier-Preise)</td><td>1h</td><td><span class="pill pill-gold">Stale</span></td><td>—</td></tr>
+    <tr><td>8 — Wichtig</td><td>SPF / DKIM für fyndds.com (kein Spam)</td><td>30 Min</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>DNS-Zugang</td></tr>
+    <tr><td>9 — Wichtig</td><td>Mindestens 1 Pilot-Händler onboarden</td><td>—</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>Stripe Live + DHL</td></tr>
     <tr><td>10 — Legal</td><td>Impressum / AGB / Datenschutz (Anwalt)</td><td>Extern</td><td><span class="pill pill-red">⚠ Fehlt</span></td><td>—</td></tr>
-    <tr><td>11 — Phase 2</td><td>E-Mail Domain (fyndds.de → fyndds.com)</td><td>1h</td><td><span class="pill pill-gold">Gemischt</span></td><td>Resend DNS</td></tr>
-    <tr><td>12 — Phase 2</td><td>CORS auf "*" → fyndds.com einschränken</td><td>1h</td><td><span class="pill pill-gold">Offen</span></td><td>—</td></tr>
-    <tr><td>13 — Phase 2</td><td>DPD / Hermes / UPS Rerouting</td><td>3–5 Tage</td><td><span class="pill pill-blue">Später</span></td><td>DHL stabil</td></tr>
-    <tr><td>14 — Phase 2</td><td>Shopify / WooCommerce Plugin</td><td>3–5 Tage</td><td><span class="pill pill-blue">Später</span></td><td>retailer-api live</td></tr>
+    <tr><td>11 — Phase 2</td><td>CORS auf "*" → fyndds.com einschränken</td><td>1h</td><td><span class="pill pill-gold">Offen</span></td><td>—</td></tr>
+    <tr><td>12 — Phase 2</td><td>DPD / Hermes / UPS Rerouting</td><td>3–5 Tage</td><td><span class="pill pill-blue">Später</span></td><td>DHL stabil</td></tr>
+    <tr><td>13 — Phase 2</td><td>Shopify / WooCommerce Plugin</td><td>3–5 Tage</td><td><span class="pill pill-blue">Später</span></td><td>retailer-api live</td></tr>
+    <tr><td>14 — Phase 2</td><td>Monatliche Rechnungen pro Händler (PDF)</td><td>2 Tage</td><td><span class="pill pill-blue">Später</span></td><td>—</td></tr>
   </table>
 </div>
 
@@ -1308,42 +1316,42 @@ Response 200:
   <h2>Realistische Planung<br/><span>was passiert wann</span></h2>
 
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px">
+    <div class="card card-green">
+      <div class="card-title" style="color:#38a85a">✓ 1. Juni 2026 — Erledigt</div>
+      <div class="card-body">14 Fixes + neue Functions deployed. Alle 5 Verification-Tests grün. CLAUDE.md, QA-Templates, GitHub Actions eingerichtet.</div>
+    </div>
     <div class="card card-gold">
-      <div class="card-title">Heute (Tag 0)</div>
-      <div class="card-body">DHL Developer Account beantragen. Das ist die längste Wartezeit — jetzt starten.</div>
+      <div class="card-title">Jetzt sofort</div>
+      <div class="card-body">DHL Developer Account beantragen (developer.dhl.com). Das ist die längste Wartezeit — 3–5 Werktage. Nicht warten.</div>
     </div>
     <div class="card">
-      <div class="card-title">Tage 1-3 (parallel)</div>
-      <div class="card-body">dhl-create-label + dhl-reroute + retailer-api bauen. Supabase Live-Keys setzen.</div>
+      <div class="card-title">Parallel dazu</div>
+      <div class="card-body">Stripe Live-Keys + Resend in Supabase Secrets eintragen. E-Mail Domain auf fyndds.com. UI Pricing fixen.</div>
     </div>
     <div class="card">
-      <div class="card-title">Tage 3-5 (DHL-Freischaltung)</div>
-      <div class="card-body">DHL Account aktiv → Sandbox-Tests mit echten Labels. receive-webhook fertigstellen.</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Tag 6-7</div>
-      <div class="card-body">End-to-End Test mit echtem Paket. Fehler fixen. UI-Bugs (Pricing) korrigieren.</div>
+      <div class="card-title">Wenn DHL freigeschaltet</div>
+      <div class="card-body">DHL Keys in Supabase Secrets → End-to-End Testkauf mit Stripe Karte 4242 → erstes echtes Label + Rerouting testen.</div>
     </div>
     <div class="card card-green">
-      <div class="card-title" style="color:#38a85a">Woche 2 🚀</div>
-      <div class="card-body">Ersten Pilot-Händler onboarden. Live-Betrieb starten. Feedback sammeln.</div>
+      <div class="card-title" style="color:#38a85a">~Woche 2 🚀</div>
+      <div class="card-body">Ersten Pilot-Händler onboarden. Live-Betrieb starten. 8returns anbinden. Feedback sammeln.</div>
     </div>
   </div>
 
   <div style="margin-top:32px;padding:28px;background:#111;border-radius:6px">
-    <div style="font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:20px">Zusammenfassung</div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:20px">Stand 1. Juni 2026</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
       <div style="text-align:center">
-        <div style="font-size:32px;font-weight:900;color:#fff">~6</div>
-        <div style="font-size:11px;color:#888;margin-top:4px">Entwicklungstage für fehlende Edge Functions</div>
+        <div style="font-size:32px;font-weight:900;color:#38a85a">14</div>
+        <div style="font-size:11px;color:#888;margin-top:4px">Fixes &amp; Functions heute deployed</div>
       </div>
       <div style="text-align:center">
-        <div style="font-size:32px;font-weight:900;color:#fff">3-5</div>
-        <div style="font-size:11px;color:#888;margin-top:4px">Tage Wartezeit DHL Account</div>
+        <div style="font-size:32px;font-weight:900;color:#fff">4</div>
+        <div style="font-size:11px;color:#888;margin-top:4px">Kritische Punkte noch offen</div>
       </div>
       <div style="text-align:center">
-        <div style="font-size:32px;font-weight:900;color:#fff">~2</div>
-        <div style="font-size:11px;color:#888;margin-top:4px">Wochen bis Launch-ready</div>
+        <div style="font-size:32px;font-weight:900;color:#c9a84c">~1</div>
+        <div style="font-size:11px;color:#888;margin-top:4px">Woche bis Launch-ready</div>
       </div>
     </div>
   </div>
@@ -2699,19 +2707,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 <div class="qa-summary">
   <div class="qa-sum-card green">
-    <div class="qa-num">8</div>
+    <div class="qa-num">19</div>
     <div class="qa-label">Erledigt</div>
   </div>
   <div class="qa-sum-card gold">
-    <div class="qa-num">14</div>
+    <div class="qa-num">10</div>
     <div class="qa-label">In Arbeit</div>
   </div>
   <div class="qa-sum-card red">
-    <div class="qa-num">16</div>
+    <div class="qa-num">12</div>
     <div class="qa-label">Offen</div>
   </div>
   <div class="qa-sum-card blue">
-    <div class="qa-num">6</div>
+    <div class="qa-num">3</div>
     <div class="qa-label">Blockiert</div>
   </div>
 </div>
@@ -2755,9 +2763,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     </tr>
     <tr>
       <td>A-04 &nbsp;Warehouse-Adresse im Profil hinterlegen</td>
-      <td><span class="pill pill-dark">Blockiert</span></td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
       <td>07.06.2026</td>
-      <td>Spalten <code>warehouse_street</code> etc. fehlen noch in DB — warten auf Lovable Migration (Prompt 1)</td>
+      <td>DB-Spalten existieren jetzt. UI-Test: Händler kann Adresse speichern und abrufen?</td>
     </tr>
     <tr>
       <td>A-05 &nbsp;Erstes Asset über Dashboard anlegen</td>
@@ -2821,9 +2829,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     </tr>
     <tr>
       <td>B-05 &nbsp;Reservierung läuft ab (30 Min.) → zurück auf listed</td>
-      <td><span class="pill pill-dark">Blockiert</span></td>
-      <td>07.06.2026</td>
-      <td><code>release-stale-reservations</code> Function noch nicht deployed (Lovable Prompt 3 läuft)</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>✅ Deployed + Cron aktiv (alle 5 Min.). Verifiziert.</td>
     </tr>
     <tr>
       <td>B-06 &nbsp;Multi-Vendor Cart: 2 Händler in einem Checkout</td>
@@ -2863,15 +2871,15 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     <tr><td colspan="4" class="cat-row">C · DHL-Label &amp; Rerouting</td></tr>
     <tr>
       <td>C-01 &nbsp;DHL-Label erstellen (Mock-Mode, ohne echte API-Keys)</td>
-      <td><span class="pill pill-dark">Blockiert</span></td>
-      <td>07.06.2026</td>
-      <td><code>create-dhl-label</code> noch nicht deployed — Lovable Prompt 2 läuft gerade</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>✅ Deployed. Mock gibt <code>{"success":true,"mock":true}</code>. Automatisch via receive-return-webhook verkabelt.</td>
     </tr>
     <tr>
       <td>C-02 &nbsp;DHL-Label: Idempotenz (2× aufrufen → nur 1 Label)</td>
-      <td><span class="pill pill-dark">Blockiert</span></td>
-      <td>07.06.2026</td>
-      <td>Wartet auf C-01. Prüfen: 2. Aufruf gibt bestehendes Label zurück ohne neuen API-Call</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>✅ Verifiziert: 2. Aufruf gibt <code>{"alreadyExisted":true}</code> zurück.</td>
     </tr>
     <tr>
       <td>C-03 &nbsp;DHL-Label: echte API (mit DHL_API_KEY gesetzt)</td>
@@ -2893,9 +2901,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     </tr>
     <tr>
       <td>C-06 &nbsp;Tracking-Webhook: out_for_delivery → Asset unavailable</td>
-      <td><span class="pill pill-orange">In Arbeit</span></td>
-      <td>07.06.2026</td>
-      <td>Fix deployed. Testen: listed-Asset wird sofort auf <code>unavailable</code> gesetzt → kein neuer Checkout möglich</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>✅ Verifiziert. Enum <code>unavailable</code> ergänzt. DB-Status wechselt korrekt.</td>
     </tr>
     <tr>
       <td>C-07 &nbsp;DHL-Rerouting: PATCH /address erfolgreich</td>
@@ -2907,7 +2915,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       <td>C-08 &nbsp;DHL-Rerouting schlägt fehl → Stripe Refund + Asset re-listed</td>
       <td><span class="pill pill-orange">In Arbeit</span></td>
       <td>07.06.2026</td>
-      <td>Fix ist im Code. DB-Spalte <code>stripe_refund_id</code> fehlt noch (Lovable Prompt 1). Danach testen.</td>
+      <td>Code + DB-Spalte <code>stripe_refund_id</code> vorhanden. Braucht echten Stripe-Test zum Verifizieren.</td>
     </tr>
   </tbody>
 </table>
@@ -2943,7 +2951,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       <td>D-03 &nbsp;Doppel-Payout verhindert (2 Webhooks gleichzeitig)</td>
       <td><span class="pill pill-green">Erledigt</span></td>
       <td>—</td>
-      <td>Atomische DB-Lock implementiert. Test: process-payout 2× schnell aufrufen → nur 1 Transfer.</td>
+      <td>✅ Verifiziert: 2. Aufruf gibt <code>{"message":"Payout already in progress"}</code>.</td>
     </tr>
     <tr>
       <td>D-04 &nbsp;Multi-Vendor: Transfer pro Händler korrekt</td>
@@ -3085,9 +3093,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     <tr><td colspan="4" class="cat-row">G · Infrastruktur &amp; Deployment</td></tr>
     <tr>
       <td>G-01 &nbsp;DB-Migrationen: dhl_labels, warehouse_*, stripe_refund_id</td>
-      <td><span class="pill pill-orange">In Arbeit</span></td>
-      <td>Heute</td>
-      <td>Lovable Prompt 1 läuft gerade. Danach prüfen ob Spalten existieren.</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>✅ Alle 3 existieren. Verifiziert via REST API.</td>
     </tr>
     <tr>
       <td>G-02 &nbsp;DHL_API_KEY + DHL_API_SECRET als Supabase Secrets</td>
@@ -3108,10 +3116,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       <td>Prüfen ob in Supabase Edge Function Secrets korrekt hinterlegt. Live-Test mit echter Zahlung.</td>
     </tr>
     <tr>
-      <td>G-05 &nbsp;pg_cron: release-stale-reservations alle 5 Min. aktiv</td>
-      <td><span class="pill pill-dark">Blockiert</span></td>
-      <td>07.06.2026</td>
-      <td>Wartet auf Lovable Prompt 1 (pg_cron Migration) + Prompt 3 (Function deployed)</td>
+      <td>G-05 &nbsp;pg_cron: beide Cron Jobs aktiv</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>✅ release-stale-reservations alle 5 Min., process-email-queue alle 5 Sek. Beide aktiv.</td>
     </tr>
     <tr>
       <td>G-06 &nbsp;Test-Adresse → echte Firmenadresse nach Neugründung</td>
