@@ -96,6 +96,27 @@ tr:hover td{background:#fafafa}
 .pill-red{background:rgba(224,82,82,0.12);color:#c93c3c}
 .pill-blue{background:rgba(113,175,212,0.12);color:#4a8fb8}
 .pill-dark{background:#111;color:#fff}
+.pill-orange{background:rgba(245,158,11,0.12);color:#d97706}
+.pill-purple{background:rgba(139,92,246,0.12);color:#7c3aed}
+
+/* ── TEST TABLE ── */
+.test-table{width:100%;border-collapse:collapse;margin:0 0 32px 0;font-size:12px}
+.test-table th{text-align:left;padding:10px 14px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#aaa;border-bottom:2px solid #f0f0f0;background:#fafafa}
+.test-table td{padding:10px 14px;border-bottom:1px solid #f5f5f5;vertical-align:top;line-height:1.5;color:#333}
+.test-table tr:hover td{background:#fafff8}
+.test-table .cat-row td{background:#f9f9f9;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#c9a84c;padding:8px 14px;border-bottom:1px solid #eee}
+.test-table td:nth-child(1){font-weight:600;width:35%}
+.test-table td:nth-child(2){width:13%;white-space:nowrap}
+.test-table td:nth-child(3){width:13%;color:#888;white-space:nowrap}
+.test-table td:nth-child(4){width:39%;color:#666;font-size:11px}
+.qa-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0 32px}
+.qa-sum-card{background:#fff;border:1px solid #eee;border-radius:6px;padding:18px 20px;text-align:center}
+.qa-sum-card .qa-num{font-size:32px;font-weight:800;font-family:monospace}
+.qa-sum-card .qa-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-top:4px}
+.qa-sum-card.green .qa-num{color:#38a85a}
+.qa-sum-card.gold .qa-num{color:#c9a84c}
+.qa-sum-card.red .qa-num{color:#c93c3c}
+.qa-sum-card.blue .qa-num{color:#4a8fb8}
 
 /* ── BOXES ── */
 .hbox{background:#fff9ec;border:1px solid rgba(201,168,76,0.3);border-radius:4px;padding:16px 20px;margin:16px 0;font-size:12px;color:#555;line-height:1.8}
@@ -149,6 +170,7 @@ tr:hover td{background:#fafafa}
   <button class="tab-btn" onclick="showTab('road',this)">03 — Status &amp; Roadmap</button>
   <button class="tab-btn" onclick="showTab('rebuild',this)">04 — Lovable Rebuild</button>
   <button class="tab-btn" onclick="showTab('flow',this)">05 — Flowchart</button>
+  <button class="tab-btn" onclick="showTab('qa',this)">06 — Pre-Launch Tests</button>
 </div>
 
 
@@ -2629,6 +2651,507 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   }
 })();
 </script>
+
+
+<!-- ══════════════════════════ TAB 06: PRE-LAUNCH TESTS ══════════════════════════ -->
+<div id="tab-qa" class="tab-pane">
+
+<nav class="sec-nav">
+  <ul>
+    <li><a href="#qa-overview">Übersicht</a></li>
+    <li><a href="#qa-onboarding">Händler-Onboarding</a></li>
+    <li><a href="#qa-buyer">Käufer-Flow</a></li>
+    <li><a href="#qa-dhl">DHL &amp; Rerouting</a></li>
+    <li><a href="#qa-payout">Payout</a></li>
+    <li><a href="#qa-security">Sicherheit</a></li>
+    <li><a href="#qa-email">E-Mails</a></li>
+    <li><a href="#qa-infra">Infrastruktur</a></li>
+  </ul>
+</nav>
+
+<div class="cover">
+  <div class="container">
+    <div class="badge">Launch-Vorbereitung · Juni 2026</div>
+    <h1>Pre-Launch<br/><span>Test-Plan</span></h1>
+    <p class="cover-sub">Alle Szenarien die durchgespielt sein müssen bevor der erste Händler ongeboardet wird. Feature für Feature, Schritt für Schritt. Kein Raum für Fehler.</p>
+    <div class="cover-meta">
+      <div class="meta-item"><strong>44 Tests</strong>insgesamt</div>
+      <div class="meta-item"><strong>7 Kategorien</strong>abgedeckt</div>
+      <div class="meta-item"><strong>Ziel</strong>erster Händler</div>
+      <div class="meta-item"><strong>Deadline</strong>KW 24/2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ── LEGENDE ── -->
+<div class="section" id="qa-overview">
+<h2>Legende &amp; Übersicht</h2>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin:0 0 24px">
+  <span><span class="pill pill-green">Erledigt</span> &nbsp;Test bestanden, in Produktion</span>
+  <span><span class="pill pill-orange">In Arbeit</span> &nbsp;Implementiert, noch nicht vollständig getestet</span>
+  <span><span class="pill pill-red">Offen</span> &nbsp;Noch nicht gebaut</span>
+  <span><span class="pill pill-dark">Blockiert</span> &nbsp;Wartet auf Voraussetzung</span>
+  <span><span class="pill pill-blue">Bereit</span> &nbsp;Kann jetzt getestet werden</span>
+</div>
+
+<div class="qa-summary">
+  <div class="qa-sum-card green">
+    <div class="qa-num">8</div>
+    <div class="qa-label">Erledigt</div>
+  </div>
+  <div class="qa-sum-card gold">
+    <div class="qa-num">14</div>
+    <div class="qa-label">In Arbeit</div>
+  </div>
+  <div class="qa-sum-card red">
+    <div class="qa-num">16</div>
+    <div class="qa-label">Offen</div>
+  </div>
+  <div class="qa-sum-card blue">
+    <div class="qa-num">6</div>
+    <div class="qa-label">Blockiert</div>
+  </div>
+</div>
+
+<div class="hbox">
+  <strong>Lesehinweis —</strong> Jede Zeile ist ein konkretes Test-Szenario. "Was fehlt / zu prüfen" beschreibt was noch getan werden muss bevor der Test als bestanden gilt. Priorität A = muss vor erstem Händler fertig sein.
+</div>
+</div>
+
+<!-- ══ A: HÄNDLER-ONBOARDING ══ -->
+<div class="section" id="qa-onboarding">
+<h2>A — Händler-Onboarding</h2>
+<p style="color:#888;font-size:13px;margin-bottom:20px">Alles was ein neuer Händler braucht um aktiv zu werden und Assets zu verkaufen.</p>
+
+<table class="test-table">
+  <thead><tr>
+    <th>Test-Szenario</th>
+    <th>Status</th>
+    <th>Deadline</th>
+    <th>Was fehlt / zu prüfen</th>
+  </tr></thead>
+  <tbody>
+    <tr><td colspan="4" class="cat-row">A · Händler-Onboarding</td></tr>
+    <tr>
+      <td>A-01 &nbsp;Registrierung + E-Mail-Verifikation</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>E-Mail-Bestätigung testen, Session danach korrekt?</td>
+    </tr>
+    <tr>
+      <td>A-02 &nbsp;Stripe Connect Onboarding starten</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Link zu Stripe Dashboard generiert sich korrekt? Redirect zurück funktioniert?</td>
+    </tr>
+    <tr>
+      <td>A-03 &nbsp;Stripe Connect Onboarding abschließen</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td><code>stripe_onboarding_completed = true</code> in profiles gesetzt nach Stripe-Callback?</td>
+    </tr>
+    <tr>
+      <td>A-04 &nbsp;Warehouse-Adresse im Profil hinterlegen</td>
+      <td><span class="pill pill-dark">Blockiert</span></td>
+      <td>07.06.2026</td>
+      <td>Spalten <code>warehouse_street</code> etc. fehlen noch in DB — warten auf Lovable Migration (Prompt 1)</td>
+    </tr>
+    <tr>
+      <td>A-05 &nbsp;Erstes Asset über Dashboard anlegen</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Status = <code>listed</code>? Preis korrekt gespeichert? Im Marketplace sichtbar?</td>
+    </tr>
+    <tr>
+      <td>A-06 &nbsp;Asset-Details bearbeiten (Preis, Beschreibung)</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Änderungen werden gespeichert und sofort im Marketplace angezeigt?</td>
+    </tr>
+    <tr>
+      <td>A-07 &nbsp;Dashboard: Alle eigenen Assets sichtbar, nicht fremde</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>RLS-Check: Händler A kann Assets von Händler B <strong>nicht</strong> sehen</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══ B: KÄUFER-FLOW ══ -->
+<div class="section" id="qa-buyer">
+<h2>B — Käufer-Flow (Buyer B)</h2>
+<p style="color:#888;font-size:13px;margin-bottom:20px">Alles was passiert vom ersten Klick bis zur Zahlungsbestätigung.</p>
+
+<table class="test-table">
+  <thead><tr>
+    <th>Test-Szenario</th>
+    <th>Status</th>
+    <th>Deadline</th>
+    <th>Was fehlt / zu prüfen</th>
+  </tr></thead>
+  <tbody>
+    <tr><td colspan="4" class="cat-row">B · Käufer-Flow</td></tr>
+    <tr>
+      <td>B-01 &nbsp;Asset auf Marketplace sichtbar (Status = listed)</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>Funktioniert. Nur 1 Test-Asset in DB vorhanden — mehr Seed-Daten nötig für realistischen Test.</td>
+    </tr>
+    <tr>
+      <td>B-02 &nbsp;Asset-Detailseite öffnen</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Bilder, Preis, Händlername korrekt angezeigt?</td>
+    </tr>
+    <tr>
+      <td>B-03 &nbsp;Checkout starten → Stripe Checkout öffnet</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Asset-Status = <code>reserved</code> während Checkout? Stripe Session korrekt erstellt?</td>
+    </tr>
+    <tr>
+      <td>B-04 &nbsp;Zahlung durchführen (Stripe Testkarte 4242…)</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Stripe Webhook feuert? Order in DB erstellt? Asset-Status = <code>sold</code>?</td>
+    </tr>
+    <tr>
+      <td>B-05 &nbsp;Reservierung läuft ab (30 Min.) → zurück auf listed</td>
+      <td><span class="pill pill-dark">Blockiert</span></td>
+      <td>07.06.2026</td>
+      <td><code>release-stale-reservations</code> Function noch nicht deployed (Lovable Prompt 3 läuft)</td>
+    </tr>
+    <tr>
+      <td>B-06 &nbsp;Multi-Vendor Cart: 2 Händler in einem Checkout</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>14.06.2026</td>
+      <td>Stripe Webhook: <code>isMultiVendor=true</code> → Transfer pro Händler korrekt ausgelöst?</td>
+    </tr>
+    <tr>
+      <td>B-07 &nbsp;Käufer zahlt — Asset bereits verkauft (Race Condition)</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>14.06.2026</td>
+      <td>Stripe Webhook erkennt <code>status ≠ listed</code> → automatischer Refund ausgelöst?</td>
+    </tr>
+    <tr>
+      <td>B-08 &nbsp;Käufer B möchte zurückgeben (Return-Flow)</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>Nach Launch</td>
+      <td>Rückgabe-Portal, Zustandsprüfung, Stripe Refund, Re-listing — noch nicht implementiert</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══ C: DHL ══ -->
+<div class="section" id="qa-dhl">
+<h2>C — DHL-Label &amp; Rerouting</h2>
+<p style="color:#888;font-size:13px;margin-bottom:20px">Das Herzstück von FYNDDS. Jeder Schritt muss bombensicher laufen.</p>
+
+<table class="test-table">
+  <thead><tr>
+    <th>Test-Szenario</th>
+    <th>Status</th>
+    <th>Deadline</th>
+    <th>Was fehlt / zu prüfen</th>
+  </tr></thead>
+  <tbody>
+    <tr><td colspan="4" class="cat-row">C · DHL-Label &amp; Rerouting</td></tr>
+    <tr>
+      <td>C-01 &nbsp;DHL-Label erstellen (Mock-Mode, ohne echte API-Keys)</td>
+      <td><span class="pill pill-dark">Blockiert</span></td>
+      <td>07.06.2026</td>
+      <td><code>create-dhl-label</code> noch nicht deployed — Lovable Prompt 2 läuft gerade</td>
+    </tr>
+    <tr>
+      <td>C-02 &nbsp;DHL-Label: Idempotenz (2× aufrufen → nur 1 Label)</td>
+      <td><span class="pill pill-dark">Blockiert</span></td>
+      <td>07.06.2026</td>
+      <td>Wartet auf C-01. Prüfen: 2. Aufruf gibt bestehendes Label zurück ohne neuen API-Call</td>
+    </tr>
+    <tr>
+      <td>C-03 &nbsp;DHL-Label: echte API (mit DHL_API_KEY gesetzt)</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>14.06.2026</td>
+      <td>DHL API-Keys müssen als Supabase Secrets gesetzt werden. EKP (DHL_BILLING_NUMBER) nötig.</td>
+    </tr>
+    <tr>
+      <td>C-04 &nbsp;Tracking-Webhook: picked_up → Asset listed, Sales-Window startet</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Deployed. Mit echter DHL-Tracking-Nummer testen oder DHL Sandbox-Webhook senden.</td>
+    </tr>
+    <tr>
+      <td>C-05 &nbsp;Tracking-Webhook: in_transit → kein Status-Wechsel</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Deployed. Sicherstellen dass Asset-Status unverändert bleibt.</td>
+    </tr>
+    <tr>
+      <td>C-06 &nbsp;Tracking-Webhook: out_for_delivery → Asset unavailable</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Fix deployed. Testen: listed-Asset wird sofort auf <code>unavailable</code> gesetzt → kein neuer Checkout möglich</td>
+    </tr>
+    <tr>
+      <td>C-07 &nbsp;DHL-Rerouting: PATCH /address erfolgreich</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>14.06.2026</td>
+      <td>Braucht echten DHL-API-Key + gültigen Shipment-Number unter FYNDDS EKP. Mock-Test erst.</td>
+    </tr>
+    <tr>
+      <td>C-08 &nbsp;DHL-Rerouting schlägt fehl → Stripe Refund + Asset re-listed</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Fix ist im Code. DB-Spalte <code>stripe_refund_id</code> fehlt noch (Lovable Prompt 1). Danach testen.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══ D: PAYOUT ══ -->
+<div class="section" id="qa-payout">
+<h2>D — Payout &amp; Abrechnung</h2>
+<p style="color:#888;font-size:13px;margin-bottom:20px">Geld muss sicher und korrekt fließen — kein Cent zu viel, kein Cent zu wenig.</p>
+
+<table class="test-table">
+  <thead><tr>
+    <th>Test-Szenario</th>
+    <th>Status</th>
+    <th>Deadline</th>
+    <th>Was fehlt / zu prüfen</th>
+  </tr></thead>
+  <tbody>
+    <tr><td colspan="4" class="cat-row">D · Payout &amp; Abrechnung</td></tr>
+    <tr>
+      <td>D-01 &nbsp;Order → delivered → Payout an Händler ausgelöst</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Stripe Transfer korrekt erstellt? Betrag stimmt? Händler-Stripe-Account vorhanden?</td>
+    </tr>
+    <tr>
+      <td>D-02 &nbsp;Platform Fee: 3%, min €2.50, max €15 — korrekt berechnet</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>Im Code korrekt. Grenzwerte testen: Artikel unter €83 (→ €2.50 min), über €500 (→ €15 max).</td>
+    </tr>
+    <tr>
+      <td>D-03 &nbsp;Doppel-Payout verhindert (2 Webhooks gleichzeitig)</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>Atomische DB-Lock implementiert. Test: process-payout 2× schnell aufrufen → nur 1 Transfer.</td>
+    </tr>
+    <tr>
+      <td>D-04 &nbsp;Multi-Vendor: Transfer pro Händler korrekt</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>14.06.2026</td>
+      <td>Fix deployed. Test mit 2-Händler-Cart. Jeder bekommt seinen Anteil separat?</td>
+    </tr>
+    <tr>
+      <td>D-05 &nbsp;Monatliche Rechnung pro Händler (PDF)</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>Nach Launch</td>
+      <td>generate-invoice + generate-monthly-invoice noch nicht gebaut. Lovable-Prompt nötig.</td>
+    </tr>
+    <tr>
+      <td>D-06 &nbsp;Rerouting-Gebühr €2.99 korrekt einbehalten</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Wird in stripe-webhook als fester Abzug berechnet. End-to-End prüfen.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══ E: SICHERHEIT ══ -->
+<div class="section" id="qa-security">
+<h2>E — Sicherheit &amp; RLS</h2>
+<p style="color:#888;font-size:13px;margin-bottom:20px">Datenschutz, Zugriffsschutz, Missbrauchsschutz. Alles muss dicht sein.</p>
+
+<table class="test-table">
+  <thead><tr>
+    <th>Test-Szenario</th>
+    <th>Status</th>
+    <th>Deadline</th>
+    <th>Was fehlt / zu prüfen</th>
+  </tr></thead>
+  <tbody>
+    <tr><td colspan="4" class="cat-row">E · Sicherheit &amp; RLS</td></tr>
+    <tr>
+      <td>E-01 &nbsp;Stripe Webhook: ungültige Signatur → abgelehnt</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>Getestet — gibt korrekt 400 "Invalid signature" zurück.</td>
+    </tr>
+    <tr>
+      <td>E-02 &nbsp;RLS: Händler A sieht nur eigene Assets</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Policy muss <code>auth.uid() = retailer_id</code> erzwingen. Mit 2 Test-Accounts prüfen.</td>
+    </tr>
+    <tr>
+      <td>E-03 &nbsp;RLS: Anon-User sieht nur listed Assets (kein sold/reserved)</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Über REST API ohne Auth-Header abfragen — nur listed Assets dürfen erscheinen.</td>
+    </tr>
+    <tr>
+      <td>E-04 &nbsp;Auth: Login / Logout / Session nach Browser-Neustart</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Session korrekt persistiert? Kein ungewollter Logout? Refresh Token erneuert sich?</td>
+    </tr>
+    <tr>
+      <td>E-05 &nbsp;Keine API-Keys oder Secrets in Browser-Console</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>07.06.2026</td>
+      <td>DevTools öffnen → Network + Console: kein Stripe Secret, kein Service Role Key sichtbar.</td>
+    </tr>
+    <tr>
+      <td>E-06 &nbsp;CORS: nicht mehr Wildcard (*)</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>14.06.2026</td>
+      <td>Edge Functions haben aktuell <code>Access-Control-Allow-Origin: *</code> — auf fyndds.com einschränken vor Launch.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══ F: E-MAILS ══ -->
+<div class="section" id="qa-email">
+<h2>F — E-Mails</h2>
+<p style="color:#888;font-size:13px;margin-bottom:20px">Jede wichtige Aktion braucht eine E-Mail. Professionell, zuverlässig, mit der richtigen Domain.</p>
+
+<table class="test-table">
+  <thead><tr>
+    <th>Test-Szenario</th>
+    <th>Status</th>
+    <th>Deadline</th>
+    <th>Was fehlt / zu prüfen</th>
+  </tr></thead>
+  <tbody>
+    <tr><td colspan="4" class="cat-row">F · E-Mails</td></tr>
+    <tr>
+      <td>F-01 &nbsp;Kaufbestätigung an Käufer B nach Zahlung</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Kommt die E-Mail an? Inhalt (Bestellnr., Betrag, Händlername) korrekt?</td>
+    </tr>
+    <tr>
+      <td>F-02 &nbsp;Payout-Notification an Händler nach Transfer</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Kommt nach <code>process-payout</code>. Betrag, Transfer-ID korrekt?</td>
+    </tr>
+    <tr>
+      <td>F-03 &nbsp;DHL-Label E-Mail an Käufer A (Retourenschein)</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>14.06.2026</td>
+      <td>Label-PDF oder URL per E-Mail senden — nach create-dhl-label. Noch nicht implementiert.</td>
+    </tr>
+    <tr>
+      <td>F-04 &nbsp;E-Mail Domain: fyndds.com (nicht .de)</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>07.06.2026</td>
+      <td>Aktuell inkonsistent (.de und .com gemischt). Vor Launch auf fyndds.com vereinheitlichen.</td>
+    </tr>
+    <tr>
+      <td>F-05 &nbsp;E-Mails landen nicht im Spam</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>14.06.2026</td>
+      <td>SPF / DKIM / DMARC für fyndds.com konfigurieren. Mit echten Adressen testen.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══ G: INFRASTRUKTUR ══ -->
+<div class="section" id="qa-infra">
+<h2>G — Infrastruktur &amp; Deployment</h2>
+<p style="color:#888;font-size:13px;margin-bottom:20px">Die unsichtbaren Dinge die alles zusammenhalten — und die schlimmsten Fehler verursachen wenn sie fehlen.</p>
+
+<table class="test-table">
+  <thead><tr>
+    <th>Test-Szenario</th>
+    <th>Status</th>
+    <th>Deadline</th>
+    <th>Was fehlt / zu prüfen</th>
+  </tr></thead>
+  <tbody>
+    <tr><td colspan="4" class="cat-row">G · Infrastruktur &amp; Deployment</td></tr>
+    <tr>
+      <td>G-01 &nbsp;DB-Migrationen: dhl_labels, warehouse_*, stripe_refund_id</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>Heute</td>
+      <td>Lovable Prompt 1 läuft gerade. Danach prüfen ob Spalten existieren.</td>
+    </tr>
+    <tr>
+      <td>G-02 &nbsp;DHL_API_KEY + DHL_API_SECRET als Supabase Secrets</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>14.06.2026</td>
+      <td>Ohne diese läuft create-dhl-label im Mock-Mode. DHL Developer Account nötig.</td>
+    </tr>
+    <tr>
+      <td>G-03 &nbsp;DHL_BILLING_NUMBER (EKP) als Supabase Secret</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>14.06.2026</td>
+      <td>EKP ist die FYNDDS-eigene DHL-Kundennummer — nötig für echtes Label + Rerouting.</td>
+    </tr>
+    <tr>
+      <td>G-04 &nbsp;STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET gesetzt</td>
+      <td><span class="pill pill-orange">In Arbeit</span></td>
+      <td>07.06.2026</td>
+      <td>Prüfen ob in Supabase Edge Function Secrets korrekt hinterlegt. Live-Test mit echter Zahlung.</td>
+    </tr>
+    <tr>
+      <td>G-05 &nbsp;pg_cron: release-stale-reservations alle 5 Min. aktiv</td>
+      <td><span class="pill pill-dark">Blockiert</span></td>
+      <td>07.06.2026</td>
+      <td>Wartet auf Lovable Prompt 1 (pg_cron Migration) + Prompt 3 (Function deployed)</td>
+    </tr>
+    <tr>
+      <td>G-06 &nbsp;Test-Adresse → echte Firmenadresse nach Neugründung</td>
+      <td><span class="pill pill-red">Offen</span></td>
+      <td>Nach Gründung</td>
+      <td>Aktuell: Strütweg 11, 75334 Straubenhardt (Platzhalter). TODO im Code markiert.</td>
+    </tr>
+    <tr>
+      <td>G-07 &nbsp;Kein direkter Prod-Supabase-Zugriff in Dev</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>CLAUDE.md und Lovable-Prompt-Templates dokumentiert. Entwicklung läuft nur auf Staging.</td>
+    </tr>
+    <tr>
+      <td>G-08 &nbsp;CLAUDE.md in jedem Projekt vorhanden</td>
+      <td><span class="pill pill-green">Erledigt</span></td>
+      <td>—</td>
+      <td>Global (~/.claude/CLAUDE.md) + projekt-spezifisch (zeroloops/CLAUDE.md) erstellt.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="card card-gold" style="margin-top:32px">
+  <strong>Nächste Schritte bis zum ersten Händler</strong>
+  <ol style="margin:12px 0 0 18px;line-height:2">
+    <li>Lovable Prompts 1–4 abwarten (heute)</li>
+    <li>DB-Check: warehouse_*, dhl_labels, stripe_refund_id vorhanden?</li>
+    <li>Stripe Secrets in Supabase prüfen (STRIPE_SECRET_KEY, WEBHOOK_SECRET)</li>
+    <li>E2E-Test: Testzahlung mit Stripe Karte 4242 4242 4242 4242</li>
+    <li>DHL API-Zugang beantragen → EKP + API Keys eintragen</li>
+    <li>E-Mail Domain auf fyndds.com vereinheitlichen</li>
+    <li>CORS einschränken (von * auf fyndds.com)</li>
+    <li>Erste echte Händler-Registrierung testen</li>
+  </ol>
+</div>
+
+</div><!-- /infra -->
+</div><!-- /container -->
+</div><!-- /tab-qa -->
+
 
 </body>
 </html>
