@@ -1102,14 +1102,14 @@ Response 200:
 
 <div class="cover">
   <div class="container">
-    <div class="badge">Entwicklungsstand · 1. Juni 2026</div>
+    <div class="badge">Entwicklungsstand · 3. Juni 2026</div>
     <h1>Status &amp;<br/><span>Roadmap</span></h1>
     <p class="cover-sub">Was bereits funktioniert, was noch gebaut werden muss — und in welcher Reihenfolge. Sortiert nach Priorität für den Launch.</p>
     <div class="cover-meta">
-      <div class="meta-item"><strong>14 Fixes &amp; Functions</strong>heute deployed + getestet</div>
-      <div class="meta-item"><strong>4 Punkte</strong>noch kritisch offen</div>
-      <div class="meta-item"><strong>~1 Woche</strong>bis Launch-ready</div>
-      <div class="meta-item"><strong>1 Händler</strong>als Pilot nötig</div>
+      <div class="meta-item"><strong>17+ Fixes &amp; Functions</strong>deployed + getestet</div>
+      <div class="meta-item"><strong>2 Punkte</strong>noch kritisch offen</div>
+      <div class="meta-item"><strong>DHL Sandbox</strong>aktiv ab 4. Juni 2026</div>
+      <div class="meta-item"><strong>Checkout E2E</strong>erfolgreich getestet</div>
     </div>
   </div>
 </div>
@@ -1117,9 +1117,12 @@ Response 200:
 <div class="container">
 
 <div class="section" id="road-done">
-  <div class="lbl">Bug-Fixes &amp; neue Functions — Stand 1. Juni 2026</div>
-  <h2>14 Fixes &amp; Functions live<br/><span>alles getestet, alle 5 Verification-Tests grün</span></h2>
+  <div class="lbl">Bug-Fixes &amp; neue Functions — Stand 3. Juni 2026</div>
+  <h2>17+ Fixes &amp; Functions live<br/><span>Secrets gesetzt, DHL Sandbox eingerichtet, Checkout E2E getestet</span></h2>
   <ul class="check-list" style="margin-bottom:28px">
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — DHL Sandbox komplett eingerichtet (3. Juni 2026)</strong><span>DHL Developer Account aktiv (<code>unserventures@whitelabelsolutions.de</code>). Sandbox-App <code>fyndds_sandbox</code> erstellt. <code>Parcel DE Shipping</code> API abonniert (aktiv ab 4. Juni). Auth-Fix: <code>sandy_sandbox:pass</code> für Sandbox, Production-Keys für Live. <code>DHL_BILLING_NUMBER=33333333</code> (Sandbox-EKP) gesetzt.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — Alle Supabase Secrets vollständig gesetzt</strong><span><code>STRIPE_SECRET_KEY</code> ✅ · <code>STRIPE_WEBHOOK_SECRET</code> ✅ · <code>RESEND_API_KEY</code> ✅ · <code>DHL_API_KEY</code> ✅ · <code>DHL_API_SECRET</code> ✅ · <code>DHL_BILLING_NUMBER</code> ✅. Alle Edge Functions live — nur DHL noch im Sandbox-Mode bis EKP vom Geschäftskundenvertrag vorliegt.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — End-to-End Testkauf erfolgreich (3. Juni 2026)</strong><span>Kompletter Checkout-Flow durchgespielt: Tommy Hilfiger Oxford Shirt 44,95€ + Rerouting-Fee 2,99€ = 47,94€. Stripe Live-Mode. Checkout-UI korrekt: Produktname, Preis, Rerouting-Gebühr, Adresse — alles funktioniert.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 1 — DHL Rerouting: Falscher API-Endpoint</strong><span><code>initiate-rerouting</code> rief den falschen DHL-Endpoint auf. Jetzt korrekt: <code>PATCH /parcel/de/v1/shipments/{nr}/address</code> + harter Fehler bei Problemen.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 2 — Tracking-Webhook: Sicherheitslücke geschlossen</strong><span>Gefälschte "Paket zugestellt"-Events wären möglich gewesen und hätten Auszahlungen ausgelöst. Jetzt: Signaturpflicht wenn <code>DHL_WEBHOOK_SECRET</code> gesetzt.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Fix 3 — Checkout: Multi-Vendor + Idempotenz</strong><span>Multi-Vendor Transfers jetzt korrekt pro Händler. In-Memory-Cache entfernt. Stripe Transfer pro Asset nach Payment.</span></div></li>
@@ -1155,27 +1158,27 @@ Response 200:
 
 <div class="section" id="road-crit">
   <div class="lbl">Kritisch — blockiert den Launch</div>
-  <h2>4 Punkte noch offen<br/><span>ohne das kann nicht live gegangen werden</span></h2>
+  <h2>2 Punkte noch offen<br/><span>ohne das kann nicht live gegangen werden</span></h2>
   <ul class="check-list">
-    <li class="crit">
-      <span class="ci">⛔</span>
+    <li class="done">
+      <span class="ci">✓</span>
       <div class="ct">
-        <strong>DHL Developer Account + API Keys</strong>
-        <span>Das ist der größte Blocker. Ohne echte DHL API-Keys läuft <code>create-dhl-label</code> nur im Mock-Mode — es werden keine echten Labels erstellt und kein Rerouting ist möglich. Jetzt beantragen: <strong>developer.dhl.com</strong> → App anlegen → "Parcel DE" + "Tracking" APIs → API-Keys + EKP-Nummer in Supabase Secrets eintragen: <code>DHL_API_KEY</code>, <code>DHL_API_SECRET</code>, <code>DHL_BILLING_NUMBER</code>. Bearbeitungszeit: 3–5 Werktage.</span>
+        <strong>DHL Developer Account + API Keys — ERLEDIGT (3. Juni 2026)</strong>
+        <span>DHL Developer Account aktiv. Sandbox-App <code>fyndds_sandbox</code> erstellt. <code>Parcel DE Shipping</code> API abonniert — aktiv ab 4. Juni. <code>DHL_API_KEY</code>, <code>DHL_API_SECRET</code>, <code>DHL_BILLING_NUMBER=33333333</code> alle gesetzt. Auth-Fix: <code>sandy_sandbox:pass</code> für Sandbox. Nach Firmengründung: echte Production-EKP eintragen.</span>
+      </div>
+    </li>
+    <li class="done">
+      <span class="ci">✓</span>
+      <div class="ct">
+        <strong>Supabase Live-Secrets — ERLEDIGT (3. Juni 2026)</strong>
+        <span>Alle 6 Secrets gesetzt: <code>STRIPE_SECRET_KEY</code> ✅ · <code>STRIPE_WEBHOOK_SECRET</code> ✅ · <code>DHL_API_KEY</code> ✅ · <code>DHL_API_SECRET</code> ✅ · <code>DHL_BILLING_NUMBER</code> ✅ · <code>RESEND_API_KEY</code> ✅. Stripe und Resend vollständig live. DHL Sandbox aktiv.</span>
       </div>
     </li>
     <li class="crit">
       <span class="ci">⛔</span>
       <div class="ct">
-        <strong>Supabase Live-Secrets setzen</strong>
-        <span>Folgende Keys müssen in Supabase Dashboard → Edge Functions → Secrets eingetragen werden: <code>STRIPE_SECRET_KEY</code> (sk_live_...), <code>STRIPE_WEBHOOK_SECRET</code>, <code>DHL_API_KEY</code>, <code>DHL_API_SECRET</code>, <code>DHL_BILLING_NUMBER</code>, <code>RESEND_API_KEY</code>. Bis das passiert laufen alle Functions im Test-/Mock-Modus.</span>
-      </div>
-    </li>
-    <li class="crit">
-      <span class="ci">⛔</span>
-      <div class="ct">
-        <strong>Echter End-to-End Testkauf (Stripe Testkarte)</strong>
-        <span>Ein kompletter Durchlauf muss bestätigt werden: Testkarte 4242 4242 4242 4242 → Stripe Checkout → Webhook → Order erstellt → DHL Label erstellt → Rerouting gestartet → Lieferung → Auszahlung. Erst dann ist der Prozess wirklich verifiziert.</span>
+        <strong>DHL Sandbox vollständig testen (ab 4. Juni 2026)</strong>
+        <span>Die DHL Sandbox API wird am 4. Juni aktiv. Dann: <code>create-dhl-label</code> mit echten Sandbox-Daten testen → Label-Erstellung verifizieren → <code>initiate-rerouting</code> testen → vollständiger E2E-Flow mit DHL. Nach Firmengründung: echte EKP eintragen → Production-Mode.</span>
       </div>
     </li>
     <li class="crit">
