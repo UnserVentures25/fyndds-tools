@@ -1106,10 +1106,10 @@ Response 200:
     <h1>Status &amp;<br/><span>Roadmap</span></h1>
     <p class="cover-sub">Was bereits funktioniert, was noch gebaut werden muss — und in welcher Reihenfolge. Sortiert nach Priorität für den Launch.</p>
     <div class="cover-meta">
-      <div class="meta-item"><strong>20+ Fixes &amp; Functions</strong>deployed + getestet</div>
-      <div class="meta-item"><strong>DHL Labels</strong>echte Sandbox-Labels live</div>
-      <div class="meta-item"><strong>Carrier-Strategie</strong>Pre-Label + UPS Intercept</div>
-      <div class="meta-item"><strong>Checkout E2E</strong>erfolgreich getestet</div>
+      <div class="meta-item"><strong>Core Flow</strong>komplett live + getestet</div>
+      <div class="meta-item"><strong>Pre-Label</strong>E2E erfolgreich</div>
+      <div class="meta-item"><strong>8returns API</strong>deployed + bereit</div>
+      <div class="meta-item"><strong>1 Punkt</strong>noch kritisch offen</div>
     </div>
   </div>
 </div>
@@ -1118,8 +1118,10 @@ Response 200:
 
 <div class="section" id="road-done">
   <div class="lbl">Bug-Fixes &amp; neue Functions — Stand 17. Juni 2026</div>
-  <h2>20+ Fixes &amp; Functions live<br/><span>DHL Labels verifiziert, Carrier-Strategie definiert, Silent-Fail behoben</span></h2>
+  <h2>23+ Fixes &amp; Functions live<br/><span>Core Flow komplett: Pre-Label E2E, 8returns API deployed</span></h2>
   <ul class="check-list" style="margin-bottom:28px">
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — Pre-Label Flow E2E (17. Juni 2026)</strong><span>Kompletter FYNDDS Core-Flow funktioniert: Retoure → DHL Label → Käufer kauft → Pre-Label an Käufer-Adresse → Händler-Email mit neuem Label → Paket direkt zum Käufer → Auszahlung. Echtes Sandbox-Label <code>0034043333301020026260658</code> erstellt. Asset <code>rerouted</code>, Order <code>shipped</code>, Logistik-Event <code>PRE_LABEL_OK</code>. Fallback <code>PACKAGE_ALREADY_IN_TRANSIT</code> mit Stripe-Refund verdrahtet.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — 8returns Webhook deployed (17. Juni 2026)</strong><span><code>receive-return-webhook</code> verarbeitet jetzt 8returns-Format: <code>return.created</code> Events → automatisch <code>return_asset</code> + DHL-Label + Tracking. Schema erweitert: <code>source</code>, <code>external_return_id</code> (Unique-Index für Idempotenz). Webhook-URL: <code>/functions/v1/receive-return-webhook</code>. Secret: <code>RETURNS_WEBHOOK_SECRET</code> muss noch gesetzt werden.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — DHL Sandbox: echte Labels live (17. Juni 2026)</strong><span>create-dhl-label liefert echte Shipment-Nummern und signierte PDF-Labels aus DHL Sandbox. Drei Format-Bugs gefixt (Profile, billingNumber, country-Objekt, refNo-Länge). DHL Label Viewer im Frontend: zeigt shipmentNumber + PDF-Download. Frontend-Fehlerhandling für DHL-Fehler implementiert.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — initiate-rerouting: Silent-Fail behoben (17. Juni 2026)</strong><span>DHL Paket DE unterstützt kein API-Rerouting (405 Method Not Allowed — bestätigt). Fix deployed: DHL 405/404/401 wirft jetzt <code>DHL_REROUTING_NOT_SUPPORTED</code> → Stripe Refund → Order + Asset auf <code>pending_intervention</code> → <code>failure_reason</code> in DB. Keine falschen "rerouted"-Status mehr.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — Stale Pricing gefixt + StagingBanner eingebunden (3. Juni 2026)</strong><span>Rerouting-Fee überall korrekt auf 2,99€. Kein €990 mehr in der UI. StagingBanner in App.tsx eingebunden (war bereits vorhanden). Veralteter Kommentar in retailer-setup korrigiert.</span></div></li>
@@ -1177,14 +1179,23 @@ Response 200:
         <span>DHL Paket DE unterstützt kein API-Rerouting (bestätigt). Neue Strategie: <strong>Pre-Label</strong> wenn Käufer vor Paketabgabe gefunden → Label direkt an Käufer. <strong>UPS Intercept</strong> wenn Paket bereits unterwegs → Sender-initiierte Adressänderung via API. UPS Geschäftskunden-Account + API-Integration nötig. Siehe Carrier-Vergleich unten.</span>
       </div>
     </li>
-    <li class="crit">
-      <span class="ci">⛔</span>
+    <li class="done">
+      <span class="ci">✓</span>
       <div class="ct">
-        <strong>retailer-api: 8returns / externe Systeme anbinden</strong>
-        <span>Der Endpunkt über den Händler und Systeme wie 8returns automatisch Retouren melden können. <code>receive-return-webhook</code> existiert, muss aber für 8returns-spezifisches Format angepasst werden. Ohne das müssen Händler Assets manuell anlegen.</span>
+        <strong>retailer-api: 8returns — ERLEDIGT (17. Juni 2026)</strong>
+        <span><code>receive-return-webhook</code> verarbeitet 8returns-Payloads vollständig. Schema: <code>source</code> + <code>external_return_id</code> mit Unique-Index. Noch ausstehend: <code>RETURNS_WEBHOOK_SECRET</code> in Supabase Secrets eintragen + in 8returns Dashboard konfigurieren.</span>
       </div>
     </li>
   </ul>
+  <div class="card card-gold" style="margin-top:20px">
+    <div class="card-title">Vor erstem Händler noch offen</div>
+    <div class="card-body">
+      <strong>Rechtlich (Anwalt):</strong> Impressum · AGB · Datenschutzerklärung<br/>
+      <strong>E-Mail:</strong> Domain @fyndds.com in Resend konfigurieren · SPF/DKIM/DMARC<br/>
+      <strong>UPS Intercept:</strong> Fallback wenn Paket bereits unterwegs (mittelfristig)<br/>
+      <strong>Secret:</strong> RETURNS_WEBHOOK_SECRET in Lovable + 8returns Dashboard setzen
+    </div>
+  </div>
 </div>
 
 <div class="divider"></div>
