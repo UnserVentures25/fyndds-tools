@@ -522,19 +522,21 @@ payment_intent.succeeded
 
 <div class="section" id="edgefn">
   <div class="lbl">08 — Edge Functions</div>
-  <h2>Jede Funktion erklärt<br/><span>was sie tut, wann aufgerufen</span></h2>
+  <h2>Jede Funktion erklärt<br/><span>Stand 17. Juni 2026 — alle live</span></h2>
   <table>
     <tr><th>Function</th><th>Trigger</th><th>Was sie macht</th><th>Status</th></tr>
-    <tr><td>create-checkout</td><td>Käufer klickt "Kaufen"</td><td>Berechnet Fees, erstellt Stripe Session mit <code>on_behalf_of</code> + Split-Payment</td><td><span class="pill pill-green">✓ Live</span></td></tr>
-    <tr><td>stripe-webhook</td><td>Stripe Events</td><td>Verarbeitet <code>payment_intent.succeeded</code>, <code>account.updated</code>, <code>charge.dispute</code></td><td><span class="pill pill-green">✓ Live</span></td></tr>
+    <tr><td>create-checkout</td><td>Käufer klickt "Kaufen"</td><td>Berechnet Fees (3% min €2.50 max €15 + €2.99 Rerouting), erstellt Stripe Session. Open Redirect Fix: APP_URL aus Env.</td><td><span class="pill pill-green">✓ Live + Fixed</span></td></tr>
+    <tr><td>stripe-webhook</td><td>Stripe Events</td><td>Verarbeitet <code>payment_intent.succeeded</code>. Platform Fee Formel korrigiert. Multi-Item Refund Bug behoben.</td><td><span class="pill pill-green">✓ Live + Fixed</span></td></tr>
     <tr><td>retailer-setup</td><td>Händler-Onboarding</td><td>Erstellt Stripe Connect Express Account, generiert Onboarding-URL</td><td><span class="pill pill-green">✓ Live</span></td></tr>
-    <tr><td>process-payout</td><td>Nach Zustellung</td><td>Führt Stripe Transfer aus, setzt Order = "completed"</td><td><span class="pill pill-green">✓ Live</span></td></tr>
-    <tr><td>initiate-rerouting</td><td>Nach Stripe Zahlung</td><td>Prüft DHL Status, ruft Address Change API auf</td><td><span class="pill pill-gold">⚡ Mock</span></td></tr>
-    <tr><td>receive-webhook</td><td>DHL Events eingehend</td><td>Empfängt DHL Scan-Events, updated Asset-Status</td><td><span class="pill pill-gold">⚡ Mock</span></td></tr>
-    <tr><td>tracking-webhook</td><td>DHL DELIVERED Event</td><td>Triggert process-payout, sendet Bestätigung</td><td><span class="pill pill-gold">⚡ Mock</span></td></tr>
-    <tr><td>dhl-create-label</td><td>Neue Retoure</td><td><strong>Bauen:</strong> DHL Shipment erstellen, Label PDF speichern</td><td><span class="pill pill-red">✗ Fehlt</span></td></tr>
-    <tr><td>dhl-reroute</td><td>Käufer gefunden</td><td><strong>Bauen:</strong> DHL PATCH /address, Fehlerbehandlung, Fallback</td><td><span class="pill pill-red">✗ Fehlt</span></td></tr>
-    <tr><td>retailer-api</td><td>Händler-API-Call</td><td><strong>Bauen:</strong> Return-Intake via API-Key, Label-Generierung</td><td><span class="pill pill-red">✗ Fehlt</span></td></tr>
+    <tr><td>process-payout</td><td>Nach Zustellung</td><td>Stripe Transfer (salePrice - platformFee - reroutingFee). Email-Bug gefixt (war UUID, jetzt echte E-Mail).</td><td><span class="pill pill-green">✓ Live + Fixed</span></td></tr>
+    <tr><td>initiate-rerouting</td><td>Nach Stripe Zahlung</td><td>Pre-Label Flow: DHL Tracking prüfen → neues Label an Käufer-Adresse → Händler-Email. Fallback: Stripe Refund bei PACKAGE_ALREADY_IN_TRANSIT.</td><td><span class="pill pill-green">✓ Live (Pre-Label)</span></td></tr>
+    <tr><td>create-dhl-label</td><td>Neue Retoure / Pre-Label</td><td>Erstellt echtes DHL Sandbox Label (shipmentNo + PDF). TOCTOU Idempotenz gefixt. Label Viewer im Frontend.</td><td><span class="pill pill-green">✓ Live (Sandbox)</span></td></tr>
+    <tr><td>receive-return-webhook</td><td>8returns Webhook</td><td>Empfängt 8returns Payload → return_asset + DHL Label. Idempotenz via external_return_id. Sandbox-Mode ohne Secret.</td><td><span class="pill pill-green">✓ Live (Sandbox)</span></td></tr>
+    <tr><td>tracking-webhook</td><td>DHL Events</td><td>Öffnet Sales-Window bei Abholung, setzt unavailable bei out_for_delivery, triggert Payout bei Zustellung.</td><td><span class="pill pill-green">✓ Live + Fixed</span></td></tr>
+    <tr><td>process-payout</td><td>Nach Zustellung</td><td>Bereits oben aufgeführt.</td><td><span class="pill pill-green">✓ Live + Fixed</span></td></tr>
+    <tr><td>release-stale-reservations</td><td>Cron alle 5 Min.</td><td>Gibt Assets frei die >30 Min. in reserved hängen. CRON_SECRET Auth hinzugefügt.</td><td><span class="pill pill-green">✓ Live + Fixed</span></td></tr>
+    <tr><td>send-email</td><td>Intern aufgerufen</td><td>Versendet alle E-Mails via Resend. Alle Adressen jetzt @fyndds.com.</td><td><span class="pill pill-green">✓ Live</span></td></tr>
+    <tr><td>dhl-reroute</td><td>—</td><td>Nicht gebaut — DHL Paket DE unterstützt kein API-Rerouting. Ersetzt durch Pre-Label in initiate-rerouting.</td><td><span class="pill pill-dark">⊘ Nicht nötig</span></td></tr>
   </table>
 </div>
 
