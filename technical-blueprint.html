@@ -1102,13 +1102,13 @@ Response 200:
 
 <div class="cover">
   <div class="container">
-    <div class="badge">Entwicklungsstand · 3. Juni 2026</div>
+    <div class="badge">Entwicklungsstand · 17. Juni 2026</div>
     <h1>Status &amp;<br/><span>Roadmap</span></h1>
     <p class="cover-sub">Was bereits funktioniert, was noch gebaut werden muss — und in welcher Reihenfolge. Sortiert nach Priorität für den Launch.</p>
     <div class="cover-meta">
-      <div class="meta-item"><strong>17+ Fixes &amp; Functions</strong>deployed + getestet</div>
-      <div class="meta-item"><strong>2 Punkte</strong>noch kritisch offen</div>
-      <div class="meta-item"><strong>DHL Sandbox</strong>aktiv ab 4. Juni 2026</div>
+      <div class="meta-item"><strong>20+ Fixes &amp; Functions</strong>deployed + getestet</div>
+      <div class="meta-item"><strong>DHL Labels</strong>echte Sandbox-Labels live</div>
+      <div class="meta-item"><strong>Carrier-Strategie</strong>Pre-Label + UPS Intercept</div>
       <div class="meta-item"><strong>Checkout E2E</strong>erfolgreich getestet</div>
     </div>
   </div>
@@ -1117,9 +1117,12 @@ Response 200:
 <div class="container">
 
 <div class="section" id="road-done">
-  <div class="lbl">Bug-Fixes &amp; neue Functions — Stand 3. Juni 2026</div>
-  <h2>17+ Fixes &amp; Functions live<br/><span>Secrets gesetzt, DHL Sandbox eingerichtet, Checkout E2E getestet</span></h2>
+  <div class="lbl">Bug-Fixes &amp; neue Functions — Stand 17. Juni 2026</div>
+  <h2>20+ Fixes &amp; Functions live<br/><span>DHL Labels verifiziert, Carrier-Strategie definiert, Silent-Fail behoben</span></h2>
   <ul class="check-list" style="margin-bottom:28px">
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — DHL Sandbox: echte Labels live (17. Juni 2026)</strong><span>create-dhl-label liefert echte Shipment-Nummern und signierte PDF-Labels aus DHL Sandbox. Drei Format-Bugs gefixt (Profile, billingNumber, country-Objekt, refNo-Länge). DHL Label Viewer im Frontend: zeigt shipmentNumber + PDF-Download. Frontend-Fehlerhandling für DHL-Fehler implementiert.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — initiate-rerouting: Silent-Fail behoben (17. Juni 2026)</strong><span>DHL Paket DE unterstützt kein API-Rerouting (405 Method Not Allowed — bestätigt). Fix deployed: DHL 405/404/401 wirft jetzt <code>DHL_REROUTING_NOT_SUPPORTED</code> → Stripe Refund → Order + Asset auf <code>pending_intervention</code> → <code>failure_reason</code> in DB. Keine falschen "rerouted"-Status mehr.</span></div></li>
+    <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — Stale Pricing gefixt + StagingBanner eingebunden (3. Juni 2026)</strong><span>Rerouting-Fee überall korrekt auf 2,99€. Kein €990 mehr in der UI. StagingBanner in App.tsx eingebunden (war bereits vorhanden). Veralteter Kommentar in retailer-setup korrigiert.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — DHL Sandbox komplett eingerichtet (3. Juni 2026)</strong><span>DHL Developer Account aktiv (<code>unserventures@whitelabelsolutions.de</code>). Sandbox-App <code>fyndds_sandbox</code> erstellt. <code>Parcel DE Shipping</code> API abonniert (aktiv ab 4. Juni). Auth-Fix: <code>sandy_sandbox:pass</code> für Sandbox, Production-Keys für Live. <code>DHL_BILLING_NUMBER=33333333</code> (Sandbox-EKP) gesetzt.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — Alle Supabase Secrets vollständig gesetzt</strong><span><code>STRIPE_SECRET_KEY</code> ✅ · <code>STRIPE_WEBHOOK_SECRET</code> ✅ · <code>RESEND_API_KEY</code> ✅ · <code>DHL_API_KEY</code> ✅ · <code>DHL_API_SECRET</code> ✅ · <code>DHL_BILLING_NUMBER</code> ✅. Alle Edge Functions live — nur DHL noch im Sandbox-Mode bis EKP vom Geschäftskundenvertrag vorliegt.</span></div></li>
     <li class="done"><span class="ci">✓</span><div class="ct"><strong>Neu — End-to-End Testkauf erfolgreich (3. Juni 2026)</strong><span>Kompletter Checkout-Flow durchgespielt: Tommy Hilfiger Oxford Shirt 44,95€ + Rerouting-Fee 2,99€ = 47,94€. Stripe Live-Mode. Checkout-UI korrekt: Produktname, Preis, Rerouting-Gebühr, Adresse — alles funktioniert.</span></div></li>
@@ -1163,22 +1166,15 @@ Response 200:
     <li class="done">
       <span class="ci">✓</span>
       <div class="ct">
-        <strong>DHL Developer Account + API Keys — ERLEDIGT (3. Juni 2026)</strong>
-        <span>DHL Developer Account aktiv. Sandbox-App <code>fyndds_sandbox</code> erstellt. <code>Parcel DE Shipping</code> API abonniert — aktiv ab 4. Juni. <code>DHL_API_KEY</code>, <code>DHL_API_SECRET</code>, <code>DHL_BILLING_NUMBER=33333333</code> alle gesetzt. Auth-Fix: <code>sandy_sandbox:pass</code> für Sandbox. Nach Firmengründung: echte Production-EKP eintragen.</span>
-      </div>
-    </li>
-    <li class="done">
-      <span class="ci">✓</span>
-      <div class="ct">
-        <strong>Supabase Live-Secrets — ERLEDIGT (3. Juni 2026)</strong>
-        <span>Alle 6 Secrets gesetzt: <code>STRIPE_SECRET_KEY</code> ✅ · <code>STRIPE_WEBHOOK_SECRET</code> ✅ · <code>DHL_API_KEY</code> ✅ · <code>DHL_API_SECRET</code> ✅ · <code>DHL_BILLING_NUMBER</code> ✅ · <code>RESEND_API_KEY</code> ✅. Stripe und Resend vollständig live. DHL Sandbox aktiv.</span>
+        <strong>DHL Developer Account + Sandbox + Secrets — ERLEDIGT</strong>
+        <span>DHL Sandbox liefert echte Labels (shipmentNo + PDF). Alle 6 Secrets gesetzt. Silent-Fail in initiate-rerouting behoben. Checkout E2E getestet.</span>
       </div>
     </li>
     <li class="crit">
       <span class="ci">⛔</span>
       <div class="ct">
-        <strong>DHL Sandbox vollständig testen (ab 4. Juni 2026)</strong>
-        <span>Die DHL Sandbox API wird am 4. Juni aktiv. Dann: <code>create-dhl-label</code> mit echten Sandbox-Daten testen → Label-Erstellung verifizieren → <code>initiate-rerouting</code> testen → vollständiger E2E-Flow mit DHL. Nach Firmengründung: echte EKP eintragen → Production-Mode.</span>
+        <strong>Carrier-Strategie: Pre-Label + UPS Intercept implementieren</strong>
+        <span>DHL Paket DE unterstützt kein API-Rerouting (bestätigt). Neue Strategie: <strong>Pre-Label</strong> wenn Käufer vor Paketabgabe gefunden → Label direkt an Käufer. <strong>UPS Intercept</strong> wenn Paket bereits unterwegs → Sender-initiierte Adressänderung via API. UPS Geschäftskunden-Account + API-Integration nötig. Siehe Carrier-Vergleich unten.</span>
       </div>
     </li>
     <li class="crit">
@@ -1189,6 +1185,40 @@ Response 200:
       </div>
     </li>
   </ul>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="road-carrier">
+  <div class="lbl">Carrier-Strategie — Rerouting-Entscheidung</div>
+  <h2>DHL Paket DE: kein API-Rerouting<br/><span>bestätigt 17. Juni 2026 — neue Strategie definiert</span></h2>
+  <p class="sub">DHL Parcel DE Shipping v2 unterstützt keine Adressänderung während des Transports. Das ist eine technische Grenze von DHL, unabhängig von Kontoart oder Vertrag. FYNDDS hat eine neue Carrier-Strategie definiert.</p>
+
+  <table>
+    <tr><th>Carrier</th><th>Rerouting API</th><th>Kosten/Paket</th><th>DACH</th><th>Status</th></tr>
+    <tr><td>DHL Paket DE</td><td><span class="pill pill-red">❌ Nicht möglich</span></td><td>€4–6</td><td>✅ Sehr gut</td><td>Label-Erstellung ✅ — kein Rerouting</td></tr>
+    <tr><td>UPS</td><td><span class="pill pill-green">✅ UPS Intercept API</span></td><td>€7–12</td><td>✅ Gut</td><td>Sender-initiiert — vielversprechend</td></tr>
+    <tr><td>FedEx</td><td><span class="pill pill-green">✅ Redirect to Hold</span></td><td>€8–15</td><td>✅ Gut</td><td>Sender-initiiert möglich</td></tr>
+    <tr><td>DPD</td><td><span class="pill pill-orange">⚠️ Nur Empfänger</span></td><td>€4–7</td><td>✅ Gut</td><td>Kein Sender-Rerouting</td></tr>
+    <tr><td>GLS</td><td><span class="pill pill-orange">⚠️ Nur Empfänger</span></td><td>€4–6</td><td>✅ Gut</td><td>FlexDelivery = Empfänger-Kontrolle</td></tr>
+    <tr><td>DHL Express</td><td><span class="pill pill-green">✅ On Demand</span></td><td>€20–40</td><td>✅ Sehr gut</td><td>Zu teuer für Retouren</td></tr>
+    <tr><td>Packeta</td><td><span class="pill pill-blue">✅ Teilweise</span></td><td>€2–4</td><td>⚠️ Wächst</td><td>Zwischen Pickup-Points</td></tr>
+  </table>
+
+  <div class="grid3" style="margin-top:24px">
+    <div class="card card-green">
+      <div class="card-title">Option A — Pre-Label (sofort)</div>
+      <div class="card-body">Käufer gefunden vor Paketabgabe → FYNDDS erstellt Label direkt an Käufer-Adresse. Kein Carrier-Wechsel, kein Lager. Funktioniert mit DHL. <strong>Nächster Schritt: in initiate-rerouting implementieren.</strong></div>
+    </div>
+    <div class="card card-gold">
+      <div class="card-title">Option B — UPS Intercept (mittelfristig)</div>
+      <div class="card-body">Käufer gefunden während Transit → UPS Intercept API ändert Lieferadresse. UPS Geschäftskunden-Account nötig. Macht 24h-Fenster überflüssig. <strong>Nächster Schritt: UPS Account beantragen.</strong></div>
+    </div>
+    <div class="card card-blue">
+      <div class="card-title">Option C — Warehouse (Fallback)</div>
+      <div class="card-body">Kein Käufer im Zeitfenster → Paket ins FYNDDS-Warehouse → Re-listing. Für alle Fälle die durch Pre-Label + UPS fallen. Braucht physisches Lager.</div>
+    </div>
+  </div>
 </div>
 
 <div class="divider"></div>
